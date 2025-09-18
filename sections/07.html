@@ -15,7 +15,6 @@
     @font-face { font-family:'Eyesome';        src:url('./Fonts/Eyesome-Regular.otf')       format('opentype'); font-display:swap; }
     @font-face { font-family:'EyesomeI';       src:url('./Fonts/Eyesome-Italic.otf')        format('opentype'); font-display:swap; }
     @font-face { font-family:'cotorisi';       src:url('./Fonts/cotorisita.otf')            format('opentype'); font-weight:400; font-style:normal; font-display:swap; }
-
     /* =========================================================
        ULTRA-LUXE CTA — ONE SCREEN (w/ Fancy Selects)
        ========================================================= */
@@ -154,7 +153,7 @@
 
     #cta .form-card h3{
       margin: 0 0 10px; padding: 0 0 10px; border-bottom: 1px solid var(--hair);
-      font-family: 'eyesomei'; font-size: 25px; font-weight: 400; letter-spacing:-.01em; flex:0 0 auto;
+      font-family: 'Eyesomei'; font-size: 25px; font-weight: 400; letter-spacing:-.01em; flex:0 0 auto;
     }
 
     /* Form */
@@ -974,7 +973,7 @@ try {
   if (window.grecaptcha) {
     // ensure the API is ready, then get a token for "submit" action
     await grecaptcha.ready(async () => {
-      const token = await grecaptcha.execute('YOUR_SITE_KEY', { action: 'submit' });
+      const token = await grecaptcha.execute('6Lc4gs0rAAAAAI0aXXts_OCCquoEdduHM5l98EcH', { action: 'submit' });
       // set hidden input (for completeness) and include in FormData
       const hidden = document.getElementById('g-recaptcha-response');
       if (hidden) hidden.value = token;
@@ -1078,8 +1077,9 @@ try {
       io.observe(layer);
     })();
   </script>
-  <script src="https://www.google.com/recaptcha/api.js?render=6Lc4gs0rAAAAAI0aXXts_OCCquoEdduHM5l98EcH async defer></script>
+  <script src="https://www.google.com/recaptcha/api.js?render=6Lc4gs0rAAAAAI0aXXts_OCCquoEdduHM5l98EcH" async defer></script>
 
 </section>
+
 
 
