@@ -193,7 +193,7 @@
       });
     }
     makeStack();
-    <script>
+    
   // === Lazy-activate frames: load current + next, unload far ones ===
   const framesState = new Map();
   const framesObserver = new IntersectionObserver((entries)=>{
@@ -222,7 +222,7 @@
   }, { root: document.getElementById('stackScroll'), rootMargin: '120% 0px', threshold: 0.01 });
 
   document.querySelectorAll('.stack-frame').forEach(f => framesObserver.observe(f));
-</script>
+
 
     /* 4) Update nav + logo visibility based on current section index */
     const globalNav = document.getElementById('globalHeroNav');
@@ -259,4 +259,5 @@
   </script>
 </body>
 </html>
+
 
