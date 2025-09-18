@@ -14,27 +14,7 @@
   body{ font:400 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
 
   /* Local fonts */
-  @font-face { font-family:'HelloParisLight'; src:url('./Fonts/helloparisserif-light.ttf') format('truetype'); font-display:swap; }
-  @font-face { font-family:'Coterie'; src:url('./Fonts/coterie-regular.woff2') format('woff2'); font-display:swap; }
-  @font-face { font-family:'SimpleSerenity'; src:url('./Fonts/Simple-Serenity-Serif.ttf') format('truetype'); font-display:swap; }
-  @font-face { font-family:'Eyesome'; src:url('./Fonts/Eyesome-Regular.otf') format('opentype'); font-display:swap; }
-  @font-face { font-family:'EyesomeI'; src:url('./Fonts/Eyesome-Italic.otf') format('opentype'); font-display:swap; }
-  @font-face { font-family:'Tanpearl'; src:url('./Fonts/Tan-Pearl.ttf') format('truetype'); font-display:swap; }
-  @font-face { font-family:'Centaur'; src:url('./Fonts/VNcentaur-Regular.ttf') format('truetype'); font-display:swap; }
-  @font-face { font-family:'Arcadian'; src:url('./Fonts/Arcadian.ttf') format('opentype'); font-display:swap; }
-  @font-face { font-family:'Arsenica'; src:url('./Fonts/ArsenicaTrial-Regular.ttf') format('opentype'); font-display:swap; }
-  @font-face { font-family:'Canela'; src:url('./Fonts/Canela-Bold.otf') format('opentype'); font-display:swap; }
-  @font-face { font-family:'Anecor'; src:url('./Fonts/anecor-gheroos.otf') format('opentype'); font-display:swap; }
-  @font-face {
-    font-family:'cotoris';
-    src:url('./Fonts/cotoris.otf') format('opentype');
-    font-weight:400; font-style:normal; font-display:swap;
-  }
-  @font-face {
-    font-family:'cotorisi';
-    src:url('./Fonts/cotorisita.otf') format('opentype');
-    font-weight:400; font-style:normal; font-display:swap;
-  }
+    @font-face { font-family:'Anecor'; src:url('./Fonts/anecor-gheroos.otf') format('opentype'); font-display:swap; }
 
   /* Scrollable stack area */
   #stackScroll{
@@ -60,10 +40,10 @@
     position:fixed; top:20px; right:24px;
     display:flex; gap:6px; padding:8px 10px;
     border-radius:999px;
-    background:rgba(255,255,255,.35);
+    background:rgba(255,255,255,.55);
     border:1px solid rgba(0,0,0,.07);
-    backdrop-filter:blur(8px) saturate(1.1);
-    -webkit-backdrop-filter:blur(8px) saturate(1.1);
+    backdrop-filter:none;
+    -webkit-backdrop-filter:none;
     box-shadow:0 8px 24px rgba(0,0,0,.06);
     color:#1a1a1a;
     opacity:0; transform:translateY(-6px);
@@ -131,7 +111,7 @@
 
   <!-- Fixed, site-wide logo that appears from Section 2 onward (top-left) -->
   <div id="ElysianDockLogo" aria-hidden="true">
-    <img src="./assets/LS.svg" alt="Elysian Advisory" />
+    <img src="./assets/LS.svg" alt="Elysian Advisory" decoding="async" fetchpriority="low" width="200" height="60" />
   </div>
 
   <nav class="subtle-nav" id="globalHeroNav" aria-label="Primary">
@@ -190,7 +170,7 @@
         const frame = document.createElement('iframe');
         frame.className = 'stack-frame';
         frame.title = title || src;
-        frame.src = src;
+        frame.dataset.src = src;
         frame.loading = idx === 0 ? 'eager' : 'lazy';
         frame.referrerPolicy = 'no-referrer';
         frame.setAttribute('allowtransparency','true');
@@ -213,6 +193,36 @@
       });
     }
     makeStack();
+    <script>
+  // === Lazy-activate frames: load current + next, unload far ones ===
+  const framesState = new Map();
+  const framesObserver = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      const frame = entry.target;
+      const id = frame.id || frame.title || frame.dataset.src;
+
+      if (!framesState.has(id)) framesState.set(id, {live:false});
+
+      if (entry.isIntersecting && !framesState.get(id).live) {
+        // near viewport → actually load the section
+        frame.src = frame.dataset.src;
+        framesState.get(id).live = true;
+      } else if (!entry.isIntersecting) {
+        // far away? free memory
+        const rect = frame.getBoundingClientRect();
+        const vh = window.innerHeight || document.documentElement.clientHeight;
+        if (rect.top > vh*2 || rect.bottom < -vh*2) {
+          if (framesState.get(id).live) {
+            frame.src = 'about:blank';
+            framesState.get(id).live = false;
+          }
+        }
+      }
+    });
+  }, { root: document.getElementById('stackScroll'), rootMargin: '120% 0px', threshold: 0.01 });
+
+  document.querySelectorAll('.stack-frame').forEach(f => framesObserver.observe(f));
+</script>
 
     /* 4) Update nav + logo visibility based on current section index */
     const globalNav = document.getElementById('globalHeroNav');
@@ -249,3 +259,4 @@
   </script>
 </body>
 </html>
+
