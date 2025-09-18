@@ -12,9 +12,20 @@
 
   <style>
     /* Local fonts (paths unchanged) */
+    @font-face { font-family:'HelloParisLight'; src:url('./Fonts/helloparisserif-light.ttf') format('truetype'); font-display:swap; }
+    @font-face { font-family:'Coterie';        src:url('./Fonts/coterie-regular.woff2')     format('woff2');   font-display:swap; }
+    @font-face { font-family:'SimpleSerenity'; src:url('./Fonts/Simple-Serenity-Serif.ttf') format('truetype'); font-display:swap; }
     @font-face { font-family:'Eyesome';        src:url('./Fonts/Eyesome-Regular.otf')       format('opentype'); font-display:swap; }
     @font-face { font-family:'EyesomeI';       src:url('./Fonts/Eyesome-Italic.otf')        format('opentype'); font-display:swap; }
+    @font-face { font-family:'Tanpearl';       src:url('./Fonts/Tan-Pearl.ttf')             format('truetype'); font-display:swap; }
+    @font-face { font-family:'Centaur';        src:url('./Fonts/VNcentaur-Regular.ttf')     format('truetype'); font-display:swap; }
+    @font-face { font-family:'Arcadian';       src:url('./Fonts/Arcadian.ttf')              format('opentype'); font-display:swap; }
+    @font-face { font-family:'Arsenica';       src:url('./Fonts/ArsenicaTrial-Regular.otf') format('opentype'); font-display:swap; }
+    @font-face { font-family:'Canela';         src:url('./Fonts/Canela-Bold.otf')           format('opentype'); font-display:swap; }
+    @font-face { font-family:'Anecor';         src:url('./Fonts/anecor-gheroos.otf')        format('opentype'); font-display:swap; }
+    @font-face { font-family:'cotoris';        src:url('./Fonts/cotoris.otf')               format('opentype'); font-weight:400; font-style:normal; font-display:swap; }
     @font-face { font-family:'cotorisi';       src:url('./Fonts/cotorisita.otf')            format('opentype'); font-weight:400; font-style:normal; font-display:swap; }
+
     /* =========================================================
        ULTRA-LUXE CTA — ONE SCREEN (w/ Fancy Selects)
        ========================================================= */
@@ -153,7 +164,7 @@
 
     #cta .form-card h3{
       margin: 0 0 10px; padding: 0 0 10px; border-bottom: 1px solid var(--hair);
-      font-family: 'Eyesomei'; font-size: 25px; font-weight: 400; letter-spacing:-.01em; flex:0 0 auto;
+      font-family: 'eyesomei'; font-size: 25px; font-weight: 400; letter-spacing:-.01em; flex:0 0 auto;
     }
 
     /* Form */
@@ -639,17 +650,13 @@
       }
 
       function renderPop(opt){
-  const actions = opt.actions ? `
-    <div class="actions" aria-label="Explore actions">
-      <button type="button" class="act-link" data-href="${LINKS.writings}" aria-label="Open Writings"><em>Writings</em></button>
-      <button type="button" class="act-link" data-href="${LINKS.instruments}" aria-label="Open Instruments"><em>Instruments</em></button>
-    </div>` : '';
-
-  const items = (opt.lines || []).map(x => '<li>' + x + '</li>').join('');
-
-  pop.innerHTML = `<span class="kicker"></span><ul>${items}</ul>${actions}`;
-}
-
+        const actions = opt.actions ? `
+          <div class="actions" aria-label="Explore actions">
+            <button type="button" class="act-link" data-href="${LINKS.writings}" aria-label="Open Writings"><em>Writings</em></button>
+            <button type="button" class="act-link" data-href="${LINKS.instruments}" aria-label="Open Instruments"><em>Instruments</em></button>
+          </div>` : '';
+        pop.innerHTML = `<span class="kicker"></span><ul>${(opt.lines||[]).map(x=>`<li>${x}</li>`).join('')}</ul>${actions}`;
+      }
 
       function positionPop(btn){
         pop.style.display = 'block'; pop.dataset.show = 'true'; pop.removeAttribute('data-animate');
@@ -1084,7 +1091,3 @@ try {
   <script src="https://www.google.com/recaptcha/api.js?render=6Lc4gs0rAAAAAI0aXXts_OCCquoEdduHM5l98EcH" async defer></script>
 
 </section>
-
-
-
-
