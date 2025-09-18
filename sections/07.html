@@ -445,7 +445,11 @@
   <div class="panel" role="group" aria-label="CTA Panel">
     <div class="form-card">
       <h3>Get Clarity</h3>
-      <form class="form" id="cta-form" novalidate>
+      <form class="form" id="cta-form" novalidate
+      action="https://formspree.io/f/xwpnddnl"
+      method="POST">
+        <input type="hidden" name="_subject" value="New inquiry — Elysian Advisory">
+        <input type="hidden" name="_origin"  value="CTA form on elysianclarity.com">
         <div class="row">
           <div>
             <label for="name" class="req">Your name</label>
@@ -456,6 +460,7 @@
             <input id="email" name="email" type="email" autocomplete="email" required />
           </div>
         </div>
+<input type="hidden" name="g-recaptcha-response" id="g-recaptcha-response">
 
         <div class="row">
           <div>
@@ -511,8 +516,11 @@
             </div>
             <input type="hidden" name="channel" id="channel" />
           </div>
-
-          <div>
+          <p style="position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden;">
+  <label>Leave this field empty
+    <input type="text" name="_gotcha" tabindex="-1" autocomplete="off">
+  </label>
+</p>          <div>
             <label for="when">Ideal timeframe</label>
             <!-- native (hidden/enhanced) -->
             <select id="when" class="native-hidden" disabled>
@@ -939,59 +947,99 @@
         note.hidden = false;                        // show the constant note
       }
 
-      form.addEventListener('submit', (e)=>{
-        e.preventDefault();
-        clearError();
+  form.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    clearError();
 
-        const REQUIRED = ['name','email','message'];  // only these 3
-        const data = Object.fromEntries(new FormData(form).entries());
+    const REQUIRED = ['name','email','message'];
+    const data = Object.fromEntries(new FormData(form).entries());
 
-        // remove any prior invalid styling
-        REQUIRED.forEach(id=>{
-          const el = form.querySelector('#'+id);
-          if (el) el.classList.remove('is-invalid');
-        });
+    // clear previous invalid states
+    REQUIRED.forEach(id=>{
+      const el = form.querySelector('#'+id);
+      if (el) el.classList.remove('is-invalid');
+    });
 
-        // collect missing
-        const missing = REQUIRED.filter(k => !data[k] || (''+data[k]).trim()==='');
+    // check required fields
+    const missing = REQUIRED.filter(k => !data[k] || (''+data[k]).trim()==='');
+    if (missing.length){
+      missing.forEach(k=>{
+        const el = form.querySelector('#'+k);
+        if (el) el.classList.add('is-invalid');
+      });
+      const first = form.querySelector('#'+missing[0]);
+      if (first){
+        first.focus({preventScroll:false});
+        first.scrollIntoView({behavior:'smooth', block:'center'});
+      }
+      showError('Please complete all required fields.');
+      return;
+    }
 
-        if (missing.length){
-          // mark fields + focus first missing
-          missing.forEach(k=>{
-            const el = form.querySelector('#'+k);
-            if (el) el.classList.add('is-invalid');
-          });
-          const first = form.querySelector('#'+missing[0]);
-          if (first){
-            first.focus({preventScroll:false});
-            first.scrollIntoView({behavior:'smooth', block:'center'});
-          }
-          showError('Please complete all required fields.');
-          return;
-        }
+// build payload (includes your hidden fields like role/channel/etc.)
+const fd = new FormData(form);
 
-        // Success path (fake submit demo)
-        setTimeout(()=>{
-          form.reset();
-          // clear chips & hidden values (non-required)
-          form.querySelectorAll('.chip').forEach(x=>x.dataset.checked='false');
-          ['engagement','channel','role_value','when_value','country_value'].forEach(id=>{
-            const el = form.querySelector('#'+id); if (el) el.value = '';
-          });
-          // reset fancy labels
-          sec.querySelectorAll('.fselect .fs-value').forEach(v=>{
-            v.textContent='Select one'; v.classList.add('fs-placeholder');
-          });
-          // remove invalid states (if any)
-          ['name','email','message'].forEach(id=>{
-            const el = form.querySelector('#'+id); if (el) el.classList.remove('is-invalid');
-          });
-          clearError();
-          openModal();
-        }, 250);
+// reCAPTCHA v3 token (silent)
+try {
+  if (window.grecaptcha) {
+    // ensure the API is ready, then get a token for "submit" action
+    await grecaptcha.ready(async () => {
+      const token = await grecaptcha.execute('YOUR_SITE_KEY', { action: 'submit' });
+      // set hidden input (for completeness) and include in FormData
+      const hidden = document.getElementById('g-recaptcha-response');
+      if (hidden) hidden.value = token;
+      fd.set('g-recaptcha-response', token);
+    });
+  }
+} catch (_) {
+  // If token fails for any reason, we still proceed (honeypot + Formspree filtering still help)
+}
+
+
+    // disable button during submit
+    const btn = form.querySelector('.btn-primary');
+    const btnLabel = btn ? btn.textContent : '';
+    if (btn){ btn.disabled = true; btn.textContent = 'Sending…'; }
+
+    try{
+      const res = await fetch(form.getAttribute('action'), {
+        method: 'POST',
+        headers: { 'Accept': 'application/json' },
+        body: fd
       });
 
-      // Live: remove red outline as user types
+      if (res.ok){
+        // success: reset UI, show modal
+        form.reset();
+        form.querySelectorAll('.chip').forEach(x=>x.dataset.checked='false');
+        ['engagement','channel','role_value','when_value','country_value'].forEach(id=>{
+          const el = form.querySelector('#'+id); if (el) el.value = '';
+        });
+        // reset fancy-select labels
+        document.querySelectorAll('#cta .fselect .fs-value').forEach(v=>{
+          v.textContent = 'Select one';
+          v.classList.add('fs-placeholder');
+        });
+        clearError();
+        openModal();
+      } else {
+        let msg = 'Something went wrong. Please try again or email us.';
+        try {
+          const j = await res.json();
+          if (j && j.errors && j.errors.length){
+            msg = j.errors.map(e => e.message).join(' ');
+          }
+        } catch(_){}
+        showError(msg);
+      }
+    } catch(err){
+      showError('Network error. Please try again or reach us via email.');
+    } finally {
+      if (btn){ btn.disabled = false; btn.textContent = btnLabel; }
+    }
+  });
+
+     // Live: remove red outline as user types
       ['name','email','message'].forEach(id=>{
         const el = form.querySelector('#'+id);
         if (!el) return;
@@ -1040,4 +1088,7 @@
       io.observe(layer);
     })();
   </script>
+  <script src="https://www.google.com/recaptcha/api.js?render=6Lc4gs0rAAAAAI0aXXts_OCCquoEdduHM5l98EcH async defer></script>
+
 </section>
+
