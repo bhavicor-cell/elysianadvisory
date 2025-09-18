@@ -1,0 +1,390 @@
+<section id="hero" class="hero hero-wrap" data-pane="">
+  <!-- === VIDEO OVERLAY (behind all hero content) — added only === -->
+  <div class="vid-layer"
+       data-src="video.webm"
+       data-src="3.mp4"
+       data-opacity="0.03"
+       data-blend="soft-light"
+       data-speed="0.015">
+    <video class="vid" muted playsinline autoplay loop preload="metadata"></video>
+      <source src="3.mp4"  type="video/mp4">
+      <source src="video.webm" type="video/webm">
+  </div>
+  <style>
+    /* Minimal, section-scoped video styles — added only */
+    #hero .vid-layer{
+      position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:0;
+      /* uses data-* via JS to set CSS vars below if you want later */
+    }
+    #hero .vid-layer .vid{
+      position:absolute; inset:0; width:100%; height:100%;
+      object-fit:cover;
+      opacity:var(--vid-opacity, .28);
+      mix-blend-mode:var(--vid-blend, soft-light);
+      transform:translateZ(0);
+    }
+  </style>
+
+  <style>
+    /* =========================
+       Scoped base + variables
+       ========================= */
+    /* Vars on both :root (for color flip that touches body) and #hero (local fallback) */
+    :root{
+      --bg-dark:#121212; --fg-dark:#EDE8DF;
+      --bg-light:#faf7f2; --fg-light:#1a1a1a;
+
+      --caret-thickness:0.01em; --caret-blink:1.2s;
+      --logo-pop-duration:1050ms;
+      --fade-blur:2px; --faded-opacity:.55;
+      --logo-start-blur:8px; --tag-start-blur:12px;
+
+      --page-gutter: clamp(16px, 4vw, 40px);
+      --lux-curve: cubic-bezier(0.25, 1, 0.5, 1);
+
+      --logo-max-w: clamp(200px, 24vw, 700px);
+      --logo-pad: 0px;
+
+      --logo-inset-x: clamp(12px, 2.2vw, 32px);
+      --logo-inset-y: clamp(6px, 1.2vw, 20px);
+    }
+    #hero{
+      --bg-dark:#121212; --fg-dark:#EDE8DF;
+      --bg-light:#faf7f2; --fg-light:#1a1a1a;
+
+      --caret-thickness:0.01em; --caret-blink:1.2s;
+      --logo-pop-duration:1050ms;
+      --fade-blur:2px; --faded-opacity:.55;
+      --logo-start-blur:8px; --tag-start-blur:12px;
+
+      --page-gutter: clamp(16px, 4vw, 40px);
+      --lux-curve: cubic-bezier(0.25, 1, 0.5, 1);
+
+      --logo-max-w: clamp(200px, 24vw, 700px);
+      --logo-pad: 0px;
+
+      --logo-inset-x: clamp(12px, 2.2vw, 32px);
+      --logo-inset-y: clamp(6px, 1.2vw, 20px);
+      font-family:'Times New Roman', serif;
+    }
+
+    /* Avoid global resets; scope to this section */
+    #hero *{ box-sizing:border-box; }
+
+    /* Optional: palette flip touches <body>. Keeping these here is intentional. */
+    body{
+      background: var(--bg-dark);
+      color: var(--fg-dark);
+      overflow-x:hidden;
+      -webkit-font-smoothing:antialiased;
+      text-rendering:optimizeLegibility;
+      transition: background-color 1.8s cubic-bezier(.25,.8,.25,1), color 1.8s cubic-bezier(.25,.8,.25,1);
+    }
+    body.revealed{ background:var(--bg-light); color:var(--fg-light); }
+    html, body { overflow-y: hidden; }
+
+    .fixed-top{ position:fixed!important; z-index:1000!important; animation:none!important; pointer-events:none; user-select:none; }
+
+    /* Local fonts (paths unchanged) */
+    @font-face { font-family:'HelloParisLight'; src:url('./Fonts/helloparisserif-light.ttf') format('truetype'); font-display:swap; }
+    @font-face { font-family:'Coterie';        src:url('./Fonts/coterie-regular.woff2')     format('woff2');   font-display:swap; }
+    @font-face { font-family:'SimpleSerenity'; src:url('./Fonts/Simple-Serenity-Serif.ttf') format('truetype'); font-display:swap; }
+    @font-face { font-family:'Eyesome';        src:url('./Fonts/Eyesome-Regular.otf')       format('opentype'); font-display:swap; }
+    @font-face { font-family:'EyesomeI';       src:url('./Fonts/Eyesome-Italic.otf')        format('opentype'); font-display:swap; }
+    @font-face { font-family:'Tanpearl';       src:url('./Fonts/Tan-Pearl.ttf')             format('truetype'); font-display:swap; }
+    @font-face { font-family:'Centaur';        src:url('./Fonts/VNcentaur-Regular.ttf')     format('truetype'); font-display:swap; }
+    @font-face { font-family:'Arcadian';       src:url('./Fonts/Arcadian.ttf')              format('opentype'); font-display:swap; }
+    @font-face { font-family:'Arsenica';       src:url('./Fonts/ArsenicaTrial-Regular.ttf') format('opentype'); font-display:swap; }
+    @font-face { font-family:'Canela';         src:url('./Fonts/Canela-Bold.otf')           format('opentype'); font-display:swap; }
+    @font-face { font-family:'Anecor';         src:url('./Fonts/anecor-gheroos.otf')        format('opentype'); font-display:swap; }
+    @font-face { font-family:'cotoris';        src:url('./Fonts/cotoris.otf')               format('opentype'); font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'cotorisi';       src:url('./Fonts/cotorisita.otf')            format('opentype'); font-weight:400; font-style:normal; font-display:swap; }
+    /* =========================
+       HERO styles
+       ========================= */
+    .hero{ position:relative; height:100svh; background: var(--bg-dark); }
+    body.revealed .hero{ background:transparent; }
+    .hero-text{ position:absolute; top:44%; left:50%; transform:translate(-50%,-50%); display:flex; flex-direction:column; align-items:center; gap:1.6rem; text-align:center; white-space:nowrap; z-index:2; }
+    #line1{ font-size:clamp(34px, 3.34vw, 200px) !important; line-height:1; position:relative; min-height:1em; }
+    #line2{ font-size:clamp(56px, 6.26vw, 260px) !important; line-height:1; min-height:1em; visibility:hidden; position:relative; }
+
+    .typed-wrap{ position:relative; display:inline-block; white-space:pre; }
+    .v-caret{ position:absolute; left:100%; top:0; width:0; height:1em; border-left:var(--caret-thickness) solid #EEE8DC; animation:caretBlink var(--caret-blink) steps(1,end) infinite; }
+    body.revealed .v-caret{ border-left-color:#1a1a1a; }
+    .v-caret.typing{ animation:none!important; opacity:1!important; }
+    .v-caret.done{ animation:none; opacity:0!important; }
+    .v-caret.glow{ filter:drop-shadow(0 0 .35em currentColor); }
+    @keyframes caretBlink{0%,49%{opacity:1}50%,100%{opacity:0}}
+
+    .falling-l{ display:inline-block; transform-origin:bottom left; margin-left:.22em; animation:fallOnce .5s ease-out forwards, swingLoop 30s ease-in-out 12s infinite; }
+    @keyframes fallOnce{0%{transform:rotate(0)}100%{transform:rotate(37deg)}}
+    @keyframes swingLoop{0%{transform:rotate(37deg)}50%{transform:rotate(15deg)}100%{transform:rotate(37deg)}}
+
+    .fadeable{ transition:opacity .9s ease; opacity:1 }
+    .faded{ opacity:var(--faded-opacity)!important; }
+    .soft-blur-out{ transition:filter .9s ease, opacity .9s ease; filter:blur(0) }
+    .soft-blur-out.go{ filter:blur(var(--fade-blur)); opacity:var(--faded-opacity) }
+    .is-bold{ font-weight:600; letter-spacing:.4px; text-shadow:0 0 .001px currentColor; }
+
+    /* ====== LOGO CONTAINER ====== */
+    .logo-container{
+      position:absolute;
+      bottom: calc(env(safe-area-inset-bottom, 0px) + var(--logo-inset-y));
+      left:   calc(env(safe-area-inset-left,  0px) + var(--logo-inset-x));
+      padding: var(--logo-pad);
+      z-index:3;
+
+      width: min(
+        var(--logo-max-w),
+        calc(100vw - var(--logo-inset-x) - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px) - 8px)
+      );
+      max-height: calc(100svh - var(--logo-inset-y) - env(safe-area-inset-bottom, 0px) - 8px);
+
+      pointer-events:none; user-select:none;
+      opacity:0; transform:scale(.8);
+      filter:blur(var(--logo-start-blur));
+      transform-origin: bottom left;
+      will-change:transform;
+      color: currentColor;
+    }
+    .logo-container svg, .logo-container img{ display:block; width:100%; height:auto; overflow: visible; }
+
+    .logo-pop{ animation:logoPop var(--logo-pop-duration) ease-out forwards; }
+    @keyframes logoPop{
+      0%{opacity:0; transform:scale(.9); filter:blur(var(--logo-start-blur))}
+      60%{opacity:1; transform:scale(1.006); filter:blur(3px)}
+      100%{opacity:1; transform:scale(1); filter:blur(0)}
+    }
+
+    .tagline-container{
+      position:absolute; bottom:40px; right:60px;
+      font-family:'Eyesome'; font-size:22px; text-transform:uppercase;
+      opacity:0; z-index:3; white-space:nowrap; filter:blur(var(--tag-start-blur));
+      transition:filter 1s ease, opacity 1s ease; will-change:transform;
+    }
+    .tagline-container.fixed-top{ bottom:auto!important; right:auto!important; }
+  </style>
+
+  <div class="hero-text">
+    <div id="line1"></div>
+    <div id="line2"></div>
+  </div>
+
+  <!-- Logo container -->
+  <div class="logo-container" id="logoEl" data-logo-src="../assets/logo.svg" aria-label="Elysian Advisory logo">
+    <img id="logoImgFallback" alt="Elysian Advisory logo" hidden />
+  </div>
+
+  <div class="tagline-container" id="tagEl">
+    <span class="typed-wrap"><span id="typed-text"></span><span id="tag-caret" class="v-caret glow"></span></span>
+  </div>
+
+  <!-- SECTION-LOCAL video loader + breathing playback — added only -->
+  <script>
+    (function(){
+      const layer = document.querySelector('#hero .vid-layer');
+      const vid   = layer?.querySelector('video.vid');
+      if(!layer || !vid) return;
+
+      function applyControls(){
+        const op    = parseFloat(layer.dataset.opacity ?? '.28');
+        const blend = (layer.dataset.blend || 'soft-light').trim();
+        layer.style.setProperty('--vid-opacity', isFinite(op) ? op : .28);
+        layer.style.setProperty('--vid-blend', blend || 'soft-light');
+      }
+
+      const minSpd = parseFloat(layer.dataset.speedMin ?? '0.6');
+      const maxSpd = parseFloat(layer.dataset.speedMax ?? '1.0');
+      const period = Math.max(1000, parseFloat(layer.dataset.slowPeriod ?? '9000')); // ms
+
+      let raf = null;
+      function startBreathing(){
+        if(raf) return;
+        const t0 = performance.now();
+        const loop = (t)=>{
+          const dt = (t - t0) % period;
+          const phase = (dt / period) * 2 * Math.PI; // 0..2π
+          const rate = minSpd + (maxSpd - minSpd) * (0.5 + 0.5 * Math.cos(phase)); // slow→fast→slow
+          try { vid.playbackRate = rate; } catch(e){}
+          raf = requestAnimationFrame(loop);
+        };
+        raf = requestAnimationFrame(loop);
+      }
+      function stopBreathing(){ if(raf){ cancelAnimationFrame(raf); raf = null; } }
+
+      const io = new IntersectionObserver((entries)=>{
+        entries.forEach(entry=>{
+          if(entry.isIntersecting){
+            if(!vid.src && layer.dataset.src){ vid.src = layer.dataset.src; }
+            applyControls();
+            const p = vid.play();
+            if(p && p.catch){ p.catch(()=>{}); }
+            startBreathing();
+          }else{
+            stopBreathing();
+            vid.pause();
+          }
+        });
+      }, { threshold: 0.25 });
+
+      io.observe(layer);
+    })();
+  </script>
+
+  <script>
+    (() => {
+      // Keep scroll restoration + start-at-top behavior
+      if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+      window.scrollTo(0, 0);
+
+      /* Hero config */
+      const CONFIG = {
+        VISUAL:{ PALETTE_FLIP_DELAY:650, LOGO_POP_DURATION:1050, LOGO_DELAY_AFTER_PALETTE:5,
+          BLUR:{ fadePx:2, fadedOpacity:.55, logoStart:8, tagStart:12 },
+          TYPE:{ stepDelay:200, preLine1:600 },
+          TAGLINE:{ startDelay:200, typeSpeed:40, caretIdle:'1.35s' } },
+        ELEMENTS:{
+          logo:{ pin:{}, shrink:{ start:0, end:480, from:1, to:0.65, easing:'sine', power:1 }, target:{ mode:'absolute', x:0, y:-80 }, lock:{ atEnd:true } },
+          tag:{ syncWithLogo:true, pin:{}, shrink:{ start:0, end:480, from:1, to:0.40, easing:'sine', power:1 }, target:{ mode:'absolute', x:-199, y:-22 }, lock:{ atEnd:true } }
+        }
+      };
+
+      const ZWSP='\u200B', lerp=(a,b,t)=>a+(b-a)*t;
+      const easings={ sine:t=>-(Math.cos(Math.PI*t)-1)/2 };
+      const easeVal=(name,t,power=1)=>{ const f=easings[name]||easings.sine; let te=f(t); return power!==1?Math.pow(te,power):te; };
+
+      function applyDesignVars(){
+        const r=document.documentElement, V=CONFIG.VISUAL;
+        r.style.setProperty('--logo-pop-duration', V.LOGO_POP_DURATION+'ms');
+        r.style.setProperty('--fade-blur', V.BLUR.fadePx+'px');
+        r.style.setProperty('--faded-opacity', String(V.BLUR.fadedOpacity));
+        r.style.setProperty('--logo-start-blur', V.BLUR.logoStart+'px');
+        r.style.setProperty('--tag-start-blur', V.BLUR.tagStart+'px');
+      }
+
+      const line1Text='Assumptions Fail';
+      const line2Text="CLARITY Won't";
+      const tagline="The Final Place for Clarity.";
+      const FALL_AFTER_TYPE_DELAY=450;
+      function setCaretIdleSpeed(c,d){ if(d) c?.style.setProperty('--caret-blink', d); }
+      function microBlink(c, d){ if(!c||!d) return; c.style.opacity='0'; clearTimeout(c._mb); c._mb=setTimeout(()=>c.style.opacity='1', d); }
+
+      let i=0,j=0,k=0,_l1Primed=false,_tagPrimed=false;
+
+      function typeLine1(){
+        const l1=document.getElementById('line1');
+        if(i===0){
+          l1.innerHTML='<span class="typed-wrap"><span id="l1typed"></span><span id="l1caret" class="v-caret typing"></span></span>';
+          const typed=document.getElementById('l1typed'); typed.textContent=ZWSP;
+          setCaretIdleSpeed(document.getElementById('l1caret'),'1.15s');
+          if(!_l1Primed){ _l1Primed=true; return setTimeout(typeLine1, CONFIG.VISUAL.TYPE.preLine1); }
+        }
+        const caret=document.getElementById('l1caret'); const typed=document.getElementById('l1typed');
+        if(i<line1Text.length){
+          i++; typed.textContent=line1Text.slice(0,i); microBlink(caret, line1Text.charAt(i-1)===' '?0:80);
+          setTimeout(typeLine1, CONFIG.VISUAL.TYPE.stepDelay);
+        }else{
+          caret?.classList.remove('typing'); caret?.classList.add('done');
+          setTimeout(replaceWithFallingL, FALL_AFTER_TYPE_DELAY);
+        }
+      }
+      function replaceWithFallingL(){
+        const l1=document.getElementById('line1');
+        l1.textContent='Assumptions';
+        const span=document.createElement('span'); span.className='falling-l'; span.textContent=' Fail'; l1.appendChild(span);
+        setTimeout(()=>{ setTimeout(typeLine2, 800); }, 700);
+      }
+      function typeLine2(){
+        const l2=document.getElementById('line2');
+        const clarity='CLARITY', cStart=line2Text.indexOf(clarity), cEnd=cStart+clarity.length;
+        if(j===0){
+          l2.style.visibility='visible';
+          l2.innerHTML='<span class="typed-wrap"><span id="l2before"></span><span id="l2clarity" class="is-bold"></span><span id="l2after"></span><span id="l2caret" class="v-caret typing"></span></span>';
+          setCaretIdleSpeed(document.getElementById('l2caret'),'1.15s');
+        }
+        const caret=document.getElementById('l2caret'), sBefore=document.getElementById('l2before'), sClarity=document.getElementById('l2clarity'), sAfter=document.getElementById('l2after');
+        j++;
+        if(j<=line2Text.length){
+          const typed=line2Text.slice(0,j);
+          sBefore.textContent=typed.slice(0, Math.min(cStart, typed.length));
+          sClarity.textContent=typed.slice(cStart, Math.min(j,cEnd));
+          if(j>cEnd) sAfter.textContent=typed.slice(cEnd, j);
+          microBlink(caret, line2Text.charAt(j-1)===' '?0:80);
+          if(j<line2Text.length){ setTimeout(typeLine2, CONFIG.VISUAL.TYPE.stepDelay); }
+          else { caret?.classList.remove('typing'); setTimeout(fadeExceptClarity, 800); }
+        }
+      }
+      function typeTagline(){
+        const typed=document.getElementById('typed-text'); const caret=document.getElementById('tag-caret');
+        if(k===0){
+          caret?.classList.add('typing'); caret.style.opacity='1'; setCaretIdleSpeed(caret, CONFIG.VISUAL.TAGLINE.caretIdle);
+          if(!_tagPrimed){ _tagPrimed=true; return setTimeout(typeTagline, CONFIG.VISUAL.TAGLINE.startDelay); }
+        }
+        if(k<tagline.length){
+          const ch=tagline.charAt(k++); typed.textContent+=ch; microBlink(caret, ch===' '?0:60);
+          setTimeout(typeTagline, CONFIG.VISUAL.TAGLINE.typeSpeed);
+        }else{
+          caret?.classList.remove('typing'); setTimeout(()=>caret?.classList.add('done'), 350);
+        }
+      }
+      function fadeExceptClarity(){
+        const clarity='CLARITY'; const [before, after]=line2Text.split(clarity);
+        const line2=document.getElementById('line2');
+        line2.innerHTML=`<span class="fadeable soft-blur-out">${before}</span><span id="clarity-word" class="is-bold">${clarity}</span><span class="fadeable soft-blur-out">${after}</span>`;
+        const line1=document.getElementById('line1'); line1.classList.add('fadeable','soft-blur-out');
+
+        requestAnimationFrame(()=>{ requestAnimationFrame(()=>{
+          document.querySelectorAll('.fadeable').forEach(el=>el.classList.add('faded'));
+          document.querySelectorAll('.soft-blur-out').forEach(el=>el.classList.add('go'));
+          setTimeout(()=>{ 
+            document.body.classList.add('revealed');   // keeps the page-wide palette flip
+            const tag=document.querySelector('.tagline-container');
+            if(tag){ tag.style.opacity='1'; tag.style.filter='blur(0)'; }
+            setTimeout(showLogo, CONFIG.VISUAL.LOGO_DELAY_AFTER_PALETTE);
+            typeTagline();
+          }, CONFIG.VISUAL.PALETTE_FLIP_DELAY);
+        })});
+      }
+
+      const logoEl=document.getElementById('logoEl');
+      function killLogoAnimation(){ logoEl.style.animation='none'; logoEl.classList.remove('logo-pop'); logoEl.style.opacity='1'; logoEl.style.transform='scale(1)'; logoEl.style.filter='none'; }
+
+      /* Inline-load SVG so it inherits color */
+      async function injectInlineSVG() {
+        const src = logoEl?.dataset?.logoSrc; if (!src) return;
+        const PAD = 0;
+        try {
+          const res = await fetch(src, { cache: 'no-store' });
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          const txt = await res.text();
+          const box = document.createElement('div'); box.innerHTML = txt.trim();
+          const svg = box.querySelector('svg'); if (!svg) throw new Error('No <svg>');
+          svg.setAttribute('width','100%'); svg.setAttribute('height','auto'); svg.style.display='block'; svg.style.overflow='visible';
+          logoEl.innerHTML = ''; logoEl.appendChild(svg);
+          requestAnimationFrame(() => {
+            try { const b = svg.getBBox(); if (b.width>0 && b.height>0) svg.setAttribute('viewBox', `${b.x-PAD} ${b.y-PAD} ${b.width+PAD*2} ${b.height+PAD*2}`); }
+            catch(e){/* ignore */}
+          });
+        } catch (err) {
+          const img = document.getElementById('logoImgFallback');
+          if (img) { img.src = src; img.hidden = false; }
+        }
+      }
+
+      function showLogo(){
+        if(logoEl){
+          document.documentElement.style.setProperty('--logo-pop-duration', CONFIG.VISUAL.LOGO_POP_DURATION+'ms');
+          logoEl.classList.add('logo-pop');
+          logoEl.addEventListener('animationend',(e)=>{ if(e.animationName==='logoPop'){ killLogoAnimation(); }},{once:true});
+        }
+      }
+
+      // Boot
+      (function initHero(){
+        applyDesignVars();
+        injectInlineSVG();
+        setTimeout(typeLine1, 50);
+      })();
+    })();
+  </script>
+</section>

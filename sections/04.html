@@ -1,0 +1,462 @@
+<section id="truth-testimonials" class="tt" aria-label="Testimonials Canvas">
+  <!-- === VIDEO OVERLAY (behind all content) === -->
+  <div class="vid-layer"
+       data-src="video.webm"
+       
+       data-opacity="0.03"
+       data-speed="0.25"
+       data-blend="soft-light">
+    <video class="vid" muted playsinline autoplay loop preload="metadata"></video>
+    
+    <source src="video.webm" type="video/webm">
+  </div>
+
+  <style>
+    /* === keep video behind everything in this section === */
+    #truth-testimonials{ position: relative; }
+    #truth-testimonials .vid-layer{
+      --vid-opacity: .28;
+      --vid-blend: normal;
+      position:absolute; inset:0; z-index:0; pointer-events:none; overflow:hidden;
+    }
+    #truth-testimonials .vid-layer .vid{
+      position:absolute; inset:0; width:100%; height:100%;
+      object-fit:cover; opacity:var(--vid-opacity); mix-blend-mode:var(--vid-blend);
+      transform:translateZ(0);
+    }
+    #truth-testimonials > *:not(.vid-layer){ position:relative; z-index:1; }
+
+    /* ===== Local fonts (scoped) ===== */
+    @font-face { font-family:'HelloParisLight'; src:url('./Fonts/helloparisserif-light.ttf') format('truetype'); font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'Coterie';        src:url('./Fonts/coterie-regular.woff2')     format('woff2');    font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'SimpleSerenity'; src:url('./Fonts/Simple-Serenity-Serif.ttf') format('truetype'); font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'EyesomeR';       src:url('./Fonts/Eyesome-Regular.otf')       format('opentype'); font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'EyesomeI';       src:url('./Fonts/Eyesome-Italic.otf')        format('opentype'); font-weight:400; font-style:italic; font-display:swap; }
+    @font-face { font-family:'Tanpearl';       src:url('./Fonts/Tan-Pearl.ttf')             format('truetype'); font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'Centaur';        src:url('./Fonts/VNcentaur-Regular.ttf')     format('truetype'); font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'Arcadian';       src:url('./Fonts/Arcadian.ttf')              format('opentype'); font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'Arsenica';       src:url('./Fonts/ArsenicaTrial-Regular.ttf') format('truetype'); font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'Canela';         src:url('./Fonts/Canela-Bold.otf')           format('opentype'); font-weight:700; font-style:normal; font-display:swap; }
+    @font-face { font-family:'Anecor';         src:url('./Fonts/anecor-gheroos.otf')        format('opentype'); font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'cotoris';        src:url('./Fonts/cotoris.otf')               format('opentype'); font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'cotorisi';       src:url('./Fonts/cotorisita.otf')            format('opentype'); font-weight:400; font-style:normal; font-display:swap; }
+
+    /* ===== Local palette + tokens (scoped) ===== */
+    #truth-testimonials.tt{
+      /* Colors */
+      --bg: #FAF7F2;
+      --ink: #1A1A1A;
+      --muted: rgba(0,0,0,.54);
+      --subtxt-opacity: .72;
+      --card-border: rgba(0,0,0,.12);
+      --tile-hover: #FFf;
+
+      /* Fonts used by canvas */
+      --title-font-right: 'EyesomeR', serif;  /* "Truth" */
+      --title-font-left:  'EyesomeI', serif;  /* "So We Heard" */
+      --subtext-font: 'cotorisi', serif;      /* italic subtext */
+      --card-italic-font: 'cotoris', serif;   /* quote italics */
+      --card-author-font: 'Arsenica', serif;  /* author line */
+
+      /* Weights */
+      --title-weight: 400;
+      --subtext-weight: 400;
+      --card-weight: 100;
+
+      /* Layout */
+      position: relative;
+      min-height: 100svh;
+      background: var(--bg);
+      color: var(--ink);
+      overflow: hidden; /* keep one-screen */
+    }
+
+    /* Canvas fills the section box (not the whole window) */
+    #truth-testimonials .tt-canvas{
+      display:block;
+      width:100%;
+      height:100%;
+    }
+  </style>
+
+  <canvas class="tt-canvas" aria-hidden="true"></canvas>
+
+  <!-- SECTION-LOCAL video loader -->
+  <script>
+    (function(){
+      const layer = document.querySelector('#truth-testimonials .vid-layer');
+      const vid   = layer?.querySelector('video.vid');
+      if(!layer || !vid) return;
+
+      function applyControls(){
+        const op    = parseFloat(layer.dataset.opacity ?? '0.28');
+        const rate  = parseFloat(layer.dataset.speed   ?? '1.0');
+        const blend = (layer.dataset.blend || 'normal').trim();
+        layer.style.setProperty('--vid-opacity', isFinite(op) ? op : .28);
+        layer.style.setProperty('--vid-blend', blend || 'normal');
+        try { vid.playbackRate = isFinite(rate) ? rate : 1.0; } catch(e){}
+      }
+
+      const io = new IntersectionObserver((entries)=>{
+        entries.forEach(entry=>{
+          if(entry.isIntersecting){
+            if(!vid.src && layer.dataset.src){ vid.src = layer.dataset.src; }
+            applyControls();
+            const p = vid.play();
+            if(p && p.catch){ p.catch(()=>{}); }
+          }else{
+            vid.pause();
+          }
+        });
+      }, { threshold: 0.25 });
+
+      io.observe(layer);
+    })();
+  </script>
+
+  <script>
+  (() => {
+    const section = document.getElementById('truth-testimonials');
+    const canvas  = section.querySelector('.tt-canvas');
+    const ctx     = canvas.getContext('2d');
+
+    /* --- Tweakables (same behavior as your full file) --- */
+    let RIGHT_PADDING = 40;     // px from right edge (Truth)
+    let TOP_OFFSET_PCT = 0.11;  // fraction of height from top for Truth
+    let LEFT_PADDING = 40;      // px from left edge (“So We Heard”)
+    let MID_OFFSET_PCT = 0.58;  // fraction of height for left title
+
+    // Font size knobs
+    const RIGHT_TITLE_SIZE_PX = 120;  // Truth
+    const LEFT_TITLE_SIZE_PX  = 40;   // So We Heard
+    const SUBTEXT_SIZE_PX     = 32;   // sublines
+    const SUBTEXT_TOP_MARGIN_PX = 40;
+
+    // Subtext (multiple lines)
+    const SUBTEXT_LINES = [
+      "Simply becasue it worked for others…","It will work for you?",
+      "That is an assumption & Assumptions fail.",
+      "But Clarity is achieved, and Achievements are yours.",
+    ];
+    const SUBTEXT_LINE_GAP_PX = 40; // null -> equals subtext size
+
+    // Testimonials data
+    const CARD_ITEMS = [
+      { quote: "They didn’t give advice. They asked one question. That question turned into a map. Six weeks later, my entire operation looks different.", author: "Mr. B. Shah", role: "Founder" },
+      { quote: "I’d hired experts, made decks, pitched. It never landed. One session with Elysian reframed the pitch entirely. This time, it closed.", author: "Mr. D. Hobbs", role: "Entrepreneur" },
+      { quote: "I didn’t walk in asking for life clarity. But I left with it. Quiet clarity — the kind that makes you change three major decisions without being told to.", author: "Mr. S. Verma", role: "Executive" },
+      { quote: "They made no performance. No attempt to impress. Just observation. And then something so accurate, I had no defense left but to nod.", author: "Mrs. T. Greene", role: "Strategist" },
+      { quote: "I was about to expand. Everything seemed ready. Elysian didn’t say ‘don’t’ — they asked, ‘why now?’ That one pause might have saved the whole machine.", author: "Mr. Joel", role: "Businessman" },
+      { quote: "He showed me where I was bleeding. Financially & mentally. We rebuilt from silence, not from noise. And the new model? Sustainable.", author: "Ms. N. Isaac", role: "Solo Builder" },
+      { quote: "Not therapy. Not consulting. Something else. A stillness that lets you see your next move — without the fog. I needed that more than I knew.", author: "Mr. D. Confetti", role: "Operator" },
+      { quote: "The moment felt small — just a calendar call, midweek. But what they revealed made me rethink my entire org structure. I still refer to that note.", author: "Mr. R. Ellison", role: "Team Operator" },
+      { quote: "I’d lost my edge. Was drowning in everyone else’s frameworks. Elysian helped me name my own again. That clarity made me lethal.", author: "Mr. K. Patel", role: "Indie Founder" },
+      { quote: "I clearly denied the concept of clarity; until the results outgrew my imagination", author: "Mrs. N. Wang", role: "Investor" }
+    ];
+
+    // Carousel config
+    const CARD_COUNT = CARD_ITEMS.length;
+    let CARD_GAP = 24;
+    let CARD_ASPECT = 1.6;
+    let TARGET_SPEED = 55;  // px/s
+    let START_SPEED  = 18;  // px/s
+    let RAMP_MS = 1800;
+    let LEAD_MARGIN = 12;
+
+    // Timing
+    let startTs = 0, lastTs = 0, scrollPx = 0;
+    let revealDone = false, loopStartLeadX = 0, loopStartScroll = 0;
+
+    // Hover/pause
+    let isHoverPaused = false;
+    let currentCards = [];
+    let mouse = { x:-1, y:-1, inside:false };
+
+    // Helpers read CSS vars from *section*
+    function cssVar(name, fallback){
+      const v = getComputedStyle(section).getPropertyValue(name);
+      return (v && v.trim()) || fallback;
+    }
+
+    // Measure section box (not window)
+    function sizeCanvas(){
+      const dpr = Math.max(1, window.devicePixelRatio || 1);
+      const rect = section.getBoundingClientRect();
+      const cssW = Math.max(1, Math.round(rect.width));
+      const cssH = Math.max(1, Math.round(rect.height));
+      canvas.style.width = cssW + 'px';
+      canvas.style.height = cssH + 'px';
+      canvas.width  = Math.round(cssW * dpr);
+      canvas.height = Math.round(cssH * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function roundRect(x,y,w,h,r){
+      const rr = Math.max(0, Math.min(r, Math.min(w,h)/2));
+      ctx.beginPath();
+      ctx.moveTo(x + rr, y);
+      ctx.arcTo(x + w, y, x + w, y + h, rr);
+      ctx.arcTo(x + w, y + h, x, y + h, rr);
+      ctx.arcTo(x, y + h, x, y, rr);
+      ctx.arcTo(x, y, x + w, y, rr);
+      ctx.closePath();
+    }
+
+    function drawQuote(text, x, y, maxWidth, fsize){
+      const QUOTE_FF = cssVar('--card-italic-font', 'EyesomeI, serif');
+      const QUOTE_WEIGHT = cssVar('--card-weight', '100');
+      const lh = Math.round(fsize * 1.35);
+      ctx.font = `${QUOTE_WEIGHT} ${fsize}px ${QUOTE_FF}`;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'alphabetic';
+      const words = String(text).split(/\s+/);
+      let line = '', lines = [];
+      for (let i=0;i<words.length;i++){
+        const test = line ? line + ' ' + words[i] : words[i];
+        if (ctx.measureText(test).width <= maxWidth) line = test;
+        else { if(line) lines.push(line); line = words[i]; }
+      }
+      if (line) lines.push(line);
+      const clipped = lines.slice(0, 5);
+      for (let i=0;i<clipped.length;i++) ctx.fillText(clipped[i], x, y + i*lh);
+      return clipped.length * lh;
+    }
+
+    function drawAuthor(author, role, x, y, w){
+      const AUTHOR_FF = cssVar('--card-author-font', 'Coterie, serif');
+      const INK = cssVar('--ink', '#111');
+      const MUTED = cssVar('--muted', 'rgba(0,0,0,.54)');
+      ctx.textAlign = 'right';
+      ctx.fillStyle = INK;
+      ctx.font = `500 14px ${AUTHOR_FF}`;
+      ctx.fillText('— ' + author, x + w, y);
+      if (role){
+        ctx.fillStyle = MUTED;
+        ctx.font = `400 12px ${AUTHOR_FF}`;
+        ctx.fillText(role, x + w, y + 16);
+      }
+    }
+
+    function drawCard(x, y, w, h, labelIndex, hovered){
+      const BORDER = cssVar('--card-border', 'rgba(0,0,0,.12)');
+      const TILE   = cssVar('--tile-hover', '#FFFFF0');
+      if (hovered){
+        ctx.save();
+        ctx.shadowColor = 'rgba(0,0,0,0.10)';
+        ctx.shadowBlur = 18;
+        ctx.shadowOffsetY = 6;
+        ctx.fillStyle = TILE;
+        roundRect(x, y, w, h, 12);
+        ctx.fill();
+        ctx.restore();
+      }
+      ctx.strokeStyle = BORDER;
+      ctx.lineWidth = 1;
+      roundRect(x + 0.5, y + 0.5, w - 1, h - 1, 12);
+      ctx.stroke();
+
+      const idx  = ((labelIndex % CARD_COUNT) + CARD_COUNT) % CARD_COUNT;
+      const item = CARD_ITEMS[idx];
+
+      const padX = Math.max(14, Math.round(w * 0.08));
+      const padTop = Math.max(14, Math.round(h * 0.18));
+      const padBottom = Math.max(12, Math.round(h * 0.14));
+      const maxW = w - padX * 2;
+
+      const fsize = Math.max(15, Math.round(h * 0.09));
+      ctx.fillStyle = cssVar('--ink', '#111');
+
+      const usedH = drawQuote(item.quote, x + padX, y + padTop, maxW, fsize);
+      drawAuthor(item.author, item.role, x + padX, y + h - padBottom - 6, w - padX * 2);
+    }
+
+    function pointInRect(px, py, r){ return px>=r.x && px<=r.x+r.w && py>=r.y && py<=r.y+r.h; }
+    function pointInAnyCard(px, py){ for (let i=0;i<currentCards.length;i++) if(pointInRect(px,py,currentCards[i])) return true; return false; }
+
+    // Subtext runs: italic for text, regular for '&'
+    const SUBTEXT_REGULAR_FF = "'cotoris', serif";
+    function ampRuns(str){
+      const parts = String(str).split('&'); const runs = [];
+      for (let i=0;i<parts.length;i++){
+        const p = parts[i];
+        if (p) runs.push({ text:p, italic:true });
+        if (i < parts.length-1) runs.push({ text:'&', italic:false });
+      }
+      return runs.length ? runs : [{ text:str, italic:true }];
+    }
+    function measureRunsWidth(runs, size, italicFF, regularFF, weight){
+      let w = 0;
+      runs.forEach(r => {
+        const ff = r.italic ? italicFF : regularFF;
+        ctx.font = `${weight} ${size}px ${ff}`;
+        w += ctx.measureText(r.text).width;
+      });
+      return w;
+    }
+    function drawRunsRightAligned(runs, xRight, y, size, italicFF, regularFF, weight, color, opacity=1){
+      const totalW = measureRunsWidth(runs, size, italicFF, regularFF, weight);
+      let x = xRight - totalW;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'alphabetic';
+      ctx.fillStyle = color;
+      ctx.globalAlpha = opacity;
+      runs.forEach(r => {
+        const ff = r.italic ? italicFF : regularFF;
+        ctx.font = `${weight} ${size}px ${ff}`;
+        ctx.fillText(r.text, x, y);
+        x += ctx.measureText(r.text).width;
+      });
+      ctx.globalAlpha = 1;
+    }
+
+    function draw(){
+      const rect = section.getBoundingClientRect();
+      const w = Math.round(rect.width);
+      const h = Math.round(rect.height);
+      currentCards = [];
+
+      const BG  = cssVar('--bg', '#FAF7F2');
+      const INK = cssVar('--ink', '#111');
+      const TITLE_RIGHT_FF = cssVar('--title-font-right', 'EyesomeR, serif');
+      const TITLE_LEFT_FF  = cssVar('--title-font-left',  'EyesomeR, serif');
+      const SUBTEXT_FF     = cssVar('--subtext-font', 'Arsenica, serif');
+      const TITLE_W        = cssVar('--title-weight', '600');
+      const SUB_W          = cssVar('--subtext-weight', '400');
+      const SUB_OPACITY    = parseFloat(cssVar('--subtxt-opacity', '.72')) || 0.72;
+
+      const baseTitle = Math.max(24, Math.round(w * 0.06));
+      const titleSizeRight = (RIGHT_TITLE_SIZE_PX ?? baseTitle);
+      const titleSizeLeft  = (LEFT_TITLE_SIZE_PX  ?? titleSizeRight);
+      const subSize        = (SUBTEXT_SIZE_PX     ?? Math.max(14, Math.round(titleSizeRight * 0.38)));
+
+      // Right title: Truth
+      const rightPadding = RIGHT_PADDING;
+      const topOffset    = Math.round(h * TOP_OFFSET_PCT);
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'top';
+      ctx.fillStyle = INK;
+      ctx.font = TITLE_W + ' ' + titleSizeRight + 'px ' + TITLE_RIGHT_FF;
+      ctx.fillText('Truth', w - rightPadding, topOffset);
+
+      // Subtext under Truth
+      const lines = (Array.isArray(SUBTEXT_LINES) && SUBTEXT_LINES.length) ? SUBTEXT_LINES : ["This is truth"];
+      const lineGap = (SUBTEXT_LINE_GAP_PX == null) ? subSize : SUBTEXT_LINE_GAP_PX;
+      for (let i=0;i<lines.length;i++){
+        const y = topOffset + titleSizeRight + SUBTEXT_TOP_MARGIN_PX + i*lineGap;
+        const runs = ampRuns(lines[i]);
+        drawRunsRightAligned(runs, w - rightPadding, y, subSize, SUBTEXT_FF, SUBTEXT_REGULAR_FF, SUB_W, INK, SUB_OPACITY);
+      }
+
+      // Left title: So We Heard
+      const leftX = LEFT_PADDING;
+      const midY  = Math.round(h * MID_OFFSET_PCT);
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+      ctx.font = TITLE_W + ' ' + titleSizeLeft + 'px ' + TITLE_LEFT_FF;
+      ctx.fillStyle = INK;
+      ctx.fillText('So We Heard', leftX, midY);
+
+      // Carousel layout
+      const trackTop = midY + titleSizeLeft + 18;
+      const bottomMargin = Math.round(h * 0.06) + 12;
+      const availH = Math.max(60, h - trackTop - bottomMargin);
+      const cardH = Math.min(Math.max(160, Math.round(availH * 0.82)), 300);
+      const cardW = Math.max(240, Math.round(cardH * CARD_ASPECT));
+      const step = cardW + CARD_GAP;
+
+      const xLead = -cardW - LEAD_MARGIN + scrollPx;
+
+      function drawAndRecord(x,y,w,h,labelIndex){
+        const hovered = mouse.inside && pointInRect(mouse.x, mouse.y, {x,y,w,h});
+        drawCard(x,y,w,h,labelIndex,hovered);
+        currentCards.push({x,y,w,h,label:labelIndex});
+      }
+
+      if (!revealDone){
+        let revealedTrailing = Math.floor((xLead + cardW) / step);
+        revealedTrailing = Math.max(0, Math.min(CARD_COUNT - 1, revealedTrailing));
+        const allRevealed = (revealedTrailing >= CARD_COUNT - 1);
+
+        const jStart = Math.floor((-cardW - xLead) / step) + 1;
+        const jEnd   = Math.min(0, Math.floor((w - xLead) / step));
+        for (let j = Math.max(-revealedTrailing, jStart); j <= jEnd; j++){
+          const x = xLead + j * step;
+          const labelIndex = ((-j % CARD_COUNT) + CARD_COUNT) % CARD_COUNT;
+          drawAndRecord(x, trackTop, cardW, cardH, labelIndex);
+        }
+
+        if (allRevealed){
+          revealDone = true;
+          loopStartLeadX = xLead;
+          loopStartScroll = scrollPx;
+        }
+      } else {
+        const delta = scrollPx - loopStartScroll;
+        const xLeadLoop = loopStartLeadX + delta;
+        const nMin = Math.floor((-cardW - xLeadLoop) / step) + 1;
+        const nMax = Math.floor((w - xLeadLoop) / step);
+        for (let n = nMin; n <= nMax; n++){
+          const x = xLeadLoop + n * step;
+          const labelIndex = ((-n % CARD_COUNT) + CARD_COUNT) % CARD_COUNT;
+          drawAndRecord(x, trackTop, cardW, cardH, labelIndex);
+        }
+      }
+
+      // Hover pause
+      if (mouse.inside){
+        isHoverPaused = pointInAnyCard(mouse.x, mouse.y);
+        canvas.style.cursor = isHoverPaused ? 'pointer' : 'default';
+      } else {
+        isHoverPaused = false;
+        canvas.style.cursor = 'default';
+      }
+    }
+
+    function tick(ts){
+      if (!startTs){ startTs = ts; lastTs = ts; }
+      const dtMs = ts - lastTs;
+
+      if (isHoverPaused){
+        startTs += dtMs; // freeze ramp while paused
+        lastTs = ts;
+        sizeCanvas(); draw(); requestAnimationFrame(tick);
+        return;
+      }
+
+      const dt = Math.max(0, dtMs / 1000);
+      const elapsed = ts - startTs;
+      const t = Math.min(1, elapsed / RAMP_MS);
+      const currentSpeed = START_SPEED + (TARGET_SPEED - START_SPEED) * t;
+      scrollPx += currentSpeed * dt;
+
+      sizeCanvas(); draw();
+      lastTs = ts;
+      requestAnimationFrame(tick);
+    }
+
+    // Interaction (hover)
+    canvas.addEventListener('mousemove', (e) => {
+      const r = canvas.getBoundingClientRect();
+      mouse.x = e.clientX - r.left;
+      mouse.y = e.clientY - r.top;
+      mouse.inside = true;
+    });
+    canvas.addEventListener('mouseleave', () => {
+      mouse.inside = false; isHoverPaused = false; canvas.style.cursor = 'default';
+    });
+
+    // Resize handling (section-scoped)
+    const ro = new ResizeObserver(() => { sizeCanvas(); draw(); });
+    ro.observe(section);
+
+    // Boot
+    sizeCanvas();
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => { draw(); });
+    } else {
+      draw();
+    }
+    requestAnimationFrame(tick);
+  })();
+  </script>
+</section>

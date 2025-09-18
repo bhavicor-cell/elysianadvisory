@@ -1,0 +1,366 @@
+<section id="working-with-us" class="wwu" aria-label="Working With Us" data-boot="preload">
+  <!-- === VIDEO OVERLAY (behind all content) === -->
+  <div class="vid-layer"
+       data-src="video.webm"
+       
+       data-opacity="0.03"
+       data-speed="0.25"
+       data-blend="soft-light">
+    <video class="vid" muted playsinline autoplay loop preload="metadata"></video>
+    
+    <source src="video.webm" type="video/webm">
+  </div>
+
+  <style>
+    /* === keep video behind everything in this section === */
+    #working-with-us{ position: relative; }
+    #working-with-us .vid-layer{
+      --vid-opacity: .35;           /* default if data-opacity missing */
+      --vid-blend: soft-light;      /* default mix-blend-mode */
+      position:absolute; inset:0; z-index:0; pointer-events:none; overflow:hidden;
+    }
+    #working-with-us .vid-layer .vid{
+      position:absolute; inset:0; width:100%; height:100%;
+      object-fit:cover; opacity:var(--vid-opacity); mix-blend-mode:var(--vid-blend);
+      transform:translateZ(0);
+    }
+    #working-with-us > *:not(.vid-layer){ position:relative; z-index:1; }
+
+    /* ===== Local fonts (registered here; safe to reuse elsewhere) ===== */
+    @font-face { font-family:'HelloParisLight'; src:url('./Fonts/helloparisserif-light.ttf') format('truetype'); font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'Coterie';        src:url('./Fonts/coterie-regular.woff2')     format('woff2');    font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'SimpleSerenity'; src:url('./Fonts/Simple-Serenity-Serif.ttf') format('truetype'); font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'EyesomeR';       src:url('./Fonts/Eyesome-Regular.otf')       format('opentype'); font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'EyesomeI';       src:url('./Fonts/Eyesome-Italic.otf')        format('opentype'); font-weight:400; font-style:italic; font-display:swap; }
+    @font-face { font-family:'Tanpearl';       src:url('./Fonts/Tan-Pearl.ttf')             format('truetype'); font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'Centaur';        src:url('./Fonts/VNcentaur-Regular.ttf')     format('truetype'); font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'Arcadian';       src:url('./Fonts/Arcadian.ttf')              format('opentype'); font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'Arsenica';       src:url('./Fonts/ArsenicaTrial-Regular.ttf') format('truetype'); font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'Canela';         src:url('./Fonts/Canela-Bold.otf')           format('opentype'); font-weight:700; font-style:normal; font-display:swap; }
+    @font-face { font-family:'Anecor';         src:url('./Fonts/anecor-gheroos.otf')        format('opentype'); font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'cotoris';        src:url('./Fonts/cotoris.otf')               format('opentype'); font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'cotorisi';       src:url('./Fonts/cotorisita.otf')            format('opentype'); font-weight:400; font-style:normal; font-display:swap; }
+
+    /* ===== Scoped tokens (no globals) ===== */
+    #working-with-us{
+      --bg:#faf7f2; --ink:#1a1a1a; --muted:#6f6d69; --hair:#d6d3cd;
+      --ivory:#f7f2e7; --ink-dark:#23201a;
+      --radius:12px; --hair-thickness:.5px;
+      --gap:18px;
+      /* 3 buttons layout math */
+      --basis-rest: calc((100% - (2 * var(--gap))) / 3);
+      --basis-active: 40%;
+      --basis-dim: calc((100% - var(--basis-active) - (2 * var(--gap))) / 2);
+      --btn-box-h:52px;
+      --t-box:800ms; --t-tile:550ms; --ease:cubic-bezier(.22,.61,.36,1);
+      --page-pad: clamp(16px, 4vw, 40px);
+      --label-bottom: 10px;
+      --popover-gap: 10px;
+      /* Popover base size */
+      --tile-w: 80%;
+      --tile-max: 1200px;
+      /* Financial animation speed */
+      --fin-speed: 420ms;
+
+      background:var(--bg); color:var(--ink);
+      min-height:100svh; width:100%;
+      display:block; overflow:hidden;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    }
+    #working-with-us *, #working-with-us *::before, #working-with-us *::after{ box-sizing:border-box; }
+
+    /* One-screen grid */
+    .wwu .wrap{ height:100svh; width:100%; display:grid; grid-template-rows: 1fr auto; grid-template-columns: 1fr; }
+    .wwu .stage{
+      grid-row:1; grid-column:1; position:relative; z-index:1;
+      display:flex; align-items:center; justify-content:center;
+      padding: 24vh var(--page-pad) 0; width:100%; height:100%; overflow:visible;
+    }
+    .wwu .stack{ display:flex; gap:var(--gap); flex-wrap:wrap; justify-content:center; width:100%; max-width:1200px; }
+    .wwu .title{
+      grid-row:2; grid-column:1; position:relative; z-index:2;
+      align-self:end;
+      padding: 0 var(--page-pad); bottom: 15vh; margin: 0;
+      text-align:center; font-family:'EyesomeI', serif; font-weight:400;
+      font-size: clamp(70px, 8vw, 120px); letter-spacing:.01em;
+    }
+
+    /* Hairline boxes */
+    .wwu .hairline-box{
+      position:relative; display:flex; flex-direction:column; align-items:center; justify-content:flex-start;
+      min-width:0; width:var(--basis-rest); flex:0 0 var(--basis-rest);
+      height:var(--btn-box-h); min-height:var(--btn-box-h);
+      padding:6px 8px; border:var(--hair-thickness) solid var(--hair); border-radius:var(--radius);
+      transition: width var(--t-box) var(--ease), flex-basis var(--t-box) var(--ease), height var(--t-box) var(--ease), padding var(--t-box) var(--ease), box-shadow var(--t-box) var(--ease), transform var(--t-box) var(--ease), opacity var(--t-box) var(--ease);
+      background:transparent; box-shadow:0 0 0 rgba(0,0,0,0);
+      overflow:visible; will-change: width, flex-basis, height, padding, transform, opacity;
+    }
+    .wwu .hairline-box::before{ content:""; position:absolute; left:-8px; right:-8px; bottom:100%; height:24px; }
+    .wwu .hairline-box:hover, .wwu .hairline-box.active{ height:auto; padding:14px 16px 18px; background: rgba(255,255,255,.6); box-shadow: 0 18px 50px rgba(0,0,0,.12); z-index:3; }
+
+    .wwu .trigger{
+      appearance:none; background:transparent; color:var(--ink); font-weight:600; border:0; cursor:pointer;
+      padding:6px 12px; font-size:clamp(13px,1.8vw,17px); letter-spacing:.12em; text-transform:uppercase;
+      position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+      transition: top var(--t-box) var(--ease), transform var(--t-box) var(--ease), opacity .25s ease;
+      z-index:2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-family:'Coterie', sans-serif;
+    }
+    .wwu .trigger:focus-visible{ outline:2px solid #000; outline-offset:2px; border-radius:8px; }
+
+    .wwu .papertile{
+      position:absolute; bottom: calc(100% + var(--popover-gap)); left:50%; transform: translate(-50%, 8px) scale(.985); opacity:0;
+      width: max(52ch, var(--tile-w)); max-width: var(--tile-max);
+      background: var(--ivory); color: var(--ink-dark);
+      border-radius: var(--radius); border:1px solid rgba(35,32,26,.15);
+      box-shadow: 0 1px 0 rgba(255,255,255,.35) inset, 0 24px 60px rgba(0,0,0,.25);
+      padding:16px 16px 40px; overflow:hidden; z-index:4; pointer-events:none; margin:0;
+      background-image: radial-gradient(1200px 300px at 50% -240px, rgba(0,0,0,.06), transparent 60%), linear-gradient(transparent 95%, rgba(0,0,0,.05) 100%);
+      background-blend-mode:multiply; transition: opacity var(--t-tile) var(--ease) .05s, transform var(--t-tile) var(--ease) .05s;
+    }
+    .wwu .hairline-box:hover .papertile, .wwu .hairline-box.active .papertile{ opacity:1; transform: translate(-50%, 0) scale(1); pointer-events:auto; }
+    .wwu .papertile::after{ content:""; position:absolute; top:100%; left:50%; width:10px; height:10px; background: var(--ivory); border-left:1px solid rgba(35,32,26,.15); border-top:1px solid rgba(35,32,26,.15); transform: translateX(-50%) rotate(45deg); box-shadow: 0 12px 24px rgba(0,0,0,.08); }
+
+    .wwu .papertile h3{ margin:0 0 6px; font: 700 clamp(16px,2vw,18px)/1.2 'Canela', serif; letter-spacing:.02em; }
+    .wwu .papertile p{ margin:0; line-height:1.5; font-size: clamp(13px,3vw,18px); color:#3b372f; font-family:'Times New Roman]', serif; }
+
+    /* 🜂 triangle bullets */
+    .wwu .papertile .tri-list{ margin:6px 0 0; padding-left:1.8rem; list-style:none; }
+    .wwu .papertile .tri-list li{ position:relative; margin:6px 0; line-height:1.3; font-family:'cotoris', serif; font-style: italic; font-size:clamp(13px,2vw,18px); color:#3b372f; }
+    .wwu .papertile .tri-list li::before{ content:"✧"; position:absolute; left:-1.2rem; top:0.2em; font-size:0.92em; color:#3b372f; -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; }
+
+    /* Financial label */
+    .wwu .financial{
+      position:absolute; right:14px; bottom:12px; font-style:italic; font-size:13px; color:var(--muted);
+      cursor:pointer; user-select:none; display:inline-block; line-height:1;
+      padding-bottom:6px;
+      transition: color var(--fin-speed) var(--ease), transform var(--fin-speed) var(--ease);
+    }
+    .wwu .financial::after{
+      content:""; position:absolute; left:0; right:0; bottom:-2px; height:1px;
+      background: currentColor; opacity:.35; transform: scaleX(0); transform-origin:left;
+      transition: transform 600ms var(--ease), opacity 600ms var(--ease);
+    }
+    .wwu .financial:hover::after,
+    .wwu .financial.open::after,
+    .wwu .financial:focus-visible::after{ transform: scaleX(1); opacity:.6; }
+    .wwu .financial .short, .wwu .financial .long{
+      display:inline-block; will-change:opacity, transform; pointer-events:none;
+      transition: opacity 360ms var(--ease), transform 360ms var(--ease);
+    }
+    .wwu .financial .long{ opacity:0; transform: translateY(6px); color:#3b372f; }
+    .wwu .financial:hover .short, .wwu .financial.open .short, .wwu .financial:focus-visible .short{ opacity:0; transform: translateY(-6px); }
+    .wwu .financial:hover .long,  .wwu .financial.open .long,  .wwu .financial:focus-visible .long { opacity:1; transform: translateY(0); }
+
+    /* Reflow + label settle */
+    .wwu .stack:has(.hairline-box.active) .hairline-box{ flex-basis: var(--basis-dim); width: var(--basis-dim); }
+    .wwu .stack:has(.hairline-box.active) .hairline-box.active{ flex-basis: var(--basis-active); width: var(--basis-active); }
+    .wwu .stack:has(.hairline-box:hover) .hairline-box{ flex-basis: var(--basis-dim); width: var(--basis-dim); }
+    .wwu .stack:has(.hairline-box:hover) .hairline-box:hover{ flex-basis: var(--basis-active); width: var(--basis-active); }
+    .wwu .hairline-box:hover .trigger, .wwu .hairline-box.active .trigger{ top: calc(100% - var(--label-bottom)); transform: translate(-50%,-100%); }
+
+    /* Mobile */
+    @media (max-width: 820px){
+      .wwu .wrap{ height:100svh; }
+      .wwu .stage{ padding: 2vh var(--page-pad) 0; }
+      .wwu .stack{ flex-wrap:nowrap; overflow-x:auto; scroll-snap-type:x proximity; justify-content:flex-start; }
+      .wwu .hairline-box{ scroll-snap-align:center; }
+      .wwu .papertile{ bottom:auto; top: calc(100% + var(--popover-gap)); }
+      .wwu .papertile::after{ top:auto; bottom:100%; transform: translateX(-50%) rotate(225deg); }
+      .wwu .hairline-box:hover, .wwu .hairline-box.active{ min-width:min(94vw,560px); min-height:210px; }
+      .wwu .title{ margin: 0; font-size: clamp(20px, 5vw, 28px); bottom: 6vh; }
+    }
+
+    /* Fixed desktop width for popovers */
+    @media (min-width: 1100px){
+      .wwu .papertile{ width: 660px; max-width: 700px; }
+    }
+
+    /* ===== Section-scoped reveal on boot ===== */
+    @keyframes wwu-blur-in {
+      from { opacity:0; filter: blur(14px); transform: translateY(10px); }
+      to   { opacity:1; filter: blur(0);    transform: translateY(0); }
+    }
+    /* Initial hidden state (buttons only) */
+    #working-with-us[data-boot="preload"] .stack .hairline-box{
+      opacity:0; filter: blur(14px); transform: translateY(10px);
+    }
+    /* Animate buttons in after boot */
+    #working-with-us[data-boot="boot"] .stack .hairline-box{
+      animation: wwu-blur-in 1200ms var(--ease) both;
+    }
+
+    /* ===== Per-open blur → crisp for the popover ===== */
+    @keyframes wwu-fade-blur {
+      from { filter: blur(10px) saturate(.9); opacity: 0; transform: translateY(6px); }
+      to   { filter: blur(0)    saturate(1);  opacity: 1; transform: translateY(0); }
+    }
+    @keyframes wwu-soft-glow {
+      0%   { box-shadow: 0 22px 70px rgba(0,0,0,.14); }
+      100% { box-shadow: 0 18px 50px rgba(0,0,0,.12); }
+    }
+    .wwu .hairline-box.anim-open .papertile{ animation: wwu-fade-blur 1100ms var(--ease) both; }
+    .wwu .hairline-box.anim-open{ animation: wwu-soft-glow 1100ms var(--ease) both; }
+
+    /* Respect reduced motion */
+    @media (prefers-reduced-motion: reduce){
+      #working-with-us *{ animation:none !important; transition:none !important; }
+    }
+  </style>
+
+  <div class="wrap">
+    <div class="stage">
+      <div class="stack">
+        <!-- Clarity Session -->
+        <div class="hairline-box" aria-live="polite">
+          <div class="papertile" role="region" aria-label="Clarity Session details">
+            <h3>Clarity Session</h3>
+            <p>For those at a point where clarity must be immediate, precise, and executable.</p>
+            <ul class="tri-list">
+              <li>Conducted in two phases: first, we listen — to extract the full landscape. Then, we return — with a distilled, frictionless strategy.</li>
+              <li>You receive a clear, structured direction — followed by a focused session to walk through it in depth.</li>
+            </ul>
+            <span class="financial" role="button" tabindex="0" aria-expanded="false">
+              <i><span class="short">Financial</span>
+              <span class="long">Clarity sessions start at $950</span></i>
+            </span>
+          </div>
+          <button class="trigger" aria-expanded="false"><span class="label">Clarity Session</span></button>
+        </div>
+
+        <!-- Project-Wise Engagement -->
+        <div class="hairline-box" aria-live="polite">
+          <div class="papertile" role="region" aria-label="Project-Wise Engagement details">
+            <h3>Project-Wise Engagement</h3>
+            <p>For those with a defined challenge, transition, or initiative requiring hands-on strategic involvement.</p>
+            <ul class="tri-list">
+              <li>We embed ourselves into the problem — aligning with your context, teams, and timing — until resolution or transformation is complete.</li>
+              <li>You receive precise execution support and ongoing collaboration until the outcome is delivered.</li>
+            </ul>
+            <span class="financial" role="button" tabindex="0" aria-expanded="false">
+              <i><span class="short">Financial</span>
+              <span class="long">Project engagement begins at $3,500</span></i>
+            </span>
+          </div>
+          <button class="trigger" aria-expanded="false"><span class="label">Project-Wise Engagement</span></button>
+        </div>
+
+        <!-- Ongoing Partnership -->
+        <div class="hairline-box" aria-live="polite">
+          <div class="papertile" role="region" aria-label="Ongoing Partnership details">
+            <h3>Ongoing Partnership</h3>
+            <p>For those who carry complex weight — across functions, ventures, or roles — and require sustained clarity across time.</p>
+            <ul class="tri-list">
+              <li>We work alongside you continuously — refining direction, course-correcting, and removing fog before it forms.</li>
+              <li>You receive an enduring second mind — always calibrated, always ready.</li>
+            </ul>
+            <span class="financial" role="button" tabindex="0" aria-expanded="false">
+              <i><span class="short">Financial</span></i>
+              <span class="long"><i>Long-term partnerships typically start at $5,000/month</i></span>
+            </span>
+          </div>
+          <button class="trigger" aria-expanded="false"><span class="label">Ongoing Partnership</span></button>
+        </div>
+      </div>
+    </div>
+
+    <h1 class="title">Working With Us</h1>
+  </div>
+
+  <!-- SECTION-LOCAL video loader -->
+  <script>
+    (function(){
+      const layer = document.querySelector('#working-with-us .vid-layer');
+      const vid   = layer?.querySelector('video.vid');
+      if(!layer || !vid) return;
+
+      function applyControls(){
+        const op    = parseFloat(layer.dataset.opacity ?? '.35');
+        const rate  = parseFloat(layer.dataset.speed   ?? '1.0');
+        const blend = (layer.dataset.blend || 'soft-light').trim();
+        layer.style.setProperty('--vid-opacity', isFinite(op) ? op : .35);
+        layer.style.setProperty('--vid-blend', blend || 'soft-light');
+        try { vid.playbackRate = isFinite(rate) ? rate : 1.0; } catch(e){}
+      }
+
+      const io = new IntersectionObserver((entries)=>{
+        entries.forEach(entry=>{
+          if(entry.isIntersecting){
+            if(!vid.src && layer.dataset.src){ vid.src = layer.dataset.src; }
+            applyControls();
+            const p = vid.play();
+            if(p && p.catch){ p.catch(()=>{}); }
+          }else{
+            vid.pause();
+          }
+        });
+      }, { threshold: 0.25 });
+
+      io.observe(layer);
+    })();
+  </script>
+
+  <script>
+    (() => {
+      const section = document.getElementById('working-with-us');
+      // Boot reveal (section-scoped)
+      window.addEventListener('DOMContentLoaded', () => {
+        section.setAttribute('data-boot', 'boot');
+      });
+
+      const boxes = [...section.querySelectorAll('.hairline-box')];
+      const stack = section.querySelector('.stack');
+
+      function setExpanded(box, on){
+        box.classList.toggle('active', on);
+        const btn = box.querySelector('.trigger');
+        if(btn) btn.setAttribute('aria-expanded', on ? 'true' : 'false');
+        if (stack){
+          const engaged = boxes.some(b=>b.classList.contains('active'));
+          stack.classList.toggle('engaged', engaged);
+        }
+      }
+
+      boxes.forEach(box=>{
+        const btn  = box.querySelector('.trigger');
+        const tile = box.querySelector('.papertile');
+
+        if(btn){
+          btn.addEventListener('click', e=>{
+            e.stopPropagation();
+            const isOn = box.classList.contains('active');
+            boxes.forEach(b=> { setExpanded(b,false); b.classList.remove('anim-open'); });
+            if (!isOn) {
+              box.classList.add('anim-open');
+              setExpanded(box, true);
+              setTimeout(()=> box.classList.remove('anim-open'), 1200);
+            }
+          });
+          btn.addEventListener('keydown', e=>{
+            if(e.key==='Enter'||e.key===' '){ e.preventDefault(); btn.click(); }
+          });
+        }
+        if(tile){
+          tile.addEventListener('click', e=> e.stopPropagation());
+        }
+      });
+
+      section.addEventListener('click', (e)=>{
+        if (!e.target.closest('.hairline-box')){
+          boxes.forEach(b=> { setExpanded(b,false); b.classList.remove('anim-open'); });
+          stack?.classList.remove('engaged');
+        }
+      });
+
+      section.querySelectorAll('.papertile .financial').forEach(el=>{
+        el.addEventListener('click', e=>{
+          e.stopPropagation();
+          const on = el.classList.toggle('open');
+          el.setAttribute('aria-expanded', on ? 'true' : 'false');
+        });
+        el.addEventListener('keydown', e=>{
+          if(e.key==='Enter'||e.key===' '){ e.preventDefault(); el.click(); }
+        });
+      });
+    })();
+  </script>
+</section>

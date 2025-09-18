@@ -1,0 +1,689 @@
+<section id="serve" data-section="serve" aria-label="Clarity for" class="serve-wrap">
+  <!-- Video layer FIRST inside the section -->
+  <div class="vid-layer"
+       data-src="video.webm"
+       data-src="3.mp4"    
+       data-opacity="0.03"
+       data-speed="0.35"
+       data-blend="soft-light">
+    <video class="vid" muted playsinline loop preload="metadata">
+      <source src="3.mp4"  type="video/mp4">
+      <source src="video.webm" type="video/webm">
+    </video>
+  </div>
+
+  <style>
+    /* ---------------------------
+       Fonts (remain global)
+    ----------------------------*/
+    @font-face { font-family:'HelloParisLight'; src:url('./Fonts/helloparisserif-light.ttf') format('truetype'); font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'Coterie';        src:url('./Fonts/coterie-regular.woff2')     format('woff2');    font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'SimpleSerenity'; src:url('./Fonts/Simple-Serenity-Serif.ttf') format('truetype'); font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'EyesomeR';       src:url('./Fonts/Eyesome-Regular.otf')       format('opentype'); font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'EyesomeI';       src:url('./Fonts/Eyesome-Italic.otf')        format('opentype'); font-weight:400; font-style:italic; font-display:swap; }
+    @font-face { font-family:'Tanpearl';       src:url('./Fonts/Tan-Pearl.ttf')             format('truetype'); font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'Centaur';        src:url('./Fonts/VNcentaur-Regular.ttf')     format('truetype'); font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'Arcadian';       src:url('./Fonts/Arcadian.ttf')              format('opentype'); font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'Arsenica';       src:url('./Fonts/ArsenicaTrial-Regular.ttf') format('truetype'); font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'Canela';         src:url('./Fonts/Canela-Bold.otf')           format('opentype'); font-weight:700; font-style:normal; font-display:swap; }
+    @font-face { font-family:'Anecor';         src:url('./Fonts/anecor-gheroos.otf')        format('opentype'); font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'cotoris';        src:url('./Fonts/cotoris.otf')               format('opentype'); font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'cotorisi';       src:url('./Fonts/cotorisita.otf')            format('opentype'); font-weight:400; font-style:normal; font-display:swap; }
+
+    /* ---------------------------
+       Video overlay (scoped)
+    ----------------------------*/
+    .serve-wrap{ position:relative; }
+    .vid-layer{
+      --vid-opacity: 1;
+      --vid-blend: normal;
+      position:absolute; inset:0; z-index:0; pointer-events:none; overflow:hidden;
+    }
+    .vid-layer .vid{
+      position:absolute; inset:0; width:100%; height:100%;
+      object-fit:cover; opacity:var(--vid-opacity); mix-blend-mode:var(--vid-blend);
+      transform:translateZ(0);
+    }
+    /* Ensure content sits above video */
+    #serve > *:not(.vid-layer){ position:relative; z-index:1; }
+
+    /* ---------------------------
+       Section variables
+    ----------------------------*/
+    :root{
+      --serve-pad-top: 5svh;
+      --serve-pad-bottom: 12svh;
+      --serve-offset-y: -4svh;
+      --serve-max-width: 1270px;
+
+      --notch-left: 10px;
+      --notch-width: 60px;
+      --notch-height: 50px;
+      --notch-round: .55;
+
+      --corner-radius: 14;
+      --notch-gutter: 18;
+      --notch-hug-pad: 18;
+
+      --box-fill: white;
+      --box-shadow-lg: drop-shadow(0 22px 56px rgba(0,0,0,.08));
+      --box-shadow-sm: drop-shadow(0 2px 8px rgba(0,0,0,.05));
+      --lux-curve: cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    /* Scoped reset (no global bleed) */
+    #serve, #serve * { box-sizing: border-box; }
+
+    /* ---------------------------
+       Layout
+    ----------------------------*/
+    .serve-wrap{
+      min-height: 100svh;
+      background: var(--bg-light,#FAF7F2);
+      color: var(--fg-light,#1a1a1a);
+      display: grid;
+      align-items: start;
+      justify-items: center;
+      padding: var(--serve-pad-top) 24px var(--serve-pad-bottom);
+      transition: opacity .35s ease;
+      scroll-snap-align:start;
+    }
+    .container{
+      width: min(var(--serve-max-width), 100%);
+      text-align: center;
+      transform: translateY(var(--serve-offset-y));
+    }
+
+    .title{
+      font-family: 'EyesomeI', serif;
+      font-size: clamp(70px, 8vw, 120px);
+      font-weight: 500;
+      letter-spacing: 0;
+      line-height: 1.1;
+      margin-bottom: 2.8rem;
+      transition: opacity .3s ease;
+      text-align: center;
+    }
+    .serve-wrap.focus-mode .title{ opacity: .6; }
+
+    .tabs{
+      display:flex; flex-wrap:wrap;
+      justify-content: center;
+      gap: 16px 24px;
+      position:relative; z-index:10; transition: opacity .3s ease;
+    }
+    .identity-btn{
+      all:unset; display:inline-block; cursor:pointer; position:relative;
+      padding:6px 10px;
+      font-family: 'Coterie', system-ui, -apple-system, 'Segoe UI', sans-serif;
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: .12em;
+      opacity: .6;
+      transition: opacity .3s ease, transform .3s var(--lux-curve);
+    }
+    .identity-btn:not([aria-selected="true"]):hover { transform: none; opacity: 1; }
+    .identity-btn::after{
+      content:""; position:absolute; left:0; bottom:-4px; height:2px; width:100%; background:#111;
+      opacity:0; transform:scaleX(.6); transform-origin:center;
+      transition: opacity .26s var(--lux-curve), transform .34s var(--lux-curve);
+      pointer-events:none;
+    }
+    .identity-btn:not([aria-selected="true"]):hover::after{ opacity:1; transform:scaleX(1); }
+    .identity-btn[aria-selected="true"]::after{ opacity:0; transform:scaleX(.2); }
+    .tabs.has-active .identity-btn{ opacity:.45; }
+    .tabs.has-active .identity-btn[aria-selected="true"]{ opacity:1; }
+
+    .identity-btn::before{
+      content: attr(data-hint);
+      position:absolute; left:50%; top:calc(100% + 6px);
+      transform: translateX(-50%) translateY(4px);
+      font-family: 'Arsenica', serif;
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: 0;
+      opacity:0; white-space:nowrap; pointer-events:none;
+      transition: opacity .24s var(--lux-curve), transform .24s var(--lux-curve);
+    }
+    .identity-btn:not([aria-selected="true"]):hover::before{
+      opacity:.85; transform:translateX(-50%) translateY(0);
+    }
+    .identity-btn[aria-selected="true"]::before{ opacity:0; }
+
+    .content-stack{ position: relative; margin-top: 1.1rem; min-height: 240px; z-index: 5; }
+    .content-box{
+      position: absolute; inset: 0 auto auto 0; right:0; margin:0 auto;
+      max-width: 100%;
+      opacity:0; pointer-events:none; transform: translateY(8px);
+      transition: opacity .45s var(--lux-curve), transform .45s var(--lux-curve);
+      border: none !important; background: transparent !important;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,.06), 0 8px 24px rgba(0,0,0,.03);
+      box-shadow: inset 0 -1px 2px rgba(255,255,255,.07);
+    }
+    .content-box.show{ position:relative; opacity:1; pointer-events:auto; transform: translateY(0); z-index: 6; }
+
+    .box-skin{
+      position:absolute; left:50%; transform: translateX(-50%);
+      width:100%;
+      height: calc(100% + var(--notch-height));
+      top: calc(-1 * var(--notch-height));
+      filter: var(--box-shadow-lg) var(--box-shadow-sm);
+      pointer-events: none;
+      overflow: visible;
+    }
+    .box-skin .skin-fill { fill: var(--box-fill); shape-rendering: geometricPrecision; }
+
+    .box-content{
+      position: relative; z-index: 1; background: transparent;
+      padding: 20px 3vw 96px;
+      border-radius: 14px;
+      font-family: 'cotoris', ui-serif, serif;
+      font-size: 23px;
+      line-height: 1.3;
+      color:#111;
+      text-align: left;
+    }
+    .box-content ul { list-style: "✧"; }
+    .box-content ul { margin: 0.6em 0 0.8em 2.1em; padding: 0; }
+    .box-content ol { margin: 0em 0 1em 5em; padding: 0; }
+    .box-content li {font-family: 'cotorisi'; margin: 0.1em 0.12em 0; padding-left: 9px; }
+    .box-content br {font-family: 'Canela'; display: block; content: ""; margin-top: 5px; }
+    em, i{ font-style: italic; }
+
+    /* Swipe Swap (right-corner toggle) */
+    .box-content{ position: relative; }
+    .swap{ position: relative; overflow: hidden; }
+    .swap-toggle{
+      position: absolute; bottom: 4px; right: 22px;
+      padding: 2px 6px;
+      font-family: 'Arsenica', system-ui, -apple-system, 'Segoe UI', sans-serif;
+      font-size: 14px; letter-spacing: .12em;
+      cursor: pointer; opacity: .85;
+      transition: opacity .2s ease, transform .24s var(--lux-curve);
+      user-select: none; background: transparent; border: none;
+      z-index: 10; pointer-events: auto;
+    }
+    .swap-toggle::after{
+      content:"";
+      position:absolute; left: 0; right: 0;
+      bottom: -2px;
+      height: 1px;
+      background: currentColor;
+      opacity: .6;
+      transform: scaleX(.6);
+      transform-origin: right center;
+      transition: opacity .25s var(--lux-curve), transform .35s var(--lux-curve);
+    }
+    .swap-toggle:hover{ opacity: 1; transform: translateY(-1px); }
+    .swap-toggle:hover::after{ opacity:1; transform: scaleX(1); }
+
+    .swap-track{
+      display: flex; width: 200%;
+      will-change: transform;
+      transition: transform 520ms var(--lux-curve);
+    }
+    .swap[data-state="a"] .swap-track{ transform: translateX(0%); }
+    .swap[data-state="b"] .swap-track{ transform: translateX(-50%); }
+    .pane{ width: 50%; padding-right: 2rem; box-sizing: border-box; }
+
+    /* Fit-to-viewport helpers (scoped) */
+    #serve.serve-wrap { height: 100svh; overflow: hidden; }
+    #serve .container {
+      transform: translateY(var(--serve-offset-y)) scale(var(--fit-scale, 1));
+      transform-origin: top center;
+    }
+  </style>
+
+  <div class="container">
+    <h2 class="title">Clarity For</h2>
+
+    <div class="tabs" role="tablist" aria-label="Client identities">
+      <button role="tab" aria-selected="false" aria-controls="box-0" id="tab-0"
+              class="identity-btn"
+              data-hint="Founders · CEOs · Creators"
+              data-notch-height="60">Vision Builders</button>
+
+      <button role="tab" aria-selected="false" aria-controls="box-1" id="tab-1"
+              class="identity-btn"
+              data-hint="COOs · Operators · Product Leads"
+              data-notch-height="60">System Shapers</button>
+
+      <button role="tab" aria-selected="false" aria-controls="box-2" id="tab-2"
+              class="identity-btn"
+              data-hint="Solo Builders · Advisors · Investors"
+              data-notch-height="60">Solo Strategists</button>
+
+      <button role="tab" aria-selected="false" aria-controls="box-3" id="tab-3"
+              class="identity-btn"
+              data-hint="Edge-cases Welcome"
+              data-notch-height="60">Beyond These</button>
+    </div>
+
+    <div class="content-stack" aria-live="polite" data-mode="auto">
+      <!-- BOX 0 -->
+      <div id="box-0" class="content-box">
+        <svg class="box-skin" aria-hidden="true"></svg>
+        <div class="box-content">
+          <div class="swap" data-state="a">
+            <button class="swap-toggle" type="button" data-label-a="Clarity Is" data-label-b="Previous" onclick="elysianSwapToggle(this)">Clarity Is</button>
+            <div class="swap-track">
+              <!-- Pane A: Vision Builders -->
+              <article class="pane pane-a">
+                <i><b>Founder. Businessman. Entrepreneur.</b>— Torchbearers of vision.</i>
+                <br>They call you many names — visionary, leader, founder —
+                but what you are is a man of vision.
+                <ul>
+                  <li>Building from nothing, not once, but over and over again.</li>
+                  <li>Holding that vision through fog and doubt.</li>
+                  <li>Making others believe — not in you, but in your vision; while bringing the vision to life.</li>
+                </ul>
+                This is you.
+                <br>People
+                <i><span style="text-decoration:underline; cursor:pointer;" title="Only if you succeed.">admire</span></i> your drive. Few feel the cost.
+              </article>
+
+              <!-- Pane B: Vision Builders — Clarity Is -->
+              <article class="pane pane-b">
+                <p><strong>Clarity is Mental oxygen.</strong> <br>Depending on when and where you are, it changes its name.
+                Early on, for a founder, it might mean this:</p>
+                <i>Clarity makes your vision crystal clear.
+                  <ul>
+                    <li>You know why you have this vision. What you wish to accomplish from it.</li>
+                    <li>Whether it’s practical. To what extent it can become real.</li>
+                    <li>And how you’re going to build it — without losing it along the way.</li>
+                  </ul>
+                </i>
+              </article>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOX 1 -->
+      <div id="box-1" class="content-box">
+        <svg class="box-skin" aria-hidden="true"></svg>
+        <div class="box-content">
+          <div class="swap" data-state="a">
+            <button class="swap-toggle" type="button" data-label-a="Clarity Is" data-label-b="Previous" onclick="elysianSwapToggle(this)">Clarity Is</button>
+            <div class="swap-track">
+              <!-- Pane A: System Shapers -->
+              <article class="pane pane-a">
+                <i><b>COO. Operator. Product Lead.</b> — Architects of motion.</i>
+                <br>You run the system?
+                <b>No — you are the system.</b>
+                <ul>
+                  <li>One hidden thread holding the entire architecture together.</li>
+                  <li>Adapting, realigning, keeping it coherent while everything moves at once.</li>
+                  <li>People <span style="text-decoration:underline; cursor:pointer;" title="as long it's working perfectly.">rely</span> on your structure. But it’s you who’s kept it running.</li>
+                </ul>
+                <i>And maybe — just maybe
+                <br>— now it’s running you &amp; clarity is slipping.</i>
+              </article>
+
+              <!-- Pane B: System Shapers — Clarity Is -->
+              <article class="pane pane-b">
+                <p><strong>Clarity is Mental oxygen.</strong> <br>Depending on when and where you are, it changes its name.
+                For a System Shaper, it often means this:</p>
+                <i>Clarity restores the full map.
+                  <ul>
+                    <li>When urgency narrows your field of view, it gives the system back its shape.</li>
+                    <li>It reveals what’s essential, what’s friction, what no longer scales.</li>
+                    <li>So the machine runs — without running you.</li>
+                  </ul>
+                </i>
+              </article>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOX 2 -->
+      <div id="box-2" class="content-box">
+        <svg class="box-skin" aria-hidden="true"></svg>
+        <div class="box-content">
+          <div class="swap" data-state="a">
+            <button class="swap-toggle" type="button" data-label-a="Clarity Is" data-label-b="Previous" onclick="elysianSwapToggle(this)">Clarity Is</button>
+            <div class="swap-track">
+              <!-- Pane A: Solo Strategists -->
+              <article class="pane pane-a">
+                <i><b>Solo builder. Indie founder. Individual Operator.</b> — Systems of one.</i>
+                <br>One-man army
+                <b> — that is what you are.</b>
+                <ul>
+                  <li>Physically performing all those endless tasks. Mentally thinking almost like a machine.</li>
+                  <li>The effort is only known to you. The weight, only felt by you.</li>
+                  <li>People admire your <span style="text-decoration:underline; cursor:pointer;" title="if it makes you more money — and allows you to live freely.">freedom and independence.</span></li>
+                </ul>
+                <i>Is there anything wrong? — No. Not at all.
+                <br>But maybe — just maybe — a single mind may not cover all aspects.
+                <br>And having another one beside it might make all the difference.</i>
+              </article>
+
+              <!-- Pane B: Solo Strategists — Clarity Is -->
+              <article class="pane pane-b">
+                <p><strong>Clarity is Mental oxygen.</strong> <br>Depending on when and where you are, it changes its name.
+                For a Solo Strategist, it often means this:</p>
+                <i>Clarity reorients the internal compass.
+                  <ul>
+                    <li>It names the real priority hiding beneath the pile.</li>
+                    <li>It ends the loops — not with certainty, but with precision.</li>
+                    <li>So the decisions are sharp, and the silence isn’t so loud.</li>
+                  </ul>
+                </i>
+              </article>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOX 3 -->
+      <div id="box-3" class="content-box">
+        <svg class="box-skin" aria-hidden="true"></svg>
+        <div class="box-content">
+          <div class="swap" data-state="a">
+            <button class="swap-toggle" type="button" data-label-a="Clarity Is" data-label-b="Previous" onclick="elysianSwapToggle(this)">Clarity Is</button>
+            <div class="swap-track">
+              <!-- Pane A: Beyond These -->
+              <article class="pane pane-a">
+                <i><b>You are none — or maybe all of them.</b> — You are you.</i>
+                <br>Some concerns don’t fit anywhere. Others seem to fit everywhere.
+                 Life doesn’t only involve professional settings.
+                <ul>
+                  <li>It’s personal, deeply complex, and mostly never talked about.</li>
+                  <li>Much less navigated.</li>
+                  <li>Does it need to be navigated?</li>
+                </ul>
+                <i>Not necessarily — if you’re satisfied.
+                <br>But perhaps — 
+                <br>clarity in life is the most practical way to reach that satisfaction.</i>
+              </article>
+
+              <!-- Pane B: Beyond These — Clarity Is -->
+              <article class="pane pane-b">
+                <p><strong>Clarity is Mental oxygen.</strong></p>
+                <i>Clarity for you is:
+                  <ul>
+                    <li>Personal.</li>
+                    <li>Practical.</li>
+                    <li>Executable.</li>
+                  </ul>
+                </i>
+              </article>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content-stack -->
+  </div>
+
+  <script>
+    /* Keep the public toggle for inline onclick compatibility */
+    window.elysianSwapToggle = function(btn){
+      const swap = btn.closest('.swap');
+      if(!swap) return;
+
+      const labelA = btn.getAttribute('data-label-a') || 'Reveal';
+      const labelB = btn.getAttribute('data-label-b') || 'Back';
+
+      const cur  = swap.getAttribute('data-state') || 'a';
+      const next = (cur === 'a') ? 'b' : 'a';
+
+      swap.setAttribute('data-state', next);
+      btn.textContent = (next === 'a') ? labelA : labelB;
+
+      // ensure height stays constant (tallest of a/b)
+      stabilizeSwapHeights(swap.closest('.content-box') || document);
+
+      // still ping resize so the notch redraws crisply
+      window.dispatchEvent(new Event('resize'));
+    };
+  </script>
+
+  <script>
+    (function(root){
+      const wrap  = root.querySelector('.serve-wrap') || root;
+      const tabs  = root.querySelector('.tabs');
+      const btns  = Array.from(tabs.querySelectorAll('.identity-btn'));
+      const stack = root.querySelector('.content-stack');
+      const boxes = Array.from(stack.querySelectorAll('.content-box'));
+
+      let active = -1;
+      let ro;
+
+      function drawSkin(box, metrics){
+        const svg  = box.querySelector('.box-skin');
+        const rect = box.getBoundingClientRect();
+        const w    = Math.round(rect.width);
+        const h    = Math.round(rect.height);
+
+        const cs   = getComputedStyle(stack);
+        const r    = parseFloat(cs.getPropertyValue('--corner-radius')) || 20;
+        const defaultGutter = parseFloat(cs.getPropertyValue('--notch-gutter')) || Math.round(r * 0.6);
+
+        const pad   = Math.max(0, (metrics.gutter != null ? +metrics.gutter : defaultGutter));
+        const maxW  = Math.max(20, w - 2*(r + pad));
+        const m = {
+          left:   Math.min(Math.max(Math.round(metrics.left  ?? 0), r + pad), w - r - pad),
+          width:  Math.min(Math.max(Math.round(metrics.width ?? 0), 16), maxW),
+          height: Math.max(Math.round(metrics.height ?? 0), 8)
+        };
+        m.left = Math.min(m.left, w - r - pad - m.width);
+
+        const nl = m.left, nw = m.width, nh = m.height;
+        const baseLimit = Math.max(0, Math.min(nh / 2, nw / 2 - 1));
+let bumpRx = baseLimit;
+
+// Priority 1: explicit px radius if provided via metrics.radius
+if (metrics.radius != null && isFinite(metrics.radius)) {
+  bumpRx = Math.max(0, Math.min(metrics.radius, baseLimit));
+} else {
+  // Priority 2: factor (0..1) from CSS var --notch-round
+  const roundVar = parseFloat(
+    getComputedStyle(document.documentElement).getPropertyValue('--notch-round')
+  );
+  const factor = isFinite(roundVar) ? Math.max(0, Math.min(roundVar, 1)) : 0.5;
+  bumpRx = Math.max(0, Math.min(baseLimit * factor, baseLimit));
+}
+// If bumpRx ≈ 0, corners are nearly square.
+
+
+        svg.setAttribute('viewBox', `0 0 ${w} ${h + nh}`);
+        svg.setAttribute('preserveAspectRatio', 'none');
+
+        const d = [
+          `M${r},${nh}`,
+          `H${nl}`,
+          `v${-nh + bumpRx}`,
+          `a${bumpRx},${bumpRx} 0 0 1 ${bumpRx},${-bumpRx}`,
+          `h${nw - 2*bumpRx}`,
+          `a${bumpRx},${bumpRx} 0 0 1 ${bumpRx},${bumpRx}`,
+          `v${nh - bumpRx}`,
+          `H${w - r}`,
+          `A${r},${r} 0 0 1 ${w},${nh + r}`,
+          `V${h - r}`,
+          `A${r},${r} 0 0 1 ${w - r},${h}`,
+          `H${r}`,
+          `A${r},${r} 0 0 1 0,${h - r}`,
+          `V${nh + r}`,
+          `A${r},${r} 0 0 1 ${r},${nh}`,
+          `Z`
+        ].join(' ');
+
+        svg.innerHTML = `<path d="${d}" class="skin-fill"></path>`;
+        box.style.setProperty('--notch-height', nh + 'px');
+      }
+
+      function autoMetricsFor(btn, box){
+        const btnRect  = btn.getBoundingClientRect();
+        const boxRect  = box.getBoundingClientRect();
+        const pad      = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--notch-hug-pad')) || 18;
+
+        const left  = (btnRect.left + btnRect.width/2) - boxRect.left - (btnRect.width + pad)/2;
+        const width = btnRect.width + pad;
+        const height = parseFloat(getComputedStyle(stack).getPropertyValue('--notch-height')) || 36;
+        return { left, width, height };
+      }
+
+      function metricsFor(btn, box){
+        let m = autoMetricsFor(btn, box);
+        const bd = btn.dataset;
+        const bx = box.dataset;
+        if (bd.notchLeft   && !Number.isNaN(parseFloat(bd.notchLeft  ))) m.left   = parseFloat(bd.notchLeft);
+        if (bd.notchWidth  && !Number.isNaN(parseFloat(bd.notchWidth ))) m.width  = parseFloat(bd.notchWidth);
+        if (bd.notchHeight && !Number.isNaN(parseFloat(bd.notchHeight))) m.height = parseFloat(bd.notchHeight);
+        if (bd.notchGutter && !Number.isNaN(parseFloat(bd.notchGutter))) m.gutter = parseFloat(bd.notchGutter);
+        if (bx.notchLeft   && !Number.isNaN(parseFloat(bx.notchLeft  ))) m.left   = parseFloat(bx.notchLeft);
+        if (bx.notchWidth  && !Number.isNaN(parseFloat(bx.notchWidth ))) m.width  = parseFloat(bx.notchWidth);
+        if (bx.notchHeight && !Number.isNaN(parseFloat(bx.notchHeight))) m.height = parseFloat(bx.notchHeight);
+        if (bx.notchGutter && !Number.isNaN(parseFloat(bx.notchGutter))) m.gutter = parseFloat(bx.notchGutter);
+        return m;
+      }
+
+      function setFocusMode(on){
+        tabs.classList.toggle('has-active', on);
+        wrap.classList.toggle('focus-mode', on);
+      }
+
+      function observeFor(i){
+        if (ro) ro.disconnect();
+        ro = new ResizeObserver(() => { if (active >= 0) show(active); });
+        ro.observe(tabs);
+        ro.observe(stack);
+        if (btns[i]) ro.observe(btns[i]);
+      }
+
+      function show(i){
+        boxes.forEach((box, idx)=> box.classList.toggle('show', idx===i));
+        btns.forEach((b, idx)=> b.setAttribute('aria-selected', idx===i ? 'true' : 'false'));
+        setFocusMode(true);
+        active = i;
+
+        const box = boxes[i];
+        const btn = btns[i];
+
+        requestAnimationFrame(()=>{
+          const metrics = metricsFor(btn, box);
+          drawSkin(box, metrics);
+          observeFor(i);
+        });
+      }
+
+      function reset(){
+        boxes.forEach(b=> b.classList.remove('show'));
+        btns.forEach(b=> b.setAttribute('aria-selected','false'));
+        setFocusMode(false);
+        active = -1;
+        if (ro) ro.disconnect();
+      }
+
+      // Tab clicks
+      btns.forEach((btn, i)=> btn.addEventListener('click', (e)=> { e.stopPropagation(); show(i); }));
+
+      // Outside click closes
+      document.addEventListener('click', (e)=>{
+        if (e.target.closest('.identity-btn') || e.target.closest('.content-box')) return;
+        reset();
+      });
+      document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') reset(); });
+
+      window.addEventListener('resize', ()=> { if(active>=0) show(active); }, {passive:true});
+
+      // start idle (no card open)
+      (function init(){})();
+    })(document.getElementById('serve'));
+  </script>
+
+  <script>
+  (function(){
+    const section = document.getElementById('serve');
+    if(!section) return;
+    const wrap = section;              // .serve-wrap is the section itself
+    const cont = section.querySelector('.container');
+
+    // NEW: freeze the initial (baseline) content height once
+    let baselineH = null;
+
+    function fit(){
+      if(!wrap || !cont) return;
+
+      // measure baseline once at natural size
+      if (baselineH == null) {
+        cont.style.setProperty('--fit-scale','1');          // ensure unscaled for measurement
+        // Give layout a tick in case fonts just loaded
+        baselineH = cont.getBoundingClientRect().height || 1;
+      }
+
+      const cs = getComputedStyle(wrap);
+      const pt = parseFloat(cs.paddingTop) || 0;
+      const pb = parseFloat(cs.paddingBottom) || 0;
+      const available = wrap.clientHeight - pt - pb;
+
+      // Use the frozen baseline height so swapping panes won't re-shrink the section
+      const s = Math.min(1, available / Math.max(1, baselineH));
+      cont.style.setProperty('--fit-scale', s.toFixed(3));
+    }
+
+    const ro = new ResizeObserver(fit);
+    if(wrap) ro.observe(wrap);
+    window.addEventListener('resize', fit, { passive: true });
+    window.addEventListener('orientationchange', fit);
+    document.addEventListener('readystatechange', fit);
+
+    // run once
+    fit();
+
+    // Keep your stabilizeSwapHeights util as-is
+    window.stabilizeSwapHeights = function(scope){
+      const host   = scope && scope.querySelector ? scope : document;
+      const tracks = host.querySelectorAll('.swap-track');
+      tracks.forEach(track=>{
+        const panes = Array.from(track.children);
+        const maxH  = panes.reduce((m,p)=> Math.max(m, p.getBoundingClientRect().height), 0);
+        track.style.minHeight = Math.ceil(maxH) + 'px';
+      });
+    };
+  })();
+</script>
+
+  <!-- Per-section video boot: reads data-opacity/speed/blend and plays (speed sticky) -->
+  <script>
+    (function(){
+      const section = document.getElementById('serve');
+      if(!section) return;
+
+      const layer = section.querySelector('.vid-layer');
+      const vid   = layer && layer.querySelector('video.vid');
+      if(!layer || !vid) return;
+
+      // Apply controls from data-attributes (visual only)
+      const op    = parseFloat(layer.dataset.opacity ?? '1');
+      const rate  = parseFloat(layer.dataset.speed   ?? '1');
+      const blend = (layer.dataset.blend || 'normal').trim();
+      layer.style.setProperty('--vid-opacity', isFinite(op) ? op : 1);
+      layer.style.setProperty('--vid-blend',   blend || 'normal');
+
+      // If <video> has no src attribute, we leave sources to the <source> tags.
+      // (If you ONLY used data-src, you could do: if (!vid.src && layer.dataset.src) vid.src = layer.dataset.src;)
+
+      // Sticky playbackRate — reapply when browsers reset it
+      function applyRate(){
+        const r = (isFinite(rate) && rate > 0) ? rate : 1;
+        try { vid.defaultPlaybackRate = r; } catch(_) {}
+        try { vid.playbackRate        = r; } catch(_) {}
+      }
+      vid.addEventListener('loadedmetadata', applyRate);
+      vid.addEventListener('canplay',        applyRate);
+      vid.addEventListener('play',           applyRate);
+      vid.addEventListener('ratechange',     () => {
+        const r = (isFinite(rate) && rate > 0) ? rate : 1;
+        if (Math.abs(vid.playbackRate - r) > 1e-3) applyRate();
+      });
+
+      // Start playback
+      applyRate();
+      const p = vid.play && vid.play();
+      if (p && p.catch) p.catch(()=>{/* muted autoplay should allow */});
+    })();
+  </script>
+</section>

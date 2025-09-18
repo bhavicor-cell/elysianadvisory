@@ -1,0 +1,621 @@
+<section id="clarity-in-action" class="ci" data-stage="0" aria-labelledby="cia-title">
+  <!-- === VIDEO OVERLAY (behind all content) === -->
+  <div class="vid-layer"
+       data-src="video.webm"
+       data-opacity="0.025"
+       data-speed="0.25"
+       data-blend="soft-light">
+    <video class="vid" muted playsinline loop preload="metadata">
+      <source src="video.webm" type="video/webm">
+    </video>
+  </div>
+
+  <style>
+    /* === keep video behind everything in this section === */
+    #clarity-in-action{ position: relative; }
+    /* full-bleed video layer shown only while this section is in view */
+    #clarity-in-action .vid-layer{
+      --vid-opacity:.28;
+      --vid-blend:normal;
+      position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;
+      visibility:hidden; /* toggled by IO when section is in view */
+    }
+    #clarity-in-action .vid-layer .vid{
+      position:absolute; inset:0; width:100%; height:100%;
+      object-fit:cover; opacity:var(--vid-opacity); mix-blend-mode:var(--vid-blend);
+      transform:translateZ(0);
+    }
+    #clarity-in-action > *:not(.vid-layer){ position:relative; z-index:1; }
+
+    /* --------------------------- Fonts (kept local) ----------------------------*/
+    @font-face { font-family:'HelloParisLight'; src:url('./Fonts/helloparisserif-light.ttf') format('truetype'); font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'Coterie';        src:url('./Fonts/coterie-regular.woff2')     format('woff2');    font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'SimpleSerenity'; src:url('./Fonts/Simple-Serenity-Serif.ttf') format('truetype'); font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'EyesomeR';       src:url('./Fonts/Eyesome-Regular.otf')       format('opentype'); font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'EyesomeI';       src:url('./Fonts/Eyesome-Italic.otf')        format('opentype'); font-weight:400; font-style:italic; font-display:swap; }
+    @font-face { font-family:'Tanpearl';       src:url('./Fonts/Tan-Pearl.ttf')             format('truetype'); font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'Centaur';        src:url('./Fonts/VNcentaur-Regular.ttf')     format('truetype'); font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'Arcadian';       src:url('./Fonts/Arcadian.ttf')              format('opentype'); font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'Arsenica';       src:url('./Fonts/ArsenicaTrial-Regular.ttf') format('opentype'); font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'Canela';         src:url('./Fonts/Canela-Bold.otf')           format('opentype'); font-weight:700; font-style:normal; font-display:swap; }
+    @font-face { font-family:'Anecor';         src:url('./Fonts/anecor-gheroos.otf')        format('opentype'); font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'cotoris';        src:url('./Fonts/cotoris.otf')               format('opentype'); font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'cotorisi';       src:url('./Fonts/cotorisita.otf')            format('opentype'); font-weight:400; font-style:normal; font-display:swap; }
+
+    /* --------------------------- Base tokens ----------------------------*/
+    :root{
+      --bg-dark:#121212; --fg-dark:#EDE8DF; --s1-dark:#1A1A1A; --border-dark:#2A2A2A; --paper-dark:#181818; --muted-dark:#BEB9B0;
+      --bg-light:#FAF7F2; --fg-light:#1A1A1A; --s1-light:#F4EFE7; --border-light:#E4DBCE; --paper-light:#F5F1E8; --muted-light:#4B4B4B;
+      --shadow-d:0 18px 48px rgba(0,0,0,.25);
+      --shadow-l:0 18px 48px rgba(0,0,0,.06), 0 2px 8px rgba(0,0,0,.04);
+      --panel-fixed: 300px; /* panel height */
+    }
+    html[data-theme="dark"]{ --bg:var(--bg-dark); --fg:var(--fg-dark); --s1:var(--s1-dark); --border:var(--border-dark); --paper:var(--paper-dark); --muted:var(--muted-dark); --shadow:var(--shadow-d); }
+    html[data-theme="light"]{ --bg:var(--bg-light); --fg:var(--fg-light); --s1:var(--s1-light); --border:var(--border-light); --paper:var(--paper-light); --muted:var(--muted-light); --shadow:var(--shadow-l); }
+
+    /* Local fallback palette */
+    #clarity-in-action{ --bg:#FAF7F2; --fg:#1A1A1A; --s1:#F4EFE7; --border:#E4DBCE; --paper:#F5F1E8; --muted:#4B4B4B; --shadow:0 18px 48px rgba(0,0,0,.06), 0 2px 8px rgba(0,0,0,.04); }
+    #clarity-in-action, #clarity-in-action *{ box-sizing:border-box; }
+
+    /* ================== ONE-SCREEN SECTION ================== */
+    #clarity-in-action.ci{
+      --section-pt: clamp(12px, 2vh, 24px);
+      --section-pb: clamp(8px,  2vh, 17px);
+      --gap-after-title: 6px; --gap-after-tabs: 10px; --gap-after-shelf: 15px;
+      --panel-gutter: 12px; --panel-maxh-fallback: 60vh;
+      --title-size: clamp(60px, 7.2vw, 100px);
+
+      position:relative; max-width:1300; margin: 0 auto; width: 100vw;
+      padding: clamp(24px, 6vw, 64px) 20px;
+      padding-top: var(--section-pt);
+      padding-bottom: var(--section-pb);
+      min-height: 100svh;
+      overflow:hidden; /* keeps internal bits tidy; video is fixed so not clipped */
+      display: grid;
+      grid-template-rows: auto auto auto 1fr; /* Title | Tabs | Shelf | Panel */
+      align-content: start; justify-items: start;
+      background: var(--bg); color: var(--fg);
+      font: 400 16px/1.65 system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+      overflow-x:hidden;
+    }
+    @supports (height: 100dvh){ #clarity-in-action.ci{ min-height: 100dvh; } }
+
+    .ci{
+      --shelf-maxw: 980px; --shelf-pad-y: 12px; --track-gap: 10px; --card-w:320px; --card-radius: 14px; --card-pad: 12px 14px;
+      --card-border: var(--border); --card-bg: transparent; --card-head-size: 12px; --card-tag-size: 12px; --card-meta-size: 12px; --card-meta-color: var(--muted);
+      --card-sel-bg: var(--paper); --card-sel-shadow: var(--shadow); --card-sel-border: var(--border);
+      --arrow-size: 36px; --arrow-bg: color-mix(in srgb, var(--fg) 6%, transparent); --arrow-border: var(--border); --arrow-color: var(--fg);
+      --panel-bg: #fff; --panel-radius: 20px; --panel-pad: clamp(22px, 2.2vw, 36px); --panel-border: color-mix(in srgb, var(--border) 65%, #fff); --panel-shadow: var(--shadow);
+      --panel-size: clamp(16px, 1.15vw, 18px); --panel-line: 1.4; --panel-maxw: min(105ch, 200vw);
+      --reveal-buttons: 700; --reveal-shelf: 850; --reveal-ease: cubic-bezier(.2,.8,.2,1); --reveal-offset:8px; --panel-reveal:600; --panel-ease: var(--reveal-ease);
+      --panel-offset:8px; --panel-scale:.985; --panel-blur:8px; --panel-shadow-start:0 6px 14px rgba(0,0,0,.04); --reveal-panel-delay:120;
+      --subtab-bg: color-mix(in srgb, var(--fg) 4%, transparent); --subtab-ink: var(--fg); --subtab-border: var(--border); --subtab-height: 38px;
+      --ease: cubic-bezier(.2,.8,.2,1);
+      --center-gutter: 16px; --divider-top: 28px; --divider-bottom: 24px; --ir-col-gap: 24px; --ir-row-gap: 12px; --ir-gutter: 10px;
+    }
+
+    .ci h2{ font-family:'EyesomeI', serif; font-weight:400; font-size: var(--title-size); margin: 0 0 var(--gap-after-title); letter-spacing:.2px; line-height:1.2; text-align:left; }
+
+    /* Staged reveal */
+    .ci .tabs, .ci .ci-shelf, .ci .ci-detail{ will-change: opacity, transform; }
+    #clarity-in-action .tabs[hidden], #clarity-in-action .ci-shelf[hidden], #clarity-in-action .ci-detail[hidden]{ display:none !important; }
+    .ci[data-stage="0"] .tabs, .ci[data-stage="0"] .ci-shelf, .ci[data-stage="0"] .ci-detail{ opacity:0; transform: translateY(var(--reveal-offset)); pointer-events:none; }
+    .ci[data-stage="1"] .tabs{ animation: fadeIn calc(var(--reveal-buttons) * 1ms) var(--reveal-ease) both; }
+    .ci[data-stage="1"] .tabs .identity-btn{ opacity:0; transform: translateY(var(--reveal-offset)); animation: fadeInUp calc(var(--reveal-buttons) * 1ms) var(--reveal-ease) both; }
+    .ci[data-stage="1"] .tabs .identity-btn:nth-child(1){ animation-delay: 80ms; }
+    .ci[data-stage="1"] .tabs .identity-btn:nth-child(2){ animation-delay: 140ms; }
+    .ci[data-stage="1"] .tabs .identity-btn:nth-child(3){ animation-delay: 200ms; }
+    .ci[data-stage="1"] .tabs .identity-btn:nth-child(4){ animation-delay: 260ms; }
+    .ci[data-stage="2"] .ci-shelf{ animation: fadeInUp calc(var(--reveal-shelf) * 1ms) var(--reveal-ease) both; }
+    .ci[data-stage="3"] .ci-detail{ animation: panelLift calc(var(--panel-reveal) * 1ms) var(--panel-ease) both; }
+    @keyframes fadeInUp{ from{ opacity:0; transform: translateY(var(--reveal-offset)); } to{ opacity:1; transform:none; } }
+    @keyframes fadeIn{ from{ opacity:0; } to{ opacity:1; } }
+    @keyframes panelLift{ from{ opacity:0; transform: translateY(var(--panel-offset)) scale(var(--panel-scale)); filter: blur(var(--panel-blur)); box-shadow: var(--panel-shadow-start); } to{ opacity:1; transform:none; filter: blur(0); box-shadow: var(--panel-shadow); } }
+
+    /* Shelf/cards/panel */
+    .ci .tabs{ display:flex; flex-wrap:wrap; justify-content:left; gap:10px 0; position:relative; z-index:1; margin-bottom: var(--gap-after-tabs); padding-bottom:2px; }
+    .ci .identity-btn{ all:unset; display:inline-block; cursor:pointer; position:relative; padding:6px 10px; font-family:'Coterie', system-ui, -apple-system, 'Segoe UI', sans-serif; font-size:12px; letter-spacing:.12em; opacity:.6; color:#111; transition: opacity .24s ease, transform .3s var(--reveal-ease), color .24s ease; }
+    .ci .identity-btn::after{ content:""; position:absolute; left:0; bottom:-4px; height:2px; width:100%; background:#111; opacity:0; transform:scaleX(.6); transform-origin:center; transition: opacity .24s var(--reveal-ease), transform .34s var(--reveal-ease); pointer-events:none; }
+    .ci .identity-btn[aria-selected="true"]{ opacity:1; color:#111; }
+    .ci .identity-btn[aria-selected="true"]::after{ opacity:1; transform:scaleX(1); }
+    .ci .tabs.has-active .identity-btn{ opacity:.45; }
+    .ci .tabs.has-active .identity-btn[aria-selected="true"]{ opacity:1; }
+    .ci .identity-btn::before{ content: attr(data-hint); position:absolute; left:50%; top:calc(100% + 6px); transform: translateX(-50%) translateY(4px); font-family:'Arsenica', serif; font-size:9px; opacity:0; white-space:nowrap; transition: opacity .24s var(--reveal-ease), transform .24s var(--reveal-ease); }
+    .ci .identity-btn:not([aria-selected="true"]):hover::before, .ci .identity-btn[aria-selected="true"]::before{ opacity:.85; transform:translateX(-50%) translateY(0); }
+
+    .ci-shelf{ align-self: center; display:grid; grid-template-columns: var(--arrow-size) 1fr var(--arrow-size); column-gap: 12px; align-items: center; padding: var(--shelf-pad-y) 0; margin-top: var(--gap-after-shelf); }
+    .ci-arrow{ width: var(--arrow-size); height: var(--arrow-size); border-radius:999px; border:1px solid var(--arrow-border); background:var(--arrow-bg); color: var(--arrow-color); display:grid; place-items:center; cursor:pointer; justify-self:center; align-self:center; }
+    .ci-arrow[disabled]{ opacity:.35; cursor: default; }
+    .ci-shelf-viewport{ display: flex; justify-content: center; overflow-y: visible; overflow-x:visible; max-width: var(--shelf-maxw); margin: 0 auto; width: 100%; justify-content: center; }
+    .ci-shelf-track{ display:flex; flex:0 0 auto; width: max-content; margin: 0 auto; transform: none !important; gap: var(--track-gap); will-change: transform; transition: transform .50s var(--reveal-ease); width: max-content;}
+    .ci-card{ flex: 0 0 auto; width: var(--card-w); border:1px solid var(--card-border); border-radius: var(--card-radius); padding: var(--card-pad); background: var(--card-bg); cursor:pointer; transition: box-shadow .2s ease, background-color .2s ease, border-color .2s ease, transform .25s ease; font-family:'cotoris', ui-serif, serif; color: var(--fg); }
+    .ci-card:hover{ transform: translateY(-2px); }
+    .ci-card[aria-selected="true"]{ background: var(--card-sel-bg); box-shadow: var(--card-sel-shadow); border-color: var(--card-sel-border); }
+    .ci-card .tag{ display:inline-block; font-size: var(--card-tag-size); color: var(--muted); margin-bottom:14px; font-family: 'Arsenica'; }
+    .ci-card .headline{ font-family:'Canela', ui-serif, serif; font-weight:400; font-size: 18px; margin: 0 0 10px; color: var(--fg); }
+    .ci .ci-shelf{ justify-self: stretch; width: 100%;}
+    .ci-card .subtext{ display: inline-flex; justify-content: center; width: 100%; align-items: baseline; column-gap: 40px; white-space: pre; overflow: hidden; text-overflow: ellipsis; margin-top: 6px; }
+    .ci-card .subtext .sub{ white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: inline; }
+    .ci-card .sub{ font-family: 'Arsenica'; font-size: 12px; line-height: 1.35; color: var(--muted); }
+    .ci-card .chips{ display:flex; flex-wrap:wrap; row-gap: 0; column-gap: 8px; margin-top: 6px; }
+    .ci-card .chip{ padding:0; border:0; background:none; color: var(--card-meta-color); font-size: var(--card-meta-size); line-height:1.2; font-family: 'Canela', system-ui, -apple-system, 'Segoe UI', sans-serif; }
+    /* FIXED escape here */
+    .ci-card .chip + .chip::before{ content: "✧\2009"; margin: 0 6px; color: var(--card-meta-color); }
+
+    .ci-detail{ margin-top: 10px; min-height: 0; display:grid; grid-template-columns: 1fr; width: 100%; align-items: start; }
+    .ci-detail .ea-surface-paper{
+      background: var(--panel-bg); border-radius: var(--panel-radius); padding: var(--panel-pad);
+      border: 1px solid var(--panel-border);
+      font-family: 'cotorisi', ui-serif, Georgia, 'Times New Roman', serif; font-size: 21px; line-height: var(--panel-line);
+      max-width: var(--panel-maxw); width: 100%; text-align: left; position:relative; justify-content: center;
+      box-shadow: none !important; height: var(--panel-fixed);
+      overflow: hidden; -webkit-overflow-scrolling: auto; align-self: start; padding-top: 15px;
+    }
+
+    #clarity-in-action .ci-detail, #clarity-in-action #ciDetail, #clarity-in-action .ea-surface-paper{ box-shadow:none !important; filter:none !important; }
+    #clarity-in-action .ci-detail::before, #clarity-in-action .ci-detail::after, #clarity-in-action #ciDetail::before, #clarity-in-action #ciDetail::after{ content:none !important;}
+    /* In panel title, ignore manual <br> coming from card headlines */
+    #ciDetail .casehead .title br { display: none; }
+
+    /* BULLET GAP CHANGE: em-space after glyph */
+    #ciDetail .block li::marker{
+      content: "✧\2005";
+      font-size: 0.9em;
+      color: var(--muted);
+      font-family: 'Arsenica', serif;
+    }
+
+    .ci-detail .ea-surface-paper .view-viewport{ height:100% !important; overflow:hidden !important; }
+    .ci-detail .ea-surface-paper, .ci-detail .ea-surface-paper .view-viewport{ overflow-x:hidden !important; }
+    .view-pane{ left:0; right:0; }
+
+    #ciDetail .casehead{ margin-bottom: 0px; }
+    #ciDetail .casehead .tagline{ display:none; font-family: 'Arsenica', serif; font-size: 12px; letter-spacing: .08em; color: var(--muted); margin-bottom: 10px; }
+    #ciDetail .casehead .title{ font-family: 'Canela', ui-serif, serif; font-weight: 700; font-size: clamp(20px, 1.4vw, 26px); line-height: 1.25; margin-bottom: 0px !important; }
+    #ciDetail .kv.subtle{ display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 10px; margin-top:2px; color: var(--muted); font-size:15px; }
+    #ciDetail .kv.subtle .dot{ display:none; } #ciDetail .kv.subtle span:not(.dot) + span:not(.dot)::before{ content:"•"; opacity:.45; margin:0 8px; }
+
+    .pane-eo .card-divider{ top: var(--divider-top) !important; bottom: var(--divider-bottom) !important; }
+    .pane-eo .card-divider::before{ background:#e3ded6 !important; }
+    .pane-ir .two-col{ column-gap: var(--ir-col-gap); row-gap: var(--ir-row-gap); }
+    .pane-ir .block h3{ margin: 0 0 6px; }
+    .pane-ir .two-col > :first-child{ padding-right: var(--ir-gutter); }
+    .pane-ir .two-col > :last-child { padding-left:  var(--ir-gutter); }
+
+    .card-divider{ position:absolute; left:50%; top: var(--divider-top); bottom: var(--divider-bottom); width:1px; }
+    .card-divider::before{ content:""; position:absolute; left:0; top:0; width:1px; height:0; background:#dcd7cf; transition: height .6s var(--panel-ease) .3s; }
+    .card-divider.loaded::before{ height:100%; }
+
+    .panel-tabs{ display:flex; gap:12px; margin: 9px 0 1px; }
+    .panel-tab{ position:relative; overflow:hidden; height:var(--subtab-height); padding:0 14px; display:inline-grid; place-items:center; border:1px solid var(--subtab-border); border-radius:12px; background: var(--subtab-bg); color: var(--subtab-ink); font-family:'Arsenica', system-ui; font-size:12px; letter-spacing:.08em; cursor:pointer; user-select:none; transition: transform .2s var(--ease), box-shadow .2s var(--ease); }
+    .panel-tab:active{ transform: scale(1.02); }
+    .panel-tab::after{ content:""; position:absolute; width:200%; height:200%; top:50%; left:50%; transform: translate(-50%,-50%) scale(0); background: rgba(0,0,0,.05); border-radius:50%; transition: transform .5s var(--ease), opacity .5s var(--ease); opacity: .2; pointer-events:none; }
+    .panel-tab:active::after{ transform: translate(-50%,-50%) scale(1.8); opacity:0; }
+    .panel-tab[aria-selected="true"]{ box-shadow: inset 0 0 0 1px var(--subtab-ink); }
+
+    .view-viewport{ position:relative; width:100%; transition: height .35s var(--ease); }
+    .view-pane{ position:absolute; top:0; left:0; width:100%; opacity:0; transform: translateX(100px); transition: opacity .5s var(--ease), transform .5s var(--ease); pointer-events:none; }
+    .view-pane.active{ opacity:1; transform: translateX(0); pointer-events:auto; }
+    .view-viewport[data-dir="left"] .view-pane.will-enter{ transform: translateX(-100px); }
+    .view-viewport[data-dir="right"] .view-pane.will-enter{ transform: translateX(100px); }
+
+    .two-col{ position:relative; display:grid; gap:12px; grid-template-columns:1fr; }
+    @media (min-width: 900px){ .two-col{ grid-template-columns:1fr 1fr; min-height: 0px; } }
+
+    .block{ margin-top:6px; }
+    .block h3{font-family: 'Arsenica'; margin:0 0 0px; font-size:18px; letter-spacing:.08em; font-weight:600; font-variant-caps: all-small-caps; color:#111; }
+    .block p{ margin:0; }
+    .block ul{ margin:0px 0 0 0; padding-left:0px; }
+    .block li{ margin:0px 25px 0px; padding-left: 0.25em;}
+
+    @media (prefers-reduced-motion: reduce){
+      .panel-tab{ transition:none; }
+      .panel-tab::after{ display:none; }
+      .view-viewport, .view-pane{ transition:none !important; }
+      .card-divider::before{ transition:none; height:100%; }
+    }
+
+    /* ----------- Anti-jump guards for first paint ----------- */
+    #clarity-in-action.pre-reveal .ci-shelf-track{ transition: none !important; }
+    #clarity-in-action.pre-reveal .view-viewport{ transition: none !important; }
+  
+    /* =================== CI: no-jump shelf + white-panel spacing =================== */
+    #clarity-in-action{
+      --card-h: 130px;              /* shelf card height (try 140–170) */
+      /* White panel height and spacing knobs */
+      --panel-fixed: 320px;         /* panel box height */
+      --gap-title-sub: 2px;         /* Title → subtext */
+      --gap-sub-tabs: 16px;         /* Subtext → tabs */
+      --gap-tabs-content: 12px;     /* Tabs → content panes */
+      --gap-pane-blocks: 16px;      /* Space between blocks inside pane */
+      --ir-col-gap: 28px;           /* inner 2-col column gap */
+      --ir-row-gap: 14px;           /* inner row gap */
+    }
+
+    /* lock shelf row height; prevents any late growth */
+    #clarity-in-action .ci-shelf{
+      height: calc(var(--card-h) + var(--shelf-pad-y) * 2);
+      align-items: center;
+    }
+    #clarity-in-action .ci-shelf-viewport{ min-height: var(--card-h); }
+
+    /* ---------- 3-zone card layout: TOP | MIDDLE | BOTTOM (fixed height) ---------- */
+    #clarity-in-action .ci-card{
+      height: var(--card-h);
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: min-content 1fr min-content min-content;
+      row-gap: 6px; /* tweak vertical spacing inside the card */
+    }
+    #clarity-in-action .ci-card .tag{ align-self: start; margin: 0; }
+    #clarity-in-action .ci-card .headline{
+      align-self: center; margin: 0; line-height: 1.2;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    #clarity-in-action .ci-card .subtext{
+      align-self: end; column-gap: 28px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    #clarity-in-action .ci-card .subtext .sub{ max-width: 46%; overflow: hidden; text-overflow: ellipsis; }
+    #clarity-in-action .ci-card .chips{
+      align-self: end; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 4px;
+    }
+
+    /* White panel spacing */
+    #clarity-in-action #ciDetail .casehead .title{ margin-bottom: var(--gap-title-sub) !important; }
+    #clarity-in-action #ciDetail .kv.subtle{ margin-top: 2px; margin-bottom: var(--gap-sub-tabs); }
+    #clarity-in-action .panel-tabs{ margin: 0 0 var(--gap-tabs-content); }
+    #clarity-in-action .two-col{ gap: var(--gap-pane-blocks); }
+    #clarity-in-action .pane-ir .two-col{ column-gap: var(--ir-col-gap); row-gap: var(--ir-row-gap); }
+    #clarity-in-action .pane-eo .two-col{ column-gap: var(--ir-col-gap); row-gap: var(--ir-row-gap); }
+
+    /* Optional: soften font swap for shelf type only */
+    @font-face { font-family:'Canela';   src:url('./Fonts/Canela-Bold.otf') format('opentype'); font-weight:700; font-style:normal; font-display:optional; }
+    @font-face { font-family:'cotoris';  src:url('./Fonts/cotoris.otf')     format('opentype'); font-weight:400; font-style:normal; font-display:optional; }
+  </style>
+
+  <h2 id="cia-title">Clarity in Action</h2>
+
+  <!-- Audience tabs -->
+  <div class="tabs" role="tablist" aria-label="Audience" hidden>
+    <button class="identity-btn" role="tab" aria-selected="false" data-identity="Vision Builders"  data-hint="Founders · CEOs · Creators">Vision Builders</button>
+    <button class="identity-btn" role="tab" aria-selected="false" data-identity="System Shapers"   data-hint="COOs · Operators · Product Leads">System Shapers</button>
+    <button class="identity-btn" role="tab" aria-selected="false" data-identity="Solo Strategists" data-hint="Solo Builders · Advisors · Investors">Solo Strategists</button>
+    <button class="identity-btn" role="tab" aria-selected="false" data-identity="Beyond These"     data-hint="Edge-cases Welcome">Beyond These</button>
+  </div>
+
+  <!-- Shelf -->
+  <div class="ci-shelf" aria-label="Stories" hidden>
+    <button class="ci-arrow prev" aria-label="Previous stories" aria-controls="ciTrack">‹</button>
+    <div class="ci-shelf-viewport"><div class="ci-shelf-track" id="ciTrack"></div></div>
+    <button class="ci-arrow next" aria-label="Next stories" aria-controls="ciTrack">›</button>
+  </div>
+
+  <!-- Detail panel -->
+  <div class="ci-detail" role="region" aria-live="polite" aria-atomic="true" hidden>
+    <div id="ciDetail" class="ea-surface-paper"></div>
+  </div>
+
+  <!-- SECTION-LOCAL video loader (single-shot, no flicker) -->
+  <script>
+    (function(){
+      const section = document.getElementById('clarity-in-action');
+      const layer = section.querySelector('.vid-layer');
+      const vid   = layer?.querySelector('video.vid');
+      if(!layer || !vid) return;
+
+      function applyControls(){
+        const op    = parseFloat(layer.dataset.opacity ?? '0.28');
+        const rate  = parseFloat(layer.dataset.speed   ?? '1.0');
+        const blend = (layer.dataset.blend || 'normal').trim();
+        layer.style.setProperty('--vid-opacity', isFinite(op) ? op : .28);
+        layer.style.setProperty('--vid-blend', blend || 'normal');
+        try { vid.playbackRate = isFinite(rate) ? rate : 1.0; } catch(e){}
+      }
+
+      let armed = false;
+      const io = new IntersectionObserver((entries)=>{
+        entries.forEach(entry=>{
+          if(entry.isIntersecting){
+            if(!armed){
+              applyControls();
+              try{ if (vid.readyState < 1) vid.load(); }catch(e){}
+              armed = true;
+            }
+            layer.style.visibility = 'visible';
+            const p = vid.play(); if(p && p.catch){ p.catch(()=>{}); }
+          }else{
+            layer.style.visibility = 'hidden';
+            vid.pause();
+          }
+        });
+      }, { threshold: 0.25, rootMargin: "0px 0px -10% 0px" });
+
+      io.observe(section);
+    })();
+  </script>
+
+  <!-- MAIN logic: single-shot staged reveal + anti-jump guards -->
+  <script>
+  (() => {
+    const section   = document.getElementById('clarity-in-action');
+    const tabsEl    = section.querySelector('.tabs');
+    const filters   = [...section.querySelectorAll('.identity-btn')];
+    const shelf     = section.querySelector('.ci-shelf');
+    const track     = document.getElementById('ciTrack');
+    const prevBtn   = section.querySelector('.ci-arrow.prev');
+    const nextBtn   = section.querySelector('.ci-arrow.next');
+    const panelWrap = section.querySelector('.ci-detail');
+    const panel     = document.getElementById('ciDetail');
+    const viewport  = section.querySelector('.ci-shelf-viewport');
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Freeze first-paint transitions to avoid late layout jump
+    section.classList.add('pre-reveal');
+
+    // Single-shot guard
+    let revealed = false;
+    const runOnce = (fn) => { if (revealed) return false; revealed = true; fn?.(); return true; };
+
+    const identities = ['Vision Builders','System Shapers','Solo Strategists','Beyond These'];
+
+    /* ================== STORIES ================== */
+    const stories = {
+      'Vision Builders': [
+        { tag:'Clarity for Entrepreneurs', headline:'Scaling, but Sinking', subtext:['Big team.','Big burn.','No cashflow.'], problem:'A tech entrepreneur approached us for help with expansion — which quickly revealed deeper issues beneath the surface.', reveal:['Growth was based on assumptions, not actual demand.','Team was sized for optics, not function.','Heavy burn on “presence” — branding, social, PR.','No tested model for reliable revenue.'], execution:['Paused non-performing lines.','Rebuilt operating model from cost-centre out.','Repositioned product for clear cashflow path.'], outcome:['Burn dropped by 60%.','Revenue-positive within 2 months.'] },
+        { tag:'Clarity for Businessmen', headline:'Revenue, but No Reserves', subtext:['Profitable on paper.','Dry in bank.'], problem:'A successful businessman reached out with concerns about constant revenue, yet a chronic feeling of “no money left.”', reveal:['Margins looked good — until you saw actual cash cycles.','Payment terms bled liquidity.','High-revenue accounts were slow-paying, draining faster ones.','Expansion moves made without stress-testing cash buffers.'], execution:['Mapped cashflow down to daily stress points.','Rebalanced client portfolio for payment hygiene.','Rebuilt reserve model based on reality, not projection.','Swapped one bleeding revenue stream for slower but reliable cash.'], outcome:['Within 60 days, cash reserve doubled without cutting core ops.'] },
+        { tag:'Clarity for Founders', headline:'Pitch Failed Twice. Raised on the Third.', subtext:['Big stage.','Strong deck.','No conviction.'], problem:'A founder approached us after two failed fundraising rounds. Decks had been polished by experts, presentations rehearsed — but investors walked away unconvinced.', reveal:['Narrative was built for drama, not logic.','Financial model sounded bold, but lacked internal proof.','Hires and structure inflated burn without showing leverage.','The pitch sold hope, not inevitability.'], execution:['Reframed deck around unavoidable logic.','Cut vanity projections; rebuilt model from real unit economics.','Simplified org chart → lean, clear burn path.','Aligned story to investor psychology, not founder ego.'], outcome:['Within 30 days, round closed successfully.'] }
+      ],
+      'System Shapers': [
+        { tag:'Ops Clarity', headline:'Too Much Moving,<br> Not Enough Forward', subtext:['Everything’s active.','But nothing compounds.'], problem:'An ops leader from a fast-scaling DTC brand approached us. “Everything is moving. Tools, updates, meetings. But somehow... we’re not moving forward.”', reveal:['Every team had local clarity, but no shared compass.','Founder and ops were solving different problems.','Weekly rituals became noise.','Execution was everywhere — but decisions weren’t cascading.'], execution:['Mapped actual flows (not the ones on Notion) and exposed friction.','Reframed around outcomes, not updates.','Shrunk decision windows from 7-day loops to 36-hour clarity bursts.','Rolled out structural rhythm aligning founder ↔ ops ↔ team.'], outcome:['Within weeks, energy changed: quieter, sharper, cohesive.','A business in motion — that moved forward.'] },
+        { tag:'Team Rhythm', headline:'Team Sync Was a Ritual,<br> Not a System', subtext:['People showed up.','But alignment didn’t.'], problem:'A COO in a SaaS company reached out. Teams were talking weekly — but still asking the same questions. Syncs weren’t broken; nothing stuck.', reveal:['Check-ins became status performances.','No one knew which decisions were live, closed, or drifting.','Everyone assumed someone else tracked outcomes.','Leadership thought sync = alignment. It wasn’t.'], execution:['Introduced a “Clarity Loop” cadence.','Reduced meetings by 40% while increasing alignment.','Created a shared spine across Product, Ops, and GTM.','Made every sync traceable: what moved, what’s blocked, what’s next.'], outcome:['Meetings turned from motion to movement.','Decisions stuck. Delivery became reliable — and quiet.'] },
+        { tag:'From Reacting to Seeing', headline:'System Ran on Firefighting,<br> Not Forecasting', subtext:['Always urgent.','Never clear.'], problem:'A VP of Ops at a logistics startup: “We don’t plan. We react.” Problems got solved — until they returned, slightly worse.', reveal:['No one trusted numbers beyond the week.','Ops dashboards looked full — and felt hollow.','Teams solved symptoms, not systems.','Growth was visible — and chaotic.'], execution:['Built short-range + long-range system clarity map.','Separated signal from noise via cascading triage.','Embedded clarity checkpoints inside recurring ops.','Aligned decisions with projected scenarios, not surges.'], outcome:['Firefighting dropped by 70%.','Forecasts became reality.'] }
+      ],
+      'Solo Strategists': [
+        { tag:'Solo Operator', headline:'Endless Work, No Strategic Movement', subtext:['Solo Builder',' Zero momentum.'], problem:'A solo operator running calls, content, ops, and product wanted “clarity on scale.” Scale wasn’t the bleed — strategy was.', reveal:['No decision framework — everything urgent, nothing right.','Offer too broad — attracted work, not the right work.','Rhythm served delivery, not direction.','Energy leaks disguised as “necessary tasks”.'], execution:['Rebuilt the week around clarity (strategic first, delivery second).','Restructured offer stack to create natural filters.','Defined a single mental dashboard for momentum (not motion).','Removed performative productivity; chose asymmetrical moves.'], outcome:['More time. Sharper clients.','For the first time in 18 months — actual forward traction.'] },
+        { tag:'Indie Creator', headline:'Creative Fire, Constant Burn',subtext:['Indie Creator.',' Output overflowing.'], problem:'An independent creator with strong audience and products asked us to “make sense of it all.” Everything was growing; nothing felt aligned.', reveal:['Monetization reactive to audience shifts.','Creatorship turned into survival, not scaling.','No clarity on what to build next.','Identity fused with output — exhausting.'], execution:['Created breathing room; brought creative distance.','Designed a long-game roadmap focused on leverage.','Defined “enough” so effort had direction.','Offered ways to not create — yet still move forward.'], outcome:['Creation returned to joy.','Revenue stabilized. Momentum no longer depended on daily presence.'] },
+        { tag:'Solo SaaS Founder', headline:'Code. Launch. Spiral.', subtext:['Solo SaaS Founder.', 'One product - One mind'], problem:'A solo founder sought sanity more than scale. Product shipped, users existed — but signals conflicted.', reveal:['User growth decent — churn hidden behind hope.','Pricing made sense to no one.','Feature decisions reactive — too many inputs, no filters.'], execution:['Clarified the core metric that mattered now.','Restructured roadmap to remove noise and focus leverage.','Reset pricing from gut to strategic tiers.','Rebuilt weekly rhythm: build with aim.'], outcome:['Clarity restored. Growth steady.','For the first time — it didn’t all depend on him.'] }
+      ],
+      'Beyond These': [
+        { tag:'Drive Without Direction.', headline:'No Map. Just Drive.', subtext:['Had the energy.','Kept moving - But not forward.'], problem:'A solo builder in his early 30s: not confused — just map-less. Trying everything, failing nothing, achieving little.', reveal:['Five parallel projects, all shallow.','Mistook constant doing for meaningful progress.','Craved traction but lacked narrative clarity.','Productivity had become the identity.'], execution:['Ran a clarity distillation: what matters, what compounds, what dies.','Killed dead-weight ideas; re-centered on desire × leverage.','Built a path that wouldn’t burn him.'], outcome:['Launched and stabilized in 8 weeks — not by working harder, but by stopping the wrong work.'] },
+        { tag:'Post-Exit Recalibration', headline:'Everything. Yet Nothing.', subtext:['Success on paper.','But something was off.'], problem:'A founder post-acquisition: free, yet directionless. Not depression. Not confusion. Misalignment.', reveal:['Inner pace changed; outer plans hadn’t.','Legacy projects lived on, but meaning didn’t.','New ideas felt like polished repeats.','Didn’t need therapy — needed recalibration.'], execution:['Ran values × leverage audit.','Scrapped performative goals; defined metrics of depth and energy.','Mapped a new direction — not bigger, but aligned.'], outcome:['Within 3 weeks, exit haze turned into lucid clarity.','He didn’t just get direction. He reclaimed authorship.'] },
+        { tag:'The Dream. No Map.', headline:'The Dream. No Map.', subtext:['Not lazy - Not lost.','Just no clear path.'], problem:'A disciplined, tireless young operator: not failing, just circling. Working hard everywhere — getting nowhere.', reveal:['No strategy problem — direction problem.','Vision real; steps weren’t.','Decisions reactive, not rooted.','No lack of talent — just no frame to channel it.'], execution:['Extracted the deeper why — the true end-state.','Built a reverse path: end → next step.','Reorganized all efforts — no more effort, just focused effort.'], outcome:['Within weeks, momentum turned magnetic. The fog lifted.'] }
+      ]
+    };
+
+    /* ---------- STATE ---------- */
+    let selectedIdentity = window.elysianSelectedIdentity || sessionStorage.getItem('elysianSelectedIdentity') || identities[0];
+    let selectedIndex = 0, shelfIndex = 0, visibleCount = 3; // preselect first card
+
+    /* ---------- HELPERS ---------- */
+    function setButtonState(){
+      let any = false;
+      filters.forEach(btn=>{ const on = btn.dataset.identity === selectedIdentity; btn.setAttribute('aria-selected', on ? 'true' : 'false'); if(on) any = true; });
+      tabsEl.classList.toggle('has-active', any);
+    }
+
+    function buildCard(item, idx){
+      const b = document.createElement('button'); b.className = 'ci-card'; b.type='button'; b.setAttribute('aria-selected', idx===selectedIndex);
+      const sub = Array.isArray(item.subtext) && item.subtext.length ? `<div class="subtext">${item.subtext.map(line => `<div class="sub">${line}</div>`).join('')}</div>` : '';
+      b.innerHTML = `
+        <div class="tag">${item.tag || ''}</div>
+        <div class="headline">${item.headline || ''}</div>
+        ${sub}
+        <div class="chips">${(item.chips||[]).map(c=>`<span class='chip'>${c}</span>`).join('')}</div>
+      `;
+      b.addEventListener('click', ()=> { revealTo(3); selectStory(idx); ensureCardVisible(idx); });
+      b.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); revealTo(3); selectStory(idx); ensureCardVisible(idx); }});
+      return b;
+    }
+
+    function renderShelf(){ track.innerHTML = ''; stories[selectedIdentity].forEach((s, i)=> track.appendChild(buildCard(s, i))); updateShelfLayout(); updateArrows(); }
+
+    function updateShelfLayout(){
+      const cw = viewport.clientWidth || section.clientWidth;
+      const cssCardW = parseInt(getComputedStyle(section).getPropertyValue('--card-w')) || 320;
+      const gap = parseInt(getComputedStyle(section).getPropertyValue('--track-gap')) || 10;
+      const cardW = Math.min(cssCardW, Math.round((cw - 20) / 3));
+      const cards = [...track.children]; cards.forEach(el => el.style.width = cardW + 'px');
+      visibleCount = Math.max(1, Math.floor((cw + gap) / (cardW + gap)));
+      const maxPage = Math.max(0, Math.ceil(stories[selectedIdentity].length / visibleCount) - 1);
+      shelfIndex = Math.min(shelfIndex, maxPage);
+      const pageWidth = (cardW + gap) * visibleCount;
+      const x = -shelfIndex * pageWidth;
+      track.style.transform = prefersReduced ? 'none' : `translate3d(${Math.round(x)}px,0,0)`;
+      cards.forEach((c,i)=> c.setAttribute('aria-selected', i===selectedIndex));
+    }
+
+    function updateArrows(){
+      const total = stories[selectedIdentity].length;
+      const maxPage = Math.max(0, Math.ceil(total / visibleCount) - 1);
+      prevBtn.disabled = shelfIndex <= 0; nextBtn.disabled = shelfIndex >= maxPage;
+      prevBtn.setAttribute('aria-disabled', String(prevBtn.disabled));
+      nextBtn.setAttribute('aria-disabled', String(nextBtn.disabled));
+    }
+
+    // only move shelf if clicked card is off the current page
+    function ensureCardVisible(idx){
+      const start = shelfIndex * visibleCount;
+      const end   = start + visibleCount - 1;
+      if (idx >= start && idx <= end) return;
+
+      const cw = viewport.clientWidth || section.clientWidth;
+      const cssCardW = parseInt(getComputedStyle(section).getPropertyValue('--card-w')) || 320;
+      const gap = parseInt(getComputedStyle(section).getPropertyValue('--track-gap')) || 10;
+      const cardW = Math.min(cssCardW, Math.round((cw - 20) / 3));
+      shelfIndex = Math.floor(idx / visibleCount);
+      const pageWidth = (cardW + gap) * visibleCount;
+      const x = -shelfIndex * pageWidth;
+      track.style.transform = prefersReduced ? 'none' : `translate3d(${Math.round(x)}px,0,0)`;
+      updateArrows();
+    }
+
+    /* ---------- PANEL RENDER ---------- */
+    function renderPanelFor(item){
+      const sub = Array.isArray(item.subtext) && item.subtext.length ? `<div class="kv subtle">${item.subtext.map(s=>`<span>${s}</span>`).join('<span class="dot">·</span>')}</div>` : '';
+      const issueBlock = item.problem ? `<div class="block"><h3>Problem</h3><p>${item.problem}</p></div>` : (item.mech ? `<div class="block"><h3>Mechanism</h3><p>${item.mech}</p></div>` : '');
+      const revealBlock = Array.isArray(item.reveal)&&item.reveal.length ? `<div class="block"><h3>Reveal</h3><ul>${item.reveal.map(r=>`<li>${r}</li>`).join('')}</ul></div>` : '';
+      const execBlock   = Array.isArray(item.execution)&&item.execution.length ? `<div class="block"><h3>Execution</h3><ul>${item.execution.map(e=>`<li>${e}</li>`).join('')}</ul></div>` : '';
+      const outBlock    = Array.isArray(item.outcome)&&item.outcome.length ? `<div class="block"><h3>Outcome</h3><ul>${item.outcome.map(o=>`<li>${o}</li>`).join('')}</ul></div>` : (item.out ? `<div class="block"><h3>Outcome</h3><p>${item.out}</p></div>` : '');
+      panel.innerHTML = `
+        <div class="casehead">
+          <div class="tagline">${item.tag || ''}</div>
+          <div class="title">${item.headline || ''}</div>
+          ${sub}
+        </div>
+        <div class="panel-tabs" role="tablist" aria-label="Case sections">
+          <button class="panel-tab tab-ir" role="tab" aria-selected="true">Problem & Reveal</button>
+          <button class="panel-tab tab-eo" role="tab" aria-selected="false">Execution & Outcome</button>
+        </div>
+        <div class="preview-overlay"><div class="half left"></div><div class="half right"></div></div>
+        <div class="view-viewport" data-dir="right">
+          <div class="view-pane pane-ir active">
+            <div class="two-col">
+              ${issueBlock}
+              ${revealBlock}
+            </div>
+          </div>
+          <div class="view-pane pane-eo">
+            <div class="two-col" style="position:relative;">
+              ${execBlock}
+              ${outBlock}
+              <div class="card-divider"></div>
+            </div>
+          </div>
+        </div>
+      `;
+      const irBtn = panel.querySelector('.tab-ir');
+      const eoBtn = panel.querySelector('.tab-eo');
+      const viewWrap = panel.querySelector('.view-viewport');
+      const irPane = panel.querySelector('.pane-ir');
+      const eoPane = panel.querySelector('.pane-eo');
+      const divider = panel.querySelector('.card-divider');
+      function activate(target){
+        const entering = (target==='eo') ? eoPane : irPane;
+        const leaving  = (target==='eo') ? irPane : eoPane;  /* fixed */
+        const dir = (target==='eo') ? 'right' : 'left';
+        viewWrap.setAttribute('data-dir', dir);
+        entering.classList.add('will-enter');
+        leaving.classList.remove('active');
+        entering.classList.add('active');
+        requestAnimationFrame(()=> entering.classList.remove('will-enter'));
+        irBtn.setAttribute('aria-selected', String(target!=='eo'));
+        eoBtn.setAttribute('aria-selected', String(target==='eo'));
+        if(target==='eo' && divider){
+          divider.classList.remove('loaded');
+          requestAnimationFrame(()=>{ setTimeout(()=> divider.classList.add('loaded'), 120); });
+        }
+      }
+      irBtn.addEventListener('mouseenter', ()=> panel.classList.add('preview-ir'));
+      irBtn.addEventListener('mouseleave', ()=> panel.classList.remove('preview-ir'));
+      eoBtn.addEventListener('mouseenter', ()=> panel.classList.add('preview-eo'));
+      eoBtn.addEventListener('mouseleave', ()=> panel.classList.remove('preview-eo'));
+      irBtn.addEventListener('click', ()=> activate('ir'));
+      eoBtn.addEventListener('click', ()=> activate('eo'));
+    }
+
+    function selectStory(idx){
+      selectedIndex = idx;
+      const item = stories[selectedIdentity][idx];
+      renderPanelFor(item);
+      [...track.children].forEach((c,i)=> c.setAttribute('aria-selected', i===selectedIndex));
+      // IMPORTANT: no updateShelfLayout() here (prevents jump on selection)
+    }
+
+    function selectIdentity(id){
+      selectedIdentity = id;
+      sessionStorage.setItem('elysianSelectedIdentity', id);
+      window.elysianSelectedIdentity = id;
+      setButtonState();
+      selectedIndex = 0; shelfIndex = 0;
+      renderShelf();
+      if (stories[selectedIdentity]?.length) { selectStory(0); }
+    }
+
+    /* ---------- STAGED REVEAL ---------- */
+    const css = getComputedStyle(section);
+    const DUR = { 
+      buttons: parseInt(css.getPropertyValue('--reveal-buttons')) || 700, 
+      shelf: parseInt(css.getPropertyValue('--reveal-shelf')) || 850 
+    };
+    const PANEL_DELAY = parseInt(css.getPropertyValue('--reveal-panel-delay')) || 0;
+
+    function setStage(n){
+      if(n>=1 && tabsEl.hidden)   tabsEl.hidden   = false;
+      if(n>=2 && shelf.hidden)    shelf.hidden    = false;
+      if(n>=3 && panelWrap.hidden)panelWrap.hidden= false;
+      section.setAttribute('data-stage', String(n));
+    }
+
+    async function waitFontsOnce(){
+      try {
+        if (document.fonts && 'ready' in document.fonts) {
+          await document.fonts.ready;
+        }
+      } catch(_){}
+    }
+
+    async function revealSequence(){
+      const unfreeze = () => requestAnimationFrame(()=> section.classList.remove('pre-reveal'));
+
+      if (prefersReduced){
+        setButtonState();
+        await waitFontsOnce();
+        renderShelf(); 
+        selectStory(selectedIndex); // preselect before show
+        setStage(3);
+        unfreeze();
+        return;
+      }
+
+      setButtonState();
+      await waitFontsOnce();     // prevents card width jump
+      renderShelf();
+      selectStory(selectedIndex); // preselect BEFORE showing shelf
+      requestAnimationFrame(() => {
+        setStage(1);
+        unfreeze();
+
+        setTimeout(()=> setStage(2), DUR.buttons);
+        setTimeout(()=>{ setStage(3); }, DUR.buttons + DUR.shelf + PANEL_DELAY);
+      });
+    }
+
+    function revealTo(n){ for(let i=1;i<=n;i++) setStage(i); }
+
+    /* ---------- WIRE UP ---------- */
+    filters.forEach(btn=>{
+      btn.addEventListener('click', ()=> selectIdentity(btn.dataset.identity));
+      btn.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); selectIdentity(btn.dataset.identity); }});
+    });
+    prevBtn.addEventListener('click', ()=>{ shelfIndex = Math.max(0, shelfIndex-1); updateShelfLayout(); updateArrows(); });
+    nextBtn.addEventListener('click', ()=>{
+      const total = stories[selectedIdentity].length;
+      const maxPage = Math.max(0, Math.ceil(total / visibleCount) - 1);
+      shelfIndex = Math.min(maxPage, shelfIndex+1);
+      updateShelfLayout(); updateArrows();
+    });
+    window.addEventListener('resize', ()=>{ updateShelfLayout(); updateArrows(); }, { passive:true });
+    section.addEventListener('keydown', (e)=>{ if(e.key==='ArrowRight'){ nextBtn.click(); } if(e.key==='ArrowLeft'){ prevBtn.click(); }});
+
+    // IO triggers slightly earlier and only once. No fallback block.
+    const io = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting){
+          if (runOnce(revealSequence)) io.disconnect();
+        }
+      });
+    }, { threshold: 0.15, rootMargin: "0px 0px -20% 0px" });
+
+    // Fallback: ensure the staged reveal runs even if IO doesn't fire
+    if (document.readyState !== 'loading') {
+      revealSequence();
+    } else {
+      window.addEventListener('DOMContentLoaded', revealSequence, { once: true });
+    }
+
+    io.observe(section);
+
+    if(!identities.includes(selectedIdentity)) selectedIdentity = identities[0];
+  })();
+  </script>
+</section>

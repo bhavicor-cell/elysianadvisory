@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Elysian — Index (One Screen per Section)</title>
+
+<style>
+  :root{ --vh: 100svh; }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+
+  html, body{ height:100%; overflow:hidden; }
+  html{ background:#FAF7F2; color:#1a1a1a; }
+  body{ font:400 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+
+  /* Local fonts */
+  @font-face { font-family:'HelloParisLight'; src:url('./Fonts/helloparisserif-light.ttf') format('truetype'); font-display:swap; }
+  @font-face { font-family:'Coterie'; src:url('./Fonts/coterie-regular.woff2') format('woff2'); font-display:swap; }
+  @font-face { font-family:'SimpleSerenity'; src:url('./Fonts/Simple-Serenity-Serif.ttf') format('truetype'); font-display:swap; }
+  @font-face { font-family:'Eyesome'; src:url('./Fonts/Eyesome-Regular.otf') format('opentype'); font-display:swap; }
+  @font-face { font-family:'EyesomeI'; src:url('./Fonts/Eyesome-Italic.otf') format('opentype'); font-display:swap; }
+  @font-face { font-family:'Tanpearl'; src:url('./Fonts/Tan-Pearl.ttf') format('truetype'); font-display:swap; }
+  @font-face { font-family:'Centaur'; src:url('./Fonts/VNcentaur-Regular.ttf') format('truetype'); font-display:swap; }
+  @font-face { font-family:'Arcadian'; src:url('./Fonts/Arcadian.ttf') format('opentype'); font-display:swap; }
+  @font-face { font-family:'Arsenica'; src:url('./Fonts/ArsenicaTrial-Regular.ttf') format('opentype'); font-display:swap; }
+  @font-face { font-family:'Canela'; src:url('./Fonts/Canela-Bold.otf') format('opentype'); font-display:swap; }
+  @font-face { font-family:'Anecor'; src:url('./Fonts/anecor-gheroos.otf') format('opentype'); font-display:swap; }
+  @font-face {
+    font-family:'cotoris';
+    src:url('./Fonts/cotoris.otf') format('opentype');
+    font-weight:400; font-style:normal; font-display:swap;
+  }
+  @font-face {
+    font-family:'cotorisi';
+    src:url('./Fonts/cotorisita.otf') format('opentype');
+    font-weight:400; font-style:normal; font-display:swap;
+  }
+
+  /* Scrollable stack area */
+  #stackScroll{
+    position:fixed; inset:0; width:100vw; height:var(--vh);
+    overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch;
+    scroll-snap-type:y mandatory;
+    background:transparent;
+  }
+  .stack-section{
+    position:relative; width:100vw; height:var(--vh);
+    scroll-snap-align:start; scroll-snap-stop:always; overflow:hidden;
+  }
+
+  /* Seam-guard */
+  .stack-frame{
+    position:absolute; top:-1px; left:-1px;
+    width: calc(100vw + 2px); height: calc(var(--vh) + 2px);
+    display:block; border:0; background:transparent;
+  }
+
+  /* Fixed glass nav */
+  .subtle-nav{
+    position:fixed; top:20px; right:24px;
+    display:flex; gap:6px; padding:8px 10px;
+    border-radius:999px;
+    background:rgba(255,255,255,.35);
+    border:1px solid rgba(0,0,0,.07);
+    backdrop-filter:blur(8px) saturate(1.1);
+    -webkit-backdrop-filter:blur(8px) saturate(1.1);
+    box-shadow:0 8px 24px rgba(0,0,0,.06);
+    color:#1a1a1a;
+    opacity:0; transform:translateY(-6px);
+    z-index:9999; pointer-events:none;
+    transition:opacity .25s ease, transform .25s ease;
+  }
+  .subtle-nav.is-visible{
+    opacity:.95; transform:translateY(0); pointer-events:auto;
+  }
+  .subtle-nav:hover{
+    opacity:1; box-shadow:0 10px 28px rgba(0,0,0,.06);
+  }
+  .nav-btn{
+    background:transparent; border:0; border-radius:999px;
+    padding:6px 10px; cursor:pointer;
+    font:600 12px/1.1 'Anecor', system-ui, -apple-system, Segoe UI, sans-serif;
+    letter-spacing:.12em; text-transform:uppercase;
+    transition:opacity .2s ease, background-color .2s ease, transform .12s ease;
+  }
+  .nav-btn:hover{ background:rgba(0,0,0,.04); }
+  .nav-btn:active{ transform:translateY(1px); }
+
+  footer{
+    position:fixed; left:0; right:0; bottom:8px; text-align:center;
+    color:#777; font-size:12px; pointer-events:none;
+  }
+
+  /* ===== Dock Logo (visible from Section 2 onward) ===== */
+  :root{
+    --dock-logo-w: clamp(90px, 8vw, 170px);
+    --dock-logo-top: calc(18px + env(safe-area-inset-top));
+    --dock-logo-left: 18px;
+    --dock-reveal-blur: 10px;
+    --dock-reveal-scale: .96;
+    --dock-shadow-strong: 0 20px 30px rgba(0,0,0,.08);
+    --dock-shadow-soft: 0 10px 18px rgba(0,0,0,.06);
+  }
+  #ElysianDockLogo{
+    position:fixed; z-index:10000; pointer-events:none;
+    top:var(--dock-logo-top); left:var(--dock-logo-left);
+    width:var(--dock-logo-w); height:auto;
+    opacity:0;
+    filter: blur(var(--dock-reveal-blur)) drop-shadow(var(--dock-shadow-strong));
+    transform-origin: top left; transform: scale(var(--dock-reveal-scale));
+    transition:
+      opacity .50s cubic-bezier(.25,1,.5,1),
+      filter .65s cubic-bezier(.25,1,.5,1),
+      transform .65s cubic-bezier(.25,1,.5,1);
+  }
+  #ElysianDockLogo > img,
+  #ElysianDockLogo > svg{
+    display:block; width:100%; height:auto;
+  }
+  body.logo-visible #ElysianDockLogo{
+    opacity:1;
+    filter: blur(0) drop-shadow(var(--dock-shadow-soft));
+    transform: scale(1);
+  }
+  @media (prefers-reduced-motion: reduce){
+    #ElysianDockLogo{ transition:none; filter:none; transform:none; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- Fixed, site-wide logo that appears from Section 2 onward (top-left) -->
+  <div id="ElysianDockLogo" aria-hidden="true">
+    <img src="./assets/LS.svg" alt="Elysian Advisory" />
+  </div>
+
+  <nav class="subtle-nav" id="globalHeroNav" aria-label="Primary">
+    <button class="nav-btn" type="button" data-target="writings">Writings</button>
+    <button class="nav-btn" type="button" data-target="instruments">Instruments</button>
+    <button class="nav-btn" type="button" data-target="connect">Connect</button>
+  </nav>
+
+  <main id="stackScroll" aria-label="Stacked sections"></main>
+
+  <script>
+    /* 1) Declare your sections */
+    const SECTION_MANIFEST = [
+      { id: 'hero',    title: 'Hero',               src: './sections/01.html' },
+      { id: 'for',     title: 'Clarity For',        src: './sections/02.html' },
+      { id: 'action',  title: 'Clarity In Action',  src: './sections/03.html' },
+      { id: 'truth',   title: 'Truth',              src: './sections/04.html' },
+      { id: 'work',    title: 'Work With Us',       src: './sections/05.html' },
+      { id: 'trust',   title: 'Trust Us',           src: './sections/06.html' },
+      { id: 'trust-2', title: 'Trust Us',           src: './sections/07.html' } // id must be unique
+    ];
+
+    /* 2) Viewport height fix (--vh) */
+    function setVH(){
+      const h = Math.max(1, Math.round(window.innerHeight || document.documentElement.clientHeight || 0));
+      document.documentElement.style.setProperty('--vh', h + 'px');
+    }
+    setVH();
+    window.addEventListener('resize', setVH, { passive:true });
+    window.addEventListener('orientationchange', setVH);
+
+    /* 3) Build the stack */
+    const stackEl = document.getElementById('stackScroll');
+
+    function injectNoScrollCSS(doc){
+      try{
+        const style = doc.createElement('style');
+        style.textContent =
+`html,body{height:100%;overflow:hidden!important;margin:0!important;padding:0!important;background:transparent!important;}
+*{box-sizing:border-box;}
+::-webkit-scrollbar{display:none;}`;
+        doc.head.appendChild(style);
+      }catch(e){
+        // ignore if cross-origin or unavailable
+      }
+    }
+
+    function makeStack(){
+      stackEl.innerHTML = '';
+      SECTION_MANIFEST.forEach(({id, title, src}, idx) => {
+        const wrapper = document.createElement('section');
+        wrapper.className = 'stack-section';
+        wrapper.id = 'sec-' + id;
+        wrapper.setAttribute('aria-label', title || `Section ${idx+1}`);
+
+        const frame = document.createElement('iframe');
+        frame.className = 'stack-frame';
+        frame.title = title || src;
+        frame.src = src;
+        frame.loading = idx === 0 ? 'eager' : 'lazy';
+        frame.referrerPolicy = 'no-referrer';
+        frame.setAttribute('allowtransparency','true');
+        frame.setAttribute('scrolling','no');
+
+        frame.addEventListener('load', () => {
+          try{
+            const doc = frame.contentDocument;
+            if(!doc) return;
+            injectNoScrollCSS(doc);
+          }catch(e){}
+        });
+
+        frame.addEventListener('error', (e) => {
+          console.error('Iframe failed to load:', src, e);
+        });
+
+        wrapper.appendChild(frame);
+        stackEl.appendChild(wrapper);
+      });
+    }
+    makeStack();
+
+    /* 4) Update nav + logo visibility based on current section index */
+    const globalNav = document.getElementById('globalHeroNav');
+
+    function currentIndex(){
+      const vh = Math.max(1, Math.round(window.innerHeight || document.documentElement.clientHeight));
+      // Use floor with small bias to be robust during momentum scroll
+      const idx = Math.floor((stackEl.scrollTop + vh * 0.1) / vh);
+      return idx;
+    }
+
+    function updateChrome(){
+      const idx = currentIndex();
+      if (idx >= 1){
+        globalNav.classList.add('is-visible');
+        document.body.classList.add('logo-visible'); // logo stays visible for ALL sections ≥ 2
+      }else{
+        globalNav.classList.remove('is-visible');
+        document.body.classList.remove('logo-visible'); // hide only on Section 1
+      }
+    }
+
+    stackEl.addEventListener('scroll', () => {
+      requestAnimationFrame(updateChrome);
+    }, { passive:true });
+
+    window.addEventListener('resize', updateChrome, { passive:true });
+    updateChrome();
+
+    /* Optional: wire buttons later
+    document.querySelector('[data-target="writings"]').onclick = () =>
+      document.getElementById('sec-for').scrollIntoView({behavior:'smooth'});
+    */
+  </script>
+</body>
+</html>

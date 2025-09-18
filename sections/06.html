@@ -1,0 +1,589 @@
+<section id="ways-we-work" class="s67" aria-label="Ways We Work" tabindex="0">
+  <!-- === VIDEO OVERLAY (hero half) === -->
+  <div class="vid-layer"
+       data-src="video.webm"
+       data-opacity="0.03"
+       data-speed="0.25"
+       data-blend="soft-light">
+    <video class="vid" muted playsinline autoplay loop preload="metadata">
+      <source src="video.webm" type="video/webm">
+    </video>
+  </div>
+
+  <style>
+    /* Local fonts (paths unchanged) */
+    @font-face { font-family:'HelloParisLight'; src:url('./Fonts/helloparisserif-light.ttf') format('truetype'); font-display:swap; }
+    @font-face { font-family:'Coterie';        src:url('./Fonts/coterie-regular.woff2')     format('woff2');   font-display:swap; }
+    @font-face { font-family:'SimpleSerenity'; src:url('./Fonts/Simple-Serenity-Serif.ttf') format('truetype'); font-display:swap; }
+    @font-face { font-family:'Eyesome';        src:url('./Fonts/Eyesome-Regular.otf')       format('opentype'); font-display:swap; }
+    @font-face { font-family:'EyesomeI';       src:url('./Fonts/Eyesome-Italic.otf')        format('opentype'); font-display:swap; }
+    @font-face { font-family:'Tanpearl';       src:url('./Fonts/Tan-Pearl.ttf')             format('truetype'); font-display:swap; }
+    @font-face { font-family:'Centaur';        src:url('./Fonts/VNcentaur-Regular.ttf')     format('truetype'); font-display:swap; }
+    @font-face { font-family:'Arcadian';       src:url('./Fonts/Arcadian.ttf')              format('opentype'); font-display:swap; }
+    @font-face { font-family:'Arsenica';       src:url('./Fonts/ArsenicaTrial-Regular.otf') format('opentype'); font-display:swap; }
+    @font-face { font-family:'Canela';         src:url('./Fonts/Canela-Bold.otf')           format('opentype'); font-display:swap; }
+    @font-face { font-family:'Anecor';         src:url('./Fonts/anecor-gheroos.otf')        format('opentype'); font-display:swap; }
+    @font-face { font-family:'cotoris';        src:url('./Fonts/cotoris.otf')               format('opentype'); font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'cotorisi';       src:url('./Fonts/cotorisita.otf')            format('opentype'); font-weight:400; font-style:normal; font-display:swap; }
+
+    /* === keep video behind everything in this section === */
+    #ways-we-work{ position: relative; }
+    #ways-we-work .vid-layer{
+      --vid-opacity: .28;
+      --vid-blend: soft-light;
+      position:absolute; inset:0; z-index:0; pointer-events:none; overflow:hidden;
+    }
+    #ways-we-work .vid-layer .vid{
+      position:absolute; inset:0; width:100%; height:100%;
+      object-fit:cover; opacity:var(--vid-opacity); mix-blend-mode:var(--vid-blend);
+      transform:translateZ(0);
+    }
+    #ways-we-work > *:not(.vid-layer){ position:relative; z-index:1; }
+
+    /* ===== Scoped tokens ===== */
+    #ways-we-work{
+      --bg:#faf7f2; --ink:#1a1a1a; --muted:#6f6d69;
+      --hair:#e3dfd7; --ivory:#f7f2e7; --ink-ivory:#23201a;
+      --radius:16px; --hairline:1px;
+      --gutter: clamp(16px, 4vw, 40px);
+      --lux:cubic-bezier(.22,.61,.36,1);
+      --open-ease: cubic-bezier(.16,.84,.44,1);
+      --t-fast:260ms; --t:520ms; --t-long:900ms;
+
+      --cw-min: 180px; --cw-max: 220px;
+      --cw-exp-min: 260px; --cw-exp-max: 300px;
+      --ch-min: 56px; --ch-min-open: 120px;
+
+      /* Parallax driver (kept at 0 so no effect) */
+      --scr: 0;
+
+      /* BULLET defaults */
+      --bullet: '✧';
+      --ff-bullet: var(--ff-card-title, 'Canela');
+      --fs-bullet: 0.90em;
+
+      /* Icon bullet knobs */
+      --bullet-img: url('./icons/diamond.svg');
+      --bullet-size: 0.48em;
+      --bullet-color: currentColor;
+      --bullet-offset-x: 0.15em;
+      --bullet-offset-y: 0.35em;
+
+      position: relative;
+      display:block;
+      min-height:100svh;
+      background:var(--bg); color:var(--ink);
+      overflow:hidden;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: auto; /* ← allow normal page scrolling */
+      font:104px/1.2 cotorisi,ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    }
+    #ways-we-work *, #ways-we-work *::before, #ways-we-work *::after{ box-sizing:border-box; }
+
+    /* ===== Hero ===== */
+    #ways-we-work .hero{ position:sticky; top:0; height:100vh; display:grid; place-items:center; }
+    #ways-we-work .hero__inner{
+      position:relative;
+      z-index:10; /* links stay clickable */
+      text-align:center; max-width:86ch; padding:0 var(--gutter);
+      transform: translateY(calc(var(--scr) * -6vh)) scale(calc(1 - var(--scr) * 0.15));
+      opacity: calc(1 - var(--scr) * 0.6);
+      filter: blur(calc(var(--scr) * 1.5px));
+      will-change: transform, opacity, filter;
+    }
+    #ways-we-work .title{ font-family:'Eyesome'; font-weight:650; letter-spacing:-.01em; font-size: clamp(28px, 6vw, 84px); }
+    #ways-we-work .sub{ margin:.5rem auto 0; color:color-mix(in oklab, var(--ink) 68%, transparent); font-size: clamp(16px, 2.2vw, 22px); max-width: 72ch; }
+
+    /* ===== Scatter layer with focus boxes ===== */
+    #ways-we-work .scatter{
+      position:absolute; inset:0;
+      z-index:40; /* ↑ ABOVE hero__inner (10) so boxes overlay */
+      pointer-events:auto;
+      filter: saturate(calc(1 - var(--scr) * .08));
+      isolation:isolate;
+    }
+
+    #ways-we-work .hbox{
+      pointer-events:auto; position:absolute;
+      transform:
+        translate(-50%, -50%)
+        translateX(calc(var(--dir, 1) * var(--scr) * 40vw))
+        translateY(calc(var(--scr) * -6vh))
+        scale(calc(1 - var(--scr) * 0.12));
+      border:1px solid rgba(0,0,0,.06); border-radius:var(--radius);
+      background: var(--bg); color: var(--ink);
+      min-width: var(--cw-min); max-width: var(--cw-max);
+      min-height: var(--ch-min);
+      padding:10px 12px;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      cursor:pointer;
+      transition:
+        box-shadow var(--t) var(--open-ease),
+        transform var(--t) var(--open-ease),
+        background var(--t) var(--open-ease),
+        color var(--t) var(--open-ease),
+        border-color var(--t) var(--open-ease),
+        filter var(--t) var(--open-ease),
+        padding var(--t) var(--open-ease),
+        min-width var(--t) var(--open-ease),
+        max-width var(--t) var(--open-ease),
+        min-height var(--t) var(--open-ease),
+        z-index var(--t-fast) linear;
+      box-shadow: 0 0 0 rgba(0,0,0,0);
+      will-change: transform, box-shadow, filter, min-width, max-width, padding, min-height, background, color, border-color;
+      animation: s67-drift calc(9s + var(--rand-dur, 0s)) ease-in-out infinite alternate;
+      z-index:41; /* ↑ default above hero */
+    }
+    #ways-we-work .hbox:hover{
+      box-shadow: 0 14px 42px rgba(0,0,0,.12); border-color: rgba(0,0,0,.12); background:#fff; color: var(--ink);
+      z-index:50; /* ↑ hover */
+    }
+    #ways-we-work .hbox:focus-visible{ outline: 2px solid rgba(0,0,0,.25); outline-offset: 2px; z-index:60; }
+
+    #ways-we-work .label{ display:block; text-align:center; margin:0 auto; font-size:14px; letter-spacing:.04em; font-weight:600; color:#2b2925; opacity:.98; }
+
+    /* Content card that opens (NO headline inside) */
+    #ways-we-work .card{
+      position:relative; width:100%; margin-top:0; background: var(--ivory); color: var(--ink-ivory);
+      border: 1px solid rgba(35,32,26,.14); border-radius: calc(var(--radius) + 2px);
+      box-shadow: 0 1px 0 rgba(255,255,255,.35) inset, 0 24px 60px rgba(0,0,0,.20);
+      padding:12px; opacity:0; pointer-events:none;
+      transform-origin: top center;
+      transform: translateY(6px) scale(.985);
+      filter: blur(.6px);
+      max-height:0; overflow:hidden;
+      transition:
+        opacity var(--t) var(--open-ease),
+        transform var(--t) var(--open-ease),
+        filter var(--t-fast) var(--open-ease),
+        max-height var(--t-long) var(--open-ease),
+        padding var(--t) var(--open-ease);
+    }
+    #ways-we-work .hbox.is-open{
+      box-shadow: 0 28px 90px rgba(0,0,0,.18); background:#fff; color: var(--ink); border-color: rgba(0,0,0,.12);
+      min-width: var(--cw-exp-min); max-width: var(--cw-exp-max); min-height: var(--ch-min-open); padding:16px;
+      backdrop-filter: saturate(1.05) blur(1px); align-items:stretch;
+      z-index:999; /* ↑ opened cards sit on TOP of everything in section */
+    }
+    #ways-we-work .hbox.is-open .card{
+      margin-top:12px; opacity:1; pointer-events:auto;
+      transform: translateY(0) scale(1);
+      filter: blur(0);
+      max-height: 70vh; overflow:auto;
+    }
+
+    /* BULLET LIST styling */
+    #ways-we-work .card ul{ margin:0; padding:0; list-style:none; }
+    #ways-we-work .card li{
+      position:relative; margin:.35rem 0;
+      padding-left:1.05em;
+      font-size: clamp(14px, 1.9vw, 18px);
+      line-height: 1.35;
+    }
+    #ways-we-work .card li::before{
+      content: var(--bullet, '—');
+      position:absolute; left:0; top:.22em;
+      font-family: var(--ff-bullet);
+      font-size: var(--fs-bullet);
+      line-height:1;
+      opacity:.9;
+      top: .40em;
+    }
+
+    /* ICON bullet mode */
+    #ways-we-work.bul-img .card li::before,
+    #ways-we-work .card.bul-img li::before{
+      content:"";
+      width:var(--bullet-size); height:var(--bullet-size);
+      left:var(--bullet-offset-x); top:var(--bullet-offset-y);
+      background: var(--bullet-color);
+      -webkit-mask: var(--bullet-img) no-repeat center / contain;
+      mask: var(--bullet-img) no-repeat center / contain;
+    }
+
+    @keyframes s67-drift{ from{ translate:0 0 } to{ translate: 0 8px } }
+
+    @media (max-width: 720px){
+      #ways-we-work{ --cw-min: 170px; --cw-max: 210px; --cw-exp-min: 240px; --cw-exp-max: 280px; }
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      #ways-we-work *{ animation:none !important; transition:none !important; }
+    }
+
+    /* ================== CTA LINKS (text → pill) ================== */
+    #ways-we-work .inline-cta{
+      position: relative;
+      display:inline-flex;
+      align-items:center;
+      padding:.3em .56em;
+      border-radius:100px;
+      text-decoration:none;
+      font-family: 'Arsenica';
+      font-weight:600;
+      line-height:1.1;
+      color: var(--ink);
+      border: 1px solid transparent;
+      transition:
+        background .22s var(--lux),
+        border-color .22s var(--lux),
+        box-shadow .22s var(--lux),
+        transform .22s var(--lux);
+      background-image: linear-gradient(currentColor,currentColor);
+      background-size: 100% 1px;
+      background-repeat: no-repeat;
+      background-position: 0 100%;
+    }
+    #ways-we-work .inline-cta:hover,
+    #ways-we-work .inline-cta:focus-visible{
+      background:#fff;
+      border-color: rgba(35,32,26,.18);
+      box-shadow: 0 6px 22px rgba(0,0,0,.10);
+      transform: translateY(-1px);
+      background-image: none;
+    }
+    #ways-we-work .inline-cta:active{
+      transform: translateY(0);
+      box-shadow: 0 3px 12px rgba(0,0,0,.08);
+    }
+    #ways-we-work .inline-cta--solid{
+      background:#fff;
+      border-color: rgba(35,32,26,.18);
+      background-image:none;
+    }
+  </style>
+
+  <!-- === TYPOGRAPHY TWEAKS (edit here) === -->
+  <style id="ways-typo-tweaks">
+    /* Families */
+    #ways-we-work{
+      --ff-base: cotorisi, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+
+      --ff-hero-title: 'Eyesome', serif;
+      --ff-hero-sub:   var(--ff-base);
+      --ff-hero-sub2:  var(--ff-base);
+
+      --ff-label: 'Arsenica', var(--ff-base);
+
+      /* Floating open card (no headline inside) */
+      --ff-hbox-body:  var(--ff-base);
+
+      --ff-reveal-title: 'Eyesome', serif;
+      --ff-reveal-sub:   var(--ff-base);
+
+      --ff-reveal-card-title: 'Canela', var(--ff-base);
+      --ff-reveal-card-body:  'Centaur', var(--ff-base);
+
+      --ff-bullet: var(--ff-reveal-card-title);
+    }
+
+    /* Sizes (use clamp to stay responsive) */
+    #ways-we-work{
+      --fs-hero-title: clamp(28px, 12vw, 104px);
+      --fs-hero-sub:   clamp(16px, 4vw, 22px);
+      --fs-hero-sub2:  clamp(15px, 2.4vw, 18px);
+
+      --fs-label:      17px;
+
+      --fs-hbox-body:  clamp(14px, 3.5vw, 20px);
+
+      --fs-reveal-title: clamp(22px, 3.4vw, 42px);
+      --fs-reveal-sub:   clamp(15px, 1.9vw, 18px);
+
+      --fs-reveal-card-title: clamp(16px, 2.2vw, 20px);
+      --fs-reveal-card-body:  clamp(14px, 1.9vw, 18px);
+
+      --fs-bullet-hbox:   0.85em;
+      --fs-bullet-reveal: 1.05em;
+
+      --gap-hero-title-sub: .012rem;
+      --gap-hero-sub-sub2:  .10rem;
+
+      --hero-sub2-shift-x: 18px;
+      --hero-sub2-shift-y: 180px;
+    }
+
+    /* Weights */
+    #ways-we-work{
+      --fw-hero-title: 400;
+      --fw-hero-sub:   400;
+      --fw-hero-sub2:  400;
+
+      --fw-label:      600;
+
+      --fw-hbox-body:  400;
+
+      --fw-reveal-title: 650;
+      --fw-reveal-sub:   400;
+
+      --fw-reveal-card-title: 700;
+      --fw-reveal-card-body:  400;
+    }
+
+    /* Letter-spacing */
+    #ways-we-work{
+      --ls-hero-title: -0.01em;
+      --ls-hero-sub:    0em;
+      --ls-hero-sub2:   0em;
+
+      --ls-label:       0.04em;
+
+      --ls-hbox-body:   0em;
+
+      --ls-reveal-title: -0.01em;
+      --ls-reveal-sub:    0em;
+
+      --ls-reveal-card-title: 0em;
+      --ls-reveal-card-body:  0em;
+    }
+
+    /* Line-heights */
+    #ways-we-work{
+      --lh-hero-title: 1.08;
+      --lh-hero-sub:   1.45;
+      --lh-hero-sub2:  1.45;
+
+      --lh-label:      1.2;
+
+      --lh-hbox-body:  1.2;
+
+      --lh-reveal-title: 1.2;
+      --lh-reveal-sub:   1.45;
+
+      --lh-reveal-card-title: 1.2;
+      --lh-reveal-card-body:  1.5;
+    }
+
+    /* === APPLY OVERRIDES (type only) === */
+    /* HERO */
+    #ways-we-work .hero .title{
+      font-family: var(--ff-hero-title) !important;
+      font-size:   var(--fs-hero-title) !important;
+      font-weight: var(--fw-hero-title) !important;
+      letter-spacing: var(--ls-hero-title) !important;
+      line-height: var(--lh-hero-title) !important;
+      margin: 0 0 var(--gap-hero-title-sub) !important;
+    }
+    #ways-we-work .hero .sub{
+      font-family: var(--ff-hero-sub) !important;
+      font-size:   var(--fs-hero-sub) !important;
+      font-weight: var(--fw-hero-sub) !important;
+      letter-spacing: var(--ls-hero-sub) !important;
+      line-height: var(--lh-hero-sub) !important;
+      margin: 0 !important;
+    }
+    /* second subtext line */
+    #ways-we-work .hero .sub2{
+      font-family: var(--ff-hero-sub2) !important;
+      font-size:   var(--fs-hero-sub2) !important;
+      font-weight: var(--fw-hero-sub2) !important;
+      letter-spacing: var(--ls-hero-sub2) !important;
+      line-height: var(--lh-hero-sub2) !important;
+      margin: var(--gap-hero-sub-sub2) auto 0 !important;
+      transform: translate(var(--hero-sub2-shift-x), var(--hero-sub2-shift-y));
+    }
+
+    /* FLOATING BOX (closed label) */
+    #ways-we-work .hbox .label{
+      font-family: var(--ff-label) !important;
+      font-size:   var(--fs-label) !important;
+      font-weight: var(--fw-label) !important;
+      letter-spacing: var(--ls-label) !important;
+      line-height: var(--lh-label) !important;
+    }
+
+    /* FLOATING BOX (open card body only — no headline) */
+    #ways-we-work .hbox .card p,
+    #ways-we-work .hbox .card li{
+      font-family: var(--ff-hbox-body) !important;
+      font-size:   var(--fs-hbox-body) !important;
+      font-weight: var(--fw-hbox-body) !important;
+      letter-spacing: var(--ls-hbox-body) !important;
+      line-height: var(--lh-hbox-body) !important;
+    }
+    #ways-we-work .hbox .card li::before{ font-size: var(--fs-bullet-hbox) !important; }
+  </style>
+
+  <main class="hero">
+    <div class="hero__inner">
+      <h1 class="title">Trust Us?</h1>
+      <p class="sub">Trust is an assumption, & Assumptions ....! <br> Clarity Won't. Achieve yours by reading floating truths.</p>
+      <p class="sub sub2">
+        Wish to explore more – check out our
+        <a class="inline-cta" href="/writings" role="button" aria-label="Open Writings">WRITINGS</a>
+        and
+        <a class="inline-cta" href="/instruments" role="button" aria-label="Open Instruments">INSTRUMENTS</a>.
+      </p>
+    </div>
+
+    <div class="scatter" aria-live="polite">
+      <!-- Initial static hboxes are replaced by JS render() -->
+    </div>
+  </main>
+
+  <!-- SECTION-LOCAL video loader (both video layers) -->
+  <script>
+    (function(){
+      const layers = document.querySelectorAll('#ways-we-work .vid-layer');
+      if(!layers.length) return;
+
+      function handleLayer(layer){
+        const vid = layer.querySelector('video.vid');
+        if(!vid) return;
+
+        function applyControls(){
+          const op    = parseFloat(layer.dataset.opacity ?? '.28');
+          const rate  = parseFloat(layer.dataset.speed   ?? '1.0');
+          const blend = (layer.dataset.blend || 'soft-light').trim();
+          layer.style.setProperty('--vid-opacity', isFinite(op) ? op : .28);
+          layer.style.setProperty('--vid-blend', blend || 'soft-light');
+          try { vid.playbackRate = isFinite(rate) ? rate : 1.0; } catch(e){}
+        }
+
+        const io = new IntersectionObserver((entries)=>{
+          entries.forEach(entry=>{
+            if(entry.isIntersecting){
+              if(!vid.src && layer.dataset.src){ vid.src = layer.dataset.src; }
+              applyControls();
+              const p = vid.play();
+              if(p && p.catch){ p.catch(()=>{}); }
+            } else {
+              vid.pause();
+            }
+          });
+        }, { threshold: 0.2 });
+
+        io.observe(layer);
+      }
+
+      layers.forEach(handleLayer);
+    })();
+  </script>
+
+  <script>
+    (function(){
+      const sec = document.getElementById('ways-we-work');
+      const scatter = sec.querySelector('.scatter');
+
+      const LUX_LAYOUT = true;
+
+      function toListHTML(content){
+        if (Array.isArray(content)){
+          return '<ul>' + content.map(x => `<li>${x}</li>`).join('') + '</ul>';
+        }
+        return '<ul><li>' + (content ?? '') + '</li></ul>';
+      }
+
+      const DATA = [
+        { label:'Perception > Value',           title:'Perception > Value',           body:['Perception often outweighs real value','The mind fills gaps by constructing meaning','Value is justified before the experience even begins'], x:50, y:18 },
+        { label:'Silence > Words',              title:'Silence > Words',              body:['Silence creates space for value to grow','Paired with posture/presence/gaze, it eclipses speech'], x:18, y:82 },
+        { label:'Conversation = Argument',      title:'Conversation = Argument',      body:['Everyone wants to be heard','Reflect their view back; gain an ally and information'], x:83, y:80 },
+        { label:'Complexity = Facade',          title:'Complexity = Facade',          body:['Complexity is often a cover — a facade to confuse or distract.','The less you understand, the more value you assign. Just mind games.'], x:79, y:50 },
+        { label:'Price = Positioning',          title:'Price = Positioning',          body:['The mind reads price as truth—long before it sees proof.','High cost implies high value, and most people don’t question it.','The real game is holding still long enough to let belief form.'], x:16, y:16 },
+        { label:'Information = Power',          title:'Information = Everything',     body:['Most people don’t lack data—they lack eyes.','Some truths are buried. Others are visible but emotionally inconvenient.','Power goes to the one who notices, names, and moves first.'], x:17, y:58 },
+        { label:'Emotion Buys. Logic Justifies.',title:'Emotion Buys. Logic Justifies.', body:['We feel first, think later.','Every “rational” decision is a story stitched to a gut call.'], x:80, y:15 },
+        { label:'Activity ≠ Progress',          title:'Activity ≠ Progress',          body:['They’re busy, not effective.','Clarity kills 90% of motion—and doubles momentum.'], x:18, y:34 },
+        { label:'Self-Doubt ≠ Lack of Skill',   title:'Self-Doubt ≠ Lack of Skill',   body:['Most doubt doesn’t come from being bad.','It comes from being alone in your seeing.'], x:51, y:85 },
+        { label:'Talent ≠ Money',               title:'Talent ≠ Money',               body:['Talent alone does not get you paid — right positioning at right time does.','World does not pay for your expertise — it pays for their perception of it.'], x:80, y:30 },
+      ];
+
+      const ANCHORS = [
+        {x:14, y:24}, {x:30, y:16}, {x:46, y:22}, {x:62, y:18}, {x:78, y:26},
+        {x:84, y:48}, {x:79, y:76}, {x:54, y:78}, {x:36, y:74}, {x:20, y:56}
+      ];
+
+      function jitter(n, amt){ return n + (Math.random()*2-1)*amt; }
+      function clamp(v, lo, hi){ return Math.max(lo, Math.min(hi, v)); }
+
+      function applyLuxLayout(items){
+        const isMobile = matchMedia('(max-width: 720px)').matches;
+        const xJ = isMobile ? 1.5 : 2.5;
+        const yJ = isMobile ? 2.0 : 3.5;
+        return items.map((it, i)=>{
+          const a = ANCHORS[i % ANCHORS.length];
+          const X = clamp(jitter(a.x, xJ), 8, 92);
+          const Y = clamp(jitter(a.y, yJ), 10, 90);
+          return { ...it, x:X, y:Y };
+        });
+      }
+
+      function buildBox(it){
+        const el = document.createElement('div');
+        el.className = 'hbox';
+        el.style.left = (typeof it.x === 'number' ? it.x + '%' : it.x);
+        el.style.top  = (typeof it.y === 'number' ? it.y + '%' : it.y);
+        el.style.setProperty('--rand-dur', (Math.random()*2).toFixed(2) + 's');
+        el.style.animationDelay = `${(-Math.random()*6).toFixed(2)}s`;
+        const xNum = (typeof it.x === 'number') ? it.x : parseFloat(it.x);
+        el.style.setProperty('--dir', (xNum < 50 ? -1 : 1));
+        el.setAttribute('role','button'); el.setAttribute('tabindex','0'); el.setAttribute('aria-expanded','false');
+        el.setAttribute('aria-label','Open: ' + it.label);
+
+        const listHTML = toListHTML(it.body);
+
+        el.innerHTML = `
+          <span class="label">${it.label}</span>
+          <div class="card" role="dialog" aria-modal="false">
+            ${listHTML}
+          </div>`;
+        return el;
+      }
+
+      function setOpen(el,on){
+        el.classList.toggle('is-open', on);
+        el.setAttribute('aria-expanded', on ? 'true' : 'false');
+      }
+
+      function bindInteractions(boxes){
+        boxes.forEach(el=>{
+          const pinned = () => el.dataset.pinned === '1';
+          const pin = v => v ? el.dataset.pinned='1' : delete el.dataset.pinned;
+
+          const mq = matchMedia('(hover: hover)');
+          if (mq.matches){
+            el.addEventListener('mouseenter', ()=>{ if(!pinned()) setOpen(el,true); });
+            el.addEventListener('mouseleave', ()=>{ if(!pinned()) setOpen(el,false); });
+          }
+          el.addEventListener('click', e=>{
+            e.stopPropagation();
+            const was = pinned();
+            boxes.forEach(b=>{ delete b.dataset.pinned; setOpen(b,false); });
+            if (!was){ pin(true); setOpen(el,true); }
+          });
+          el.addEventListener('keydown', e=>{
+            if (e.key==='Enter' || e.key===' '){ e.preventDefault(); el.click(); }
+            if (e.key==='Escape'){ pin(false); setOpen(el,false); }
+          });
+        });
+
+        sec.addEventListener('click', e=>{
+          if (!e.target.closest('.hbox')){
+            boxes.forEach(b=>{ delete b.dataset.pinned; setOpen(b,false); });
+          }
+        });
+      }
+
+      function render(){
+        scatter.innerHTML = '';
+        const items = LUX_LAYOUT ? applyLuxLayout([...DATA]) : DATA;
+        const boxes = items.map(it => {
+          const el = buildBox(it);
+          scatter.appendChild(el);
+          return el;
+        });
+        bindInteractions(boxes);
+      }
+
+      function safeRender(){ try { render(); } catch(e){ console.error('Ways-We-Work init error:', e); } }
+
+      if (document.readyState === 'loading'){
+        document.addEventListener('DOMContentLoaded', ()=> requestAnimationFrame(safeRender));
+      } else {
+        requestAnimationFrame(safeRender);
+      }
+      window.addEventListener('load', ()=> { requestAnimationFrame(safeRender); });
+
+      /* === Removed: virtual scroll handlers for wheel/touch/keyboard === */
+    })();
+  </script>
+</section>
