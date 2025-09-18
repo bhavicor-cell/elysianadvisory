@@ -169,6 +169,7 @@
 
         const frame = document.createElement('iframe');
         frame.className = 'stack-frame';
+        frame.id = 'frame-' + id; 
         frame.title = title || src;
         frame.dataset.src = src;
         frame.loading = idx === 0 ? 'eager' : 'lazy';
@@ -259,5 +260,6 @@
   </script>
 </body>
 </html>
+
 
 
