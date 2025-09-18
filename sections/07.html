@@ -639,13 +639,17 @@
       }
 
       function renderPop(opt){
-        const actions = opt.actions ? `
-          <div class="actions" aria-label="Explore actions">
-            <button type="button" class="act-link" data-href="${LINKS.writings}" aria-label="Open Writings"><em>Writings</em></button>
-            <button type="button" class="act-link" data-href="${LINKS.instruments}" aria-label="Open Instruments"><em>Instruments</em></button>
-          </div>` : '';
-        pop.innerHTML = `<span class="kicker"></span><ul>${(opt.lines||[]).map(x=>`<li>${x}</li>`).join('')}</ul>${actions}`;
-      }
+  const actions = opt.actions ? `
+    <div class="actions" aria-label="Explore actions">
+      <button type="button" class="act-link" data-href="${LINKS.writings}" aria-label="Open Writings"><em>Writings</em></button>
+      <button type="button" class="act-link" data-href="${LINKS.instruments}" aria-label="Open Instruments"><em>Instruments</em></button>
+    </div>` : '';
+
+  const items = (opt.lines || []).map(x => '<li>' + x + '</li>').join('');
+
+  pop.innerHTML = `<span class="kicker"></span><ul>${items}</ul>${actions}`;
+}
+
 
       function positionPop(btn){
         pop.style.display = 'block'; pop.dataset.show = 'true'; pop.removeAttribute('data-animate');
@@ -1080,6 +1084,7 @@ try {
   <script src="https://www.google.com/recaptcha/api.js?render=6Lc4gs0rAAAAAI0aXXts_OCCquoEdduHM5l98EcH" async defer></script>
 
 </section>
+
 
 
 
