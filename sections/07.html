@@ -92,7 +92,7 @@
     /* === Video behind everything in CTA (consistent with #ways-we-work) === */
     #cta { position: relative; }
     #cta .vid-layer{
-      --vid-opacity: .28;
+      --vid-opacity: .03;
       --vid-blend: soft-light;
       position:absolute; inset:0; z-index:0; pointer-events:none; overflow:hidden;
     }
@@ -1056,10 +1056,10 @@ try {
       if(!vid) return;
 
       function applyControls(){
-        const op    = parseFloat(layer.dataset.opacity ?? '.28');
-        const rate  = parseFloat(layer.dataset.speed   ?? '1.0');
+        const op    = parseFloat(layer.dataset.opacity ?? '.03');
+        const rate  = parseFloat(layer.dataset.speed   ?? '0.35');
         const blend = (layer.dataset.blend || 'soft-light').trim();
-        layer.style.setProperty('--vid-opacity', isFinite(op) ? op : .28);
+        layer.style.setProperty('--vid-opacity', isFinite(op) ? op : .03);
         layer.style.setProperty('--vid-blend', blend || 'soft-light');
         try { vid.playbackRate = isFinite(rate) ? rate : 1.0; } catch(e){}
       }
@@ -1081,4 +1081,5 @@ try {
   <script src="https://www.google.com/recaptcha/api.js?render=6Lc4gs0rAAAAAI0aXXts_OCCquoEdduHM5l98EcH" async defer></script>
 
 </section>
+
 
