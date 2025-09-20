@@ -9,26 +9,20 @@
 <link rel="preload" as="video" href="video.webm" type="video/webm">
 
 <style>
-  :root{ --vh: 100svh; }
+  :root {
+    --vh: 100svh;
 
-  /* Brand + background controls */
-  :root{
+    /* Brand + background controls */
     --page-bg:#fffcf8;    /* background */
     --ink:#13294B;        /* text color */
-  
+    --video-opacity:0.03; /* default video opacity */
+    --tint-opacity:0.00;  /* optional tiny color cast */
+  }
+
+  /* State for final reveal */
   :root.final-reveal {
     --page-bg:#FFFFFF;     /* pure white */
-    --video-opacity:0.03;  /* soften texture */
-    }
-  #site-bg {transition: background-color .6s ease; /* smooth flip */}
-
-  
-
-    /* ⬇️ You control VIDEO opacity here (0..1). Not the tint. */
-    --video-opacity:0.03;
-
-    /* Optional tiny color cast; keep 0 if you want pure video dimming */
-    --tint-opacity:0.00;
+    --video-opacity:0.01;  /* soften texture at end */
   }
 
   *{ box-sizing:border-box; margin:0; padding:0; }
@@ -42,23 +36,24 @@
 
   /* ===== GLOBAL BACKGROUND LAYER (one per site) ===== */
   #site-bg{
-    position:fixed; inset:0; z-index:0;        /* ⬅️ above page bg, below content */
+    position:fixed; inset:0; z-index:0;
     background:var(--page-bg);
     pointer-events:none; overflow:hidden;
+    transition: background-color .6s ease; /* smooth flip */
   }
   #bg-video{
     position:absolute; top:50%; left:50%;
     min-width:100%; min-height:100%;
     transform:translate(-50%,-50%);
     object-fit:cover;
-    opacity:var(--video-opacity);              /* ⬅️ VIDEO opacity */
+    opacity:var(--video-opacity);
   }
-  /* Optional soft-light tint; keep very low or zero */
+  /* Optional soft-light tint */
   #bg-tint{
     position:absolute; inset:0;
     mix-blend-mode:soft-light;
     background:var(--ink);
-    opacity:var(--tint-opacity);               /* ⬅️ tint opacity (separate) */
+    opacity:var(--tint-opacity);
   }
   @media (prefers-reduced-motion: reduce){
     #bg-video{ display:none; }
@@ -71,7 +66,7 @@
     overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch;
     scroll-snap-type:y mandatory;
     background:transparent;
-    z-index:1;                                  /* ⬅️ content above video */
+    z-index:1;
   }
   .stack-section{
     position:relative; width:100vw; height:var(--vh);
@@ -183,9 +178,7 @@
   <main id="stackScroll" aria-label="Stacked sections"></main>
 
   <script>
-    /* Per-section background controls (optional)
-       You can use BG_CONFIG.opacity to mean **VIDEO opacity** (0..1),
-       and BG_CONFIG.speed to control playbackRate. */
+    /* Per-section background controls */
     const BG_CONFIG = {
       hero:     { opacity: 0.03, speed: 0.6 },
       for:      { opacity: 0.03, speed: 0.6 },
@@ -204,7 +197,7 @@
       { id: 'truth',   title: 'Truth',              src: './sections/04.html' },
       { id: 'work',    title: 'Work With Us',       src: './sections/05.html' },
       { id: 'trust',   title: 'Trust Us',           src: './sections/06.html' },
-      { id: 'trust-2', title: 'Trust Us',           src: './sections/07.html' } // id must be unique
+      { id: 'trust-2', title: 'Trust Us',           src: './sections/07.html' }
     ];
 
     /* Viewport height fix (--vh) */
@@ -236,10 +229,8 @@
         const wrapper = document.createElement('section');
         wrapper.className = 'stack-section';
         wrapper.id = 'sec-' + id;
-wrapper.setAttribute('aria-label', title || `Section ${idx+1}`);
+        wrapper.setAttribute('aria-label', title || `Section ${idx+1}`);
 
-      
-        // store bg config as data attributes on the wrapper
         const conf = BG_CONFIG[id] || {};
         if (conf.opacity != null) wrapper.dataset.bgOpacity = String(conf.opacity);
         if (conf.speed   != null) wrapper.dataset.bgSpeed   = String(conf.speed);
@@ -326,7 +317,7 @@ wrapper.setAttribute('aria-label', title || `Section ${idx+1}`);
     window.addEventListener('resize', updateChrome, { passive:true });
     updateChrome();
 
-    /* Background controller (VIDEO opacity + speed) */
+    /* Background controller (VIDEO opacity + speed + final reveal) */
     const bgVideo = document.getElementById('bg-video');
     const rootEl  = document.documentElement;
 
@@ -343,30 +334,29 @@ wrapper.setAttribute('aria-label', title || `Section ${idx+1}`);
       try{ bgVideo.playbackRate = speed; }catch(e){}
     }
 
-    // On load, apply the first section's config
     const firstSection = document.querySelector('.stack-section');
     if (firstSection) applyBG(firstSection);
 
     // Watch which section is centered; apply its config
-const bgObserver = new IntersectionObserver((entries)=>{
-  entries.forEach(entry=>{
-    if(entry.isIntersecting){
-      applyBG(entry.target);
+    const bgObserver = new IntersectionObserver((entries)=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting){
+          applyBG(entry.target);
 
-      // Check if final section
-      if(entry.target.id === 'sec-trust-2'){
-        // delay the flip to sync with quote shrink
-        setTimeout(()=> {
-          document.documentElement.classList.add('final-reveal');
-        }, 4000);
-      } else {
-        document.documentElement.classList.remove('final-reveal');
-      }
-    }
-  });
-}, { root: stackEl, threshold: 0.6 });
+          if(entry.target.id === 'sec-trust-2'){
+            setTimeout(()=> {
+              document.documentElement.classList.add('final-reveal');
+            }, 4000); // delay for quote shrink sync
+          } else {
+            document.documentElement.classList.remove('final-reveal');
+          }
+        }
+      });
+    }, { root: stackEl, threshold: 0.6 });
 
-    /* Ensure autoplay (some browsers need an explicit kick) */
+    document.querySelectorAll('.stack-section').forEach(s => bgObserver.observe(s));
+
+    /* Ensure autoplay */
     (function ensurePlay(){
       const v = document.getElementById('bg-video');
       if (!v) return;
@@ -377,4 +367,3 @@ const bgObserver = new IntersectionObserver((entries)=>{
   </script>
 </body>
 </html>
-
