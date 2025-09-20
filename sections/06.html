@@ -1,15 +1,5 @@
 <section id="ways-we-work" class="s67" aria-label="Ways We Work" tabindex="0">
-  <!-- === VIDEO OVERLAY (hero half) === -->
-  <div class="vid-layer"
-       data-src="video.webm"
-       data-opacity="0.03"
-       data-speed="0.25"
-       data-blend="soft-light">
-    <video class="vid" muted playsinline autoplay loop preload="metadata">
-      <source src="video.webm" type="video/webm">
-    </video>
-  </div>
-
+  
   <style>
     /* Local fonts (paths unchanged) */
     @font-face { font-family:'Eyesome';        src:url('./Fonts/Eyesome-Regular.otf')       format('opentype'); font-display:swap; }
@@ -18,23 +8,10 @@
     @font-face { font-family:'Anecor';         src:url('./Fonts/anecor-gheroos.otf')        format('opentype'); font-display:swap; }
     @font-face { font-family:'cotorisi';       src:url('./Fonts/cotorisita.otf')            format('opentype'); font-weight:400; font-style:normal; font-display:swap; }
 
-    /* === keep video behind everything in this section === */
-    #ways-we-work{ position: relative; }
-    #ways-we-work .vid-layer{
-      --vid-opacity: .03;
-      --vid-blend: soft-light;
-      position:absolute; inset:0; z-index:0; pointer-events:none; overflow:hidden;
-    }
-    #ways-we-work .vid-layer .vid{
-      position:absolute; inset:0; width:100%; height:100%;
-      object-fit:cover; opacity:var(--vid-opacity); mix-blend-mode:var(--vid-blend);
-      transform:translateZ(0);
-    }
-    #ways-we-work > *:not(.vid-layer){ position:relative; z-index:1; }
-
+    
     /* ===== Scoped tokens ===== */
     #ways-we-work{
-      --bg:#faf7f2; --ink:#1a1a1a; --muted:#6f6d69;
+      --bg:transparent; --ink:#13294b; --muted:#6f6d69;
       --hair:#e3dfd7; --ivory:#f7f2e7; --ink-ivory:#23201a;
       --radius:16px; --hairline:1px;
       --gutter: clamp(16px, 4vw, 40px);
@@ -413,45 +390,6 @@
     </div>
   </main>
 
-  <!-- SECTION-LOCAL video loader (both video layers) -->
-  <script>
-    (function(){
-      const layers = document.querySelectorAll('#ways-we-work .vid-layer');
-      if(!layers.length) return;
-
-      function handleLayer(layer){
-        const vid = layer.querySelector('video.vid');
-        if(!vid) return;
-
-        function applyControls(){
-          const op    = parseFloat(layer.dataset.opacity ?? '.03');
-          const rate  = parseFloat(layer.dataset.speed   ?? '0.25');
-          const blend = (layer.dataset.blend || 'soft-light').trim();
-          layer.style.setProperty('--vid-opacity', isFinite(op) ? op : .03);
-          layer.style.setProperty('--vid-blend', blend || 'soft-light');
-          try { vid.playbackRate = isFinite(rate) ? rate : 1.0; } catch(e){}
-        }
-
-        const io = new IntersectionObserver((entries)=>{
-          entries.forEach(entry=>{
-            if(entry.isIntersecting){
-              if(!vid.src && layer.dataset.src){ vid.src = layer.dataset.src; }
-              applyControls();
-              const p = vid.play();
-              if(p && p.catch){ p.catch(()=>{}); }
-            } else {
-              vid.pause();
-            }
-          });
-        }, { threshold: 0.2 });
-
-        io.observe(layer);
-      }
-
-      layers.forEach(handleLayer);
-    })();
-  </script>
-
   <script>
     (function(){
       const sec = document.getElementById('ways-we-work');
@@ -579,6 +517,7 @@
     })();
   </script>
 </section>
+
 
 
 
