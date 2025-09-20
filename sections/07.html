@@ -70,26 +70,34 @@
     #cta.show-form{ --dock-gap: var(--dock-gap-open); }
     #cta *{ box-sizing:border-box; }
 
-    /* How long the quote stays centered before the form opens */
-#cta{ --auto-open-delay: 4000; } /* ms — change this number to taste */
+/* Tunables (feel free to tweak) */
+#cta{
+  --auto-open-delay: 3000;           /* quote hold time (ms) */
+  --q-start-scale: 1.14;             /* initial size (bigger) */
+  --q-end-scale: .92;                /* final size (smaller) */
+  --q-end-shift: clamp(80px,12vw,180px); /* how far it slides right, but clamped */
+}
 
-/* Smooth transform for the quote */
+/* start state: bigger and centered */
 #cta .quote{
+  transform: scale(var(--q-start-scale));
+  transform-origin: center;
   transition:
     opacity var(--t-fast) var(--curve),
     filter var(--t-fast) var(--curve),
-    transform 700ms var(--curve);
-  transform-origin: center;
+    transform 720ms var(--curve);
+  justify-self: center;              /* keep it centered initially */
 }
 
-/* When form shows, shrink + slide the quote to the right */
+/* when the form opens: shrink + slide right but stay visible */
 #cta.show-form .quote{
-  transform: translateX(18vw) scale(.86);
+  justify-self: end;                 /* anchor to the right column */
+  transform: translateX(var(--q-end-shift)) scale(var(--q-end-scale));
 }
 
-/* Optional: a tiny ease-in before we move it (looks luxe) */
+/* motion accessibility */
 @media (prefers-reduced-motion: reduce){
-  #cta .quote{ transition: none; transform: none !important; }
+  #cta .quote{ transition:none; transform:none !important; }
 }
 
     /* Soft vignette */
@@ -1062,6 +1070,7 @@ try {
   <script src="https://www.google.com/recaptcha/api.js?render=6Lc4gs0rAAAAAI0aXXts_OCCquoEdduHM5l98EcH" async defer></script>
 
 </section>
+
 
 
 
