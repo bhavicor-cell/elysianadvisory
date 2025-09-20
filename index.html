@@ -5,16 +5,57 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>Elysian — Index (One Screen per Section)</title>
 
+<!-- Preload the single global video -->
+<link rel="preload" as="video" href="video.webm" type="video/webm">
+
 <style>
   :root{ --vh: 100svh; }
+
+  /* Brand + background controls */
+  :root{
+    --page-bg:#fffcf8;    /* background */
+    --ink:#13294B;        /* text color */
+
+    /* ⬇️ You control VIDEO opacity here (0..1). Not the tint. */
+    --video-opacity:0.03;
+
+    /* Optional tiny color cast; keep 0 if you want pure video dimming */
+    --tint-opacity:0.00;
+  }
+
   *{ box-sizing:border-box; margin:0; padding:0; }
 
   html, body{ height:100%; overflow:hidden; }
-  html{ background:#FAF7F2; color:#1a1a1a; }
-  body{ font:400 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+  html{ background:var(--page-bg); color:var(--ink); }
+  body{ font:400 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; color:var(--ink); }
 
   /* Local fonts */
-    @font-face { font-family:'Anecor'; src:url('./Fonts/anecor-gheroos.otf') format('opentype'); font-display:swap; }
+  @font-face { font-family:'Anecor'; src:url('./Fonts/anecor-gheroos.otf') format('opentype'); font-display:swap; }
+
+  /* ===== GLOBAL BACKGROUND LAYER (one per site) ===== */
+  #site-bg{
+    position:fixed; inset:0; z-index:0;        /* ⬅️ above page bg, below content */
+    background:var(--page-bg);
+    pointer-events:none; overflow:hidden;
+  }
+  #bg-video{
+    position:absolute; top:50%; left:50%;
+    min-width:100%; min-height:100%;
+    transform:translate(-50%,-50%);
+    object-fit:cover;
+    opacity:var(--video-opacity);              /* ⬅️ VIDEO opacity */
+  }
+  /* Optional soft-light tint; keep very low or zero */
+  #bg-tint{
+    position:absolute; inset:0;
+    mix-blend-mode:soft-light;
+    background:var(--ink);
+    opacity:var(--tint-opacity);               /* ⬅️ tint opacity (separate) */
+  }
+  @media (prefers-reduced-motion: reduce){
+    #bg-video{ display:none; }
+    #bg-tint{ mix-blend-mode:normal; opacity:0.06; }
+  }
 
   /* Scrollable stack area */
   #stackScroll{
@@ -22,6 +63,7 @@
     overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch;
     scroll-snap-type:y mandatory;
     background:transparent;
+    z-index:1;                                  /* ⬅️ content above video */
   }
   .stack-section{
     position:relative; width:100vw; height:var(--vh);
@@ -45,7 +87,7 @@
     backdrop-filter:none;
     -webkit-backdrop-filter:none;
     box-shadow:0 8px 24px rgba(0,0,0,.06);
-    color:#1a1a1a;
+    color:var(--ink);
     opacity:0; transform:translateY(-6px);
     z-index:9999; pointer-events:none;
     transition:opacity .25s ease, transform .25s ease;
@@ -62,6 +104,7 @@
     font:600 12px/1.1 'Anecor', system-ui, -apple-system, Segoe UI, sans-serif;
     letter-spacing:.12em; text-transform:uppercase;
     transition:opacity .2s ease, background-color .2s ease, transform .12s ease;
+    color:var(--ink);
   }
   .nav-btn:hover{ background:rgba(0,0,0,.04); }
   .nav-btn:active{ transform:translateY(1px); }
@@ -109,6 +152,15 @@
 </head>
 <body>
 
+  <!-- ONE global background (video + optional tint) -->
+  <div id="site-bg" aria-hidden="true">
+    <video id="bg-video" muted playsinline autoplay loop preload="metadata" poster="video-poster.jpg">
+      <source src="video.webm" type="video/webm">
+      <source src="3.mp4" type="video/mp4">
+    </video>
+    <div id="bg-tint"></div>
+  </div>
+
   <!-- Fixed, site-wide logo that appears from Section 2 onward (top-left) -->
   <div id="ElysianDockLogo" aria-hidden="true">
     <img src="./assets/LS.svg" alt="Elysian Advisory" decoding="async" fetchpriority="low" width="200" height="60" />
@@ -123,7 +175,20 @@
   <main id="stackScroll" aria-label="Stacked sections"></main>
 
   <script>
-    /* 1) Declare your sections */
+    /* Per-section background controls (optional)
+       You can use BG_CONFIG.opacity to mean **VIDEO opacity** (0..1),
+       and BG_CONFIG.speed to control playbackRate. */
+    const BG_CONFIG = {
+      hero:     { opacity: 0.03, speed: 0.6 },
+      for:      { opacity: 0.03, speed: 0.6 },
+      action:   { opacity: 0.03, speed: 0.6 },
+      truth:    { opacity: 0.03, speed: 0.6 },
+      work:     { opacity: 0.03, speed: 0.6 },
+      trust:    { opacity: 0.03, speed: 0.6 },
+      'trust-2':{ opacity: 0.03, speed: 0.6 }
+    };
+
+    /* Sections */
     const SECTION_MANIFEST = [
       { id: 'hero',    title: 'Hero',               src: './sections/01.html' },
       { id: 'for',     title: 'Clarity For',        src: './sections/02.html' },
@@ -134,7 +199,7 @@
       { id: 'trust-2', title: 'Trust Us',           src: './sections/07.html' } // id must be unique
     ];
 
-    /* 2) Viewport height fix (--vh) */
+    /* Viewport height fix (--vh) */
     function setVH(){
       const h = Math.max(1, Math.round(window.innerHeight || document.documentElement.clientHeight || 0));
       document.documentElement.style.setProperty('--vh', h + 'px');
@@ -143,7 +208,7 @@
     window.addEventListener('resize', setVH, { passive:true });
     window.addEventListener('orientationchange', setVH);
 
-    /* 3) Build the stack */
+    /* Build the stack */
     const stackEl = document.getElementById('stackScroll');
 
     function injectNoScrollCSS(doc){
@@ -154,9 +219,7 @@
 *{box-sizing:border-box;}
 ::-webkit-scrollbar{display:none;}`;
         doc.head.appendChild(style);
-      }catch(e){
-        // ignore if cross-origin or unavailable
-      }
+      }catch(e){}
     }
 
     function makeStack(){
@@ -165,11 +228,17 @@
         const wrapper = document.createElement('section');
         wrapper.className = 'stack-section';
         wrapper.id = 'sec-' + id;
-        wrapper.setAttribute('aria-label', title || `Section ${idx+1}`);
+wrapper.setAttribute('aria-label', title || `Section ${idx+1}`);
+
+      
+        // store bg config as data attributes on the wrapper
+        const conf = BG_CONFIG[id] || {};
+        if (conf.opacity != null) wrapper.dataset.bgOpacity = String(conf.opacity);
+        if (conf.speed   != null) wrapper.dataset.bgSpeed   = String(conf.speed);
 
         const frame = document.createElement('iframe');
         frame.className = 'stack-frame';
-        frame.id = 'frame-' + id; 
+        frame.id = 'frame-' + id;
         frame.title = title || src;
         frame.dataset.src = src;
         frame.loading = idx === 0 ? 'eager' : 'lazy';
@@ -194,43 +263,39 @@
       });
     }
     makeStack();
-    
-  // === Lazy-activate frames: load current + next, unload far ones ===
-  const framesState = new Map();
-  const framesObserver = new IntersectionObserver((entries)=>{
-    entries.forEach(entry=>{
-      const frame = entry.target;
-      const id = frame.id || frame.title || frame.dataset.src;
 
-      if (!framesState.has(id)) framesState.set(id, {live:false});
+    // Lazy-activate frames
+    const framesState = new Map();
+    const framesObserver = new IntersectionObserver((entries)=>{
+      entries.forEach(entry=>{
+        const frame = entry.target;
+        const id = frame.id || frame.title || frame.dataset.src;
 
-      if (entry.isIntersecting && !framesState.get(id).live) {
-        // near viewport → actually load the section
-        frame.src = frame.dataset.src;
-        framesState.get(id).live = true;
-      } else if (!entry.isIntersecting) {
-        // far away? free memory
-        const rect = frame.getBoundingClientRect();
-        const vh = window.innerHeight || document.documentElement.clientHeight;
-        if (rect.top > vh*2 || rect.bottom < -vh*2) {
-          if (framesState.get(id).live) {
-            frame.src = 'about:blank';
-            framesState.get(id).live = false;
+        if (!framesState.has(id)) framesState.set(id, {live:false});
+
+        if (entry.isIntersecting && !framesState.get(id).live) {
+          frame.src = frame.dataset.src;
+          framesState.get(id).live = true;
+        } else if (!entry.isIntersecting) {
+          const rect = frame.getBoundingClientRect();
+          const vh = window.innerHeight || document.documentElement.clientHeight;
+          if (rect.top > vh*2 || rect.bottom < -vh*2) {
+            if (framesState.get(id).live) {
+              frame.src = 'about:blank';
+              framesState.get(id).live = false;
+            }
           }
         }
-      }
-    });
-  }, { root: document.getElementById('stackScroll'), rootMargin: '120% 0px', threshold: 0.01 });
+      });
+    }, { root: document.getElementById('stackScroll'), rootMargin: '120% 0px', threshold: 0.01 });
 
-  document.querySelectorAll('.stack-frame').forEach(f => framesObserver.observe(f));
+    document.querySelectorAll('.stack-frame').forEach(f => framesObserver.observe(f));
 
-
-    /* 4) Update nav + logo visibility based on current section index */
+    /* Nav + logo visibility */
     const globalNav = document.getElementById('globalHeroNav');
 
     function currentIndex(){
       const vh = Math.max(1, Math.round(window.innerHeight || document.documentElement.clientHeight));
-      // Use floor with small bias to be robust during momentum scroll
       const idx = Math.floor((stackEl.scrollTop + vh * 0.1) / vh);
       return idx;
     }
@@ -239,10 +304,10 @@
       const idx = currentIndex();
       if (idx >= 1){
         globalNav.classList.add('is-visible');
-        document.body.classList.add('logo-visible'); // logo stays visible for ALL sections ≥ 2
+        document.body.classList.add('logo-visible');
       }else{
         globalNav.classList.remove('is-visible');
-        document.body.classList.remove('logo-visible'); // hide only on Section 1
+        document.body.classList.remove('logo-visible');
       }
     }
 
@@ -253,13 +318,46 @@
     window.addEventListener('resize', updateChrome, { passive:true });
     updateChrome();
 
-    /* Optional: wire buttons later
-    document.querySelector('[data-target="writings"]').onclick = () =>
-      document.getElementById('sec-for').scrollIntoView({behavior:'smooth'});
-    */
+    /* Background controller (VIDEO opacity + speed) */
+    const bgVideo = document.getElementById('bg-video');
+    const rootEl  = document.documentElement;
+
+    const DEFAULT_VIDEO_OPACITY = parseFloat(getComputedStyle(rootEl).getPropertyValue('--video-opacity')) || 0.22;
+    const DEFAULT_BG_SPEED      = 0.8;
+
+    function applyBG(sectionEl){
+      const o = parseFloat(sectionEl?.dataset.bgOpacity ?? '');
+      const s = parseFloat(sectionEl?.dataset.bgSpeed   ?? '');
+      const videoOpacity = Number.isFinite(o) ? o : DEFAULT_VIDEO_OPACITY;
+      const speed        = Number.isFinite(s) ? s : DEFAULT_BG_SPEED;
+
+      rootEl.style.setProperty('--video-opacity', String(videoOpacity));
+      try{ bgVideo.playbackRate = speed; }catch(e){}
+    }
+
+    // On load, apply the first section's config
+    const firstSection = document.querySelector('.stack-section');
+    if (firstSection) applyBG(firstSection);
+
+    // Watch which section is centered; apply its config
+    const bgObserver = new IntersectionObserver((entries)=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting){
+          applyBG(entry.target);
+        }
+      });
+    }, { root: stackEl, threshold: 0.6 });
+
+    document.querySelectorAll('.stack-section').forEach(s => bgObserver.observe(s));
+
+    /* Ensure autoplay (some browsers need an explicit kick) */
+    (function ensurePlay(){
+      const v = document.getElementById('bg-video');
+      if (!v) return;
+      v.muted = true;
+      const p = v.play && v.play();
+      if (p && p.catch) p.catch(()=>{});
+    })();
   </script>
 </body>
 </html>
-
-
-
