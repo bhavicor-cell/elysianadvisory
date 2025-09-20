@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>Elysian — Index (One Screen per Section)</title>
+<title>Elysian Advisory</title>
 
 <!-- Preload the single global video -->
 <link rel="preload" as="video" href="video.webm" type="video/webm">
@@ -15,6 +15,14 @@
   :root{
     --page-bg:#fffcf8;    /* background */
     --ink:#13294B;        /* text color */
+  
+  :root.final-reveal {
+    --page-bg:#FFFFFF;     /* pure white */
+    --video-opacity:0.03;  /* soften texture */
+    }
+  #site-bg {transition: background-color .6s ease; /* smooth flip */}
+
+  
 
     /* ⬇️ You control VIDEO opacity here (0..1). Not the tint. */
     --video-opacity:0.03;
@@ -340,15 +348,23 @@ wrapper.setAttribute('aria-label', title || `Section ${idx+1}`);
     if (firstSection) applyBG(firstSection);
 
     // Watch which section is centered; apply its config
-    const bgObserver = new IntersectionObserver((entries)=>{
-      entries.forEach(entry=>{
-        if(entry.isIntersecting){
-          applyBG(entry.target);
-        }
-      });
-    }, { root: stackEl, threshold: 0.6 });
+const bgObserver = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      applyBG(entry.target);
 
-    document.querySelectorAll('.stack-section').forEach(s => bgObserver.observe(s));
+      // Check if final section
+      if(entry.target.id === 'sec-trust-2'){
+        // delay the flip to sync with quote shrink
+        setTimeout(()=> {
+          document.documentElement.classList.add('final-reveal');
+        }, 4000);
+      } else {
+        document.documentElement.classList.remove('final-reveal');
+      }
+    }
+  });
+}, { root: stackEl, threshold: 0.6 });
 
     /* Ensure autoplay (some browsers need an explicit kick) */
     (function ensurePlay(){
@@ -361,3 +377,4 @@ wrapper.setAttribute('aria-label', title || `Section ${idx+1}`);
   </script>
 </body>
 </html>
+
