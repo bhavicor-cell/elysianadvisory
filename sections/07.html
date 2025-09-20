@@ -11,7 +11,7 @@
        ========================================================= */
     #cta{
       /* Palette */
-      --bg:transparent; --ink:#13294b; --muted:#6f6d69; --panel:#ffffff; --hair:#e6e1d8;
+      --bg:transparent; --ink:#13294b; --muted:#767676; --panel:#fffcf8; --hair:#e6e1d8;
       --danger:#b3261e;
 
       /* Typography families */
@@ -199,7 +199,7 @@
     #cta .form input[type="text"],
     #cta .form input[type="email"],
     #cta .form textarea{
-      width:100%; border:1px solid var(--hair); border-radius:12px; background:#fff; color:#000;
+      width:100%; border:1px solid var(--hair); border-radius:12px; background:#fffcf8; color:#13294b;
       padding:10px 12px; font:500 var(--fs-input)/1.45 var(--ff-ui); outline:none;
       transition: border-color var(--t-fast) var(--curve), box-shadow var(--t-fast) var(--curve), transform var(--t-fast) var(--curve);
     }
@@ -218,17 +218,17 @@
     #cta .choices{ display:flex; flex-wrap:wrap; gap:10px; }
     #cta .chip{
       display:inline-flex; align-items:center; gap:8px; padding:10px 14px; border:1px solid var(--hair);
-      border-radius:999px; background: color-mix(in oklab, #fff 92%, #000 8%);
+      border-radius:999px; background: color-mix(in oklab, #fffcf8 92%, #000 8%);
       font:600 var(--fs-chip)/1 var(--ff-ui); cursor:pointer; user-select:none;
       transition: all var(--t-fast) var(--curve); min-height: 38px;
     }
     #cta .chip:hover{ transform: translateY(-1px); box-shadow: 0 10px 28px rgba(0,0,0,.08); }
-    #cta .chip[data-checked="true"]{ background:#111; color:#fff; border-color:#111; }
+    #cta .chip[data-checked="true"]{ background:#13294b; color:#fffcf8; border-color:#13294; }
 
     /* Submit area */
     #cta .submit{ display:flex; align-items:flex-start; gap:10px; }
     #cta .btn-primary{
-      height:44px; padding:0 16px; border-radius:12px; border:1px solid #fff; background:#f8f5ef; color:#1a1a1a;
+      height:44px; padding:0 16px; border-radius:12px; border:1px solid var(--hair); background:#fffcf8; color:#13294b;
       font:700 14px/1 var(--ff-ui); cursor:pointer; box-shadow: 0 10px 22px rgba(0,0,0,.12);
       transition: transform var(--t-fast) var(--curve), box-shadow var(--t-fast) var(--curve);
     }
@@ -251,7 +251,7 @@
     #cta .quote{
       position:relative; display:flex; align-items:center; justify-content:center;
       padding: clamp(6px, 1.6vw, 14px);
-      color:#1d1a17; text-align:center; min-height: 120px;
+      color:#13294b; text-align:center; min-height: 120px;
       max-width: 48ch; margin-inline:auto;
       font-family: 'cotorisi';
       overflow:hidden;
@@ -305,7 +305,7 @@
     #cta .pop{
       position:absolute; display:none; pointer-events:auto;
       max-width:min(78vw, 650px);
-      background:#fff; color:#151311;
+      background:#fffcf8; color:#13294b;
       border:1px solid color-mix(in oklab, var(--hair) 85%, #000 15%);
       border-radius:14px; box-shadow: 0 24px 80px rgba(0,0,0,.18);
       padding:14px 16px;
@@ -325,7 +325,7 @@
       display:inline-flex; align-items:center; justify-content:center;
       min-width:132px; height:36px; padding:0 18px; border-radius:999px;
       border:1px solid color-mix(in oklab, var(--hair) 80%, #000 20%);
-      background:#fff; color:#1a1a1a; cursor:pointer; user-select:none;
+      background:#fffcf8; color:#13294b; cursor:pointer; user-select:none;
       font:700 12px/1 var(--ff-ui); letter-spacing:.12em; text-transform:uppercase;
       font-style: italic; text-decoration: none; text-underline-offset: 3px;
       text-decoration-thickness: 1px; text-decoration-color: color-mix(in oklab, currentColor 60%, transparent);
@@ -333,7 +333,7 @@
     }
     #cta .pop .act-link:hover, #cta .pop .act-link:focus-visible{ transform: translateY(-1px); box-shadow: 0 12px 28px rgba(0,0,0,.12); text-decoration-color: currentColor; }
     #cta .pop::after{
-      content:""; position:absolute; width:12px; height:12px; background:#fff;
+      content:""; position:absolute; width:12px; height:12px; background:#fffcf8;
       border-left:1px solid color-mix(in oklab, var(--hair) 85%, #000 15%);
       border-top:1px solid color-mix(in oklab, var(--hair) 85%, #000 15%);
       transform: rotate(45deg); left: calc(50% - 6px);
@@ -345,11 +345,11 @@
     #cta .modal{ position:fixed; inset:0; display:grid; place-items:center; background: rgba(10,10,10,.46);
       opacity:0; pointer-events:none; transition: opacity var(--t) var(--curve); z-index:2000; }
     #cta .modal[aria-hidden="false"]{ opacity:1; pointer-events:auto; }
-    #cta .modal__card{ width:min(560px, 92vw); background:#fff; color:#111; border-radius:20px; border:1px solid var(--hair); padding:22px; box-shadow: 0 44px 120px rgba(0,0,0,.28); }
+    #cta .modal__card{ width:min(560px, 92vw); background:#fffcf8; color:#13294b; border-radius:20px; border:1px solid var(--hair); padding:22px; box-shadow: 0 44px 120px rgba(0,0,0,.28); }
     #cta .modal__card h4{ margin:0 0 8px; font-family: var(--ff-display); font-size: clamp(20px, 2.2vw, 26px); }
     #cta .modal__card p{ margin:0 0 12px; font:500 15px/1.6 var(--ff-ui); color:#2b2925; }
     #cta .modal__actions{ display:flex; justify-content:flex-end; gap:10px; }
-    #cta .btn-ghost{ height:42px; padding:0 14px; border-radius:10px; border:1px solid var(--hair); background:#fff; cursor:pointer; font:700 14px/1 var(--ff-ui); }
+    #cta .btn-ghost{ height:42px; padding:0 14px; border-radius:10px; border:1px solid var(--hair); background:#fffcf8; cursor:pointer; font:700 14px/1 var(--ff-ui); }
 
     @media (max-height: 760px){
       #cta .form textarea{ min-height:84px; }
@@ -364,7 +364,7 @@
     .fselect{ position:relative; }
     .fselect .fs-button{
       width:100%; display:flex; align-items:center; justify-content:space-between; gap:12px;
-      background: linear-gradient(180deg, #fff, #fff);
+      background: linear-gradient(180deg, #fffcf8, #fffcf8);
       border:1px solid var(--hair); border-radius:12px; padding:10px 12px;
       font:500 var(--fs-input)/1.45 var(--ff-ui); color:#111;
       cursor:pointer; user-select:none;
@@ -404,15 +404,15 @@
       font:500 var(--fs-input)/1.35 var(--ff-ui); color:#23201a; letter-spacing:.01em;
       transition: background var(--t-fast) var(--curve), transform var(--t-fast) var(--curve);
     }
-    .fselect .fs-option[aria-selected="true"]{ background: color-mix(in oklab, #111 8%, #fff 92%); }
-    .fselect .fs-option:hover{ background: color-mix(in oklab, #111 6%, #fff 94%); transform: translateY(-0.5px); }
+    .fselect .fs-option[aria-selected="true"]{ background: color-mix(in oklab, #13294b 8%, #fffcf8 92%); }
+    .fselect .fs-option:hover{ background: color-mix(in oklab, #13294b 6%, #fffcf8 94%); transform: translateY(-0.5px); }
     .fselect .fs-check{
       width:14px; height:14px; border-radius:3px; border:1px solid color-mix(in oklab, var(--hair) 80%, #000 20%);
       display:inline-block; position:relative; flex:0 0 auto;
-      background: #fff;
+      background: #fffcf8;
     }
     .fselect .fs-option[aria-selected="true"] .fs-check{
-      background:#111; border-color:#111;
+      background:#13294; border-color:#111;
     }
     .fselect .fs-option[aria-selected="true"] .fs-check::after{
       content:""; position:absolute; left:3px; top:0px; width:6px; height:10px; border-right:2px solid #fff; border-bottom:2px solid #fff; transform: rotate(45deg);
@@ -440,7 +440,7 @@
       font:500 var(--fs-input)/1.35 var(--ff-ui);
       outline:none;
       transition: border-color var(--t-fast) var(--curve), box-shadow var(--t-fast) var(--curve);
-      background:#fff;
+      background:#fffcf8;
     }
     .fselect .fs-search:focus{
       border-color:#b4ab9d; box-shadow:0 10px 24px rgba(0,0,0,.08);
@@ -1071,6 +1071,7 @@ try {
   <script src="https://www.google.com/recaptcha/api.js?render=6Lc4gs0rAAAAAI0aXXts_OCCquoEdduHM5l98EcH" async defer></script>
 
 </section>
+
 
 
 
