@@ -28,7 +28,7 @@
   *{ box-sizing:border-box; margin:0; padding:0; }
 
   html, body{ height:100%; overflow:hidden; }
-  html{ background:var(--page-bg); color:var(--ink); }
+  html{ background-color:var(--page-bg); color:var(--ink); transition: background-color .6s ease; }
   body{ font:400 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; color:var(--ink); }
 
   /* Local fonts */
@@ -37,7 +37,7 @@
   /* ===== GLOBAL BACKGROUND LAYER (one per site) ===== */
   #site-bg{
     position:fixed; inset:0; z-index:0;
-    background:var(--page-bg);
+    background-color:var(--page-bg);
     pointer-events:none; overflow:hidden;
     transition: background-color .6s ease; /* smooth flip */
   }
@@ -47,6 +47,7 @@
     transform:translate(-50%,-50%);
     object-fit:cover;
     opacity:var(--video-opacity);
+    transition: opacity .6s ease;   /* added */
   }
   /* Optional soft-light tint */
   #bg-tint{
@@ -336,26 +337,31 @@
 
     const firstSection = document.querySelector('.stack-section');
     if (firstSection) applyBG(firstSection);
+let finalTimer = null;
 
-    // Watch which section is centered; apply its config
-    const bgObserver = new IntersectionObserver((entries)=>{
-      entries.forEach(entry=>{
-        if(entry.isIntersecting){
-          applyBG(entry.target);
+const bgObserver = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    // Always apply the BG settings for whichever section reported
+    if (entry.isIntersecting) applyBG(entry.target);
 
-          if(entry.target.id === 'sec-trust-2'){
-            setTimeout(()=> {
-              document.documentElement.classList.add('final-reveal');
-            }, 4000); // delay for quote shrink sync
-          } else {
-            document.documentElement.classList.remove('final-reveal');
-          }
-        }
-      });
-    }, { root: stackEl, threshold: 0.6 });
+    // Only control the reveal based on the final section itself
+    if (entry.target.id === 'sec-trust-2') {
+      if (entry.isIntersecting) {
+        clearTimeout(finalTimer);
+        finalTimer = setTimeout(()=> {
+          document.documentElement.classList.add('final-reveal');
+        }, 4000); // keep your intended delay
+      } else {
+        clearTimeout(finalTimer);
+        document.documentElement.classList.remove('final-reveal');
+      }
+    }
+  });
+}, { root: stackEl, threshold: 0.6 });
 
-    document.querySelectorAll('.stack-section').forEach(s => bgObserver.observe(s));
-
+// attach observer to sections
+document.querySelectorAll('.stack-section').forEach(s => bgObserver.observe(s));
+    
     /* Ensure autoplay */
     (function ensurePlay(){
       const v = document.getElementById('bg-video');
