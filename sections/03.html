@@ -1,32 +1,7 @@
 <section id="clarity-in-action" class="ci" data-stage="0" aria-labelledby="cia-title">
-  <!-- === VIDEO OVERLAY (behind all content) === -->
-  <div class="vid-layer"
-       data-src="video.webm"
-       data-opacity="0.025"
-       data-speed="0.25"
-       data-blend="soft-light">
-    <video class="vid" muted playsinline loop preload="metadata">
-      <source src="video.webm" type="video/webm">
-    </video>
-  </div>
-
+  
   <style>
-    /* === keep video behind everything in this section === */
-    #clarity-in-action{ position: relative; }
-    /* full-bleed video layer shown only while this section is in view */
-    #clarity-in-action .vid-layer{
-      --vid-opacity:.28;
-      --vid-blend:normal;
-      position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;
-      visibility:hidden; /* toggled by IO when section is in view */
-    }
-    #clarity-in-action .vid-layer .vid{
-      position:absolute; inset:0; width:100%; height:100%;
-      object-fit:cover; opacity:var(--vid-opacity); mix-blend-mode:var(--vid-blend);
-      transform:translateZ(0);
-    }
-    #clarity-in-action > *:not(.vid-layer){ position:relative; z-index:1; }
-
+    
     /* --------------------------- Fonts (kept local) ----------------------------*/
     @font-face { font-family:'Coterie';        src:url('./Fonts/coterie-regular.woff2')     format('woff2');    font-weight:400; font-style:normal; font-display:swap; }
     @font-face { font-family:'EyesomeI';       src:url('./Fonts/Eyesome-Italic.otf')        format('opentype'); font-weight:400; font-style:italic; font-display:swap; }
@@ -37,17 +12,15 @@
 
     /* --------------------------- Base tokens ----------------------------*/
     :root{
-      --bg-dark:#121212; --fg-dark:#EDE8DF; --s1-dark:#1A1A1A; --border-dark:#2A2A2A; --paper-dark:#181818; --muted-dark:#BEB9B0;
-      --bg-light:#FAF7F2; --fg-light:#1A1A1A; --s1-light:#F4EFE7; --border-light:#E4DBCE; --paper-light:#F5F1E8; --muted-light:#4B4B4B;
+      --bg-dark:transparent; --fg-dark:#EDE8DF; --s1-dark:#1A1A1A; --border-dark:#2A2A2A; --paper-dark:#181818; --muted-dark:#BEB9B0;
+      --bg-light:transparent; --fg-light:#1A1A1A; --s1-light:#F4EFE7; --border-light:#E4DBCE; --paper-light:#F5F1E8; --muted-light:#4B4B4B;
       --shadow-d:0 18px 48px rgba(0,0,0,.25);
       --shadow-l:0 18px 48px rgba(0,0,0,.06), 0 2px 8px rgba(0,0,0,.04);
       --panel-fixed: 300px; /* panel height */
     }
-    html[data-theme="dark"]{ --bg:var(--bg-dark); --fg:var(--fg-dark); --s1:var(--s1-dark); --border:var(--border-dark); --paper:var(--paper-dark); --muted:var(--muted-dark); --shadow:var(--shadow-d); }
-    html[data-theme="light"]{ --bg:var(--bg-light); --fg:var(--fg-light); --s1:var(--s1-light); --border:var(--border-light); --paper:var(--paper-light); --muted:var(--muted-light); --shadow:var(--shadow-l); }
-
+   
     /* Local fallback palette */
-    #clarity-in-action{ --bg:#FAF7F2; --fg:#1A1A1A; --s1:#F4EFE7; --border:#E4DBCE; --paper:#F5F1E8; --muted:#4B4B4B; --shadow:0 18px 48px rgba(0,0,0,.06), 0 2px 8px rgba(0,0,0,.04); }
+    #clarity-in-action{ --bg:transparent; --fg:#1A1A1A; --s1:#F4EFE7; --border:#E4DBCE; --paper:#F5F1E8; --muted:#4B4B4B; --shadow:0 18px 48px rgba(0,0,0,.06), 0 2px 8px rgba(0,0,0,.04); }
     #clarity-in-action, #clarity-in-action *{ box-sizing:border-box; }
 
     /* ================== ONE-SCREEN SECTION ================== */
@@ -111,7 +84,7 @@
     .ci .identity-btn::after{ content:""; position:absolute; left:0; bottom:-4px; height:2px; width:100%; background:#111; opacity:0; transform:scaleX(.6); transform-origin:center; transition: opacity .24s var(--reveal-ease), transform .34s var(--reveal-ease); pointer-events:none; }
     .ci .identity-btn[aria-selected="true"]{ opacity:1; color:#111; }
     .ci .identity-btn[aria-selected="true"]::after{ opacity:1; transform:scaleX(1); }
-    .ci .tabs.has-active .identity-btn{ opacity:.45; }
+    .ci .tabs.has-active .identity-btn{ opacity:.55; }
     .ci .tabs.has-active .identity-btn[aria-selected="true"]{ opacity:1; }
     .ci .identity-btn::before{ content: attr(data-hint); position:absolute; left:50%; top:calc(100% + 6px); transform: translateX(-50%) translateY(4px); font-family:'Arsenica', serif; font-size:9px; opacity:0; white-space:nowrap; transition: opacity .24s var(--reveal-ease), transform .24s var(--reveal-ease); }
     .ci .identity-btn:not([aria-selected="true"]):hover::before, .ci .identity-btn[aria-selected="true"]::before{ opacity:.85; transform:translateX(-50%) translateY(0); }
@@ -612,4 +585,5 @@
   })();
   </script>
 </section>
+
 
