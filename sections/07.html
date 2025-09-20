@@ -70,6 +70,28 @@
     #cta.show-form{ --dock-gap: var(--dock-gap-open); }
     #cta *{ box-sizing:border-box; }
 
+    /* How long the quote stays centered before the form opens */
+#cta{ --auto-open-delay: 4000; } /* ms — change this number to taste */
+
+/* Smooth transform for the quote */
+#cta .quote{
+  transition:
+    opacity var(--t-fast) var(--curve),
+    filter var(--t-fast) var(--curve),
+    transform 700ms var(--curve);
+  transform-origin: center;
+}
+
+/* When form shows, shrink + slide the quote to the right */
+#cta.show-form .quote{
+  transform: translateX(18vw) scale(.86);
+}
+
+/* Optional: a tiny ease-in before we move it (looks luxe) */
+@media (prefers-reduced-motion: reduce){
+  #cta .quote{ transition: none; transform: none !important; }
+}
+
     /* Soft vignette */
     #cta::before{
       content:""; position:absolute; inset:-20%;
@@ -1040,6 +1062,7 @@ try {
   <script src="https://www.google.com/recaptcha/api.js?render=6Lc4gs0rAAAAAI0aXXts_OCCquoEdduHM5l98EcH" async defer></script>
 
 </section>
+
 
 
 
