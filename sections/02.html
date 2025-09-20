@@ -1,16 +1,5 @@
 <section id="serve" data-section="serve" aria-label="Clarity for" class="serve-wrap">
-  <!-- Video layer FIRST inside the section -->
-  <div class="vid-layer"
-       data-src="video.webm"
-       data-src="3.mp4"    
-       data-opacity="0.03"
-       data-speed="0.35"
-       data-blend="soft-light">
-    <video class="vid" muted playsinline loop preload="metadata">
-      <source src="3.mp4"  type="video/mp4">
-      <source src="video.webm" type="video/webm">
-    </video>
-  </div>
+  
 
   <style>
     /* ---------------------------
@@ -22,23 +11,6 @@
     @font-face { font-family:'Canela';         src:url('./Fonts/Canela-Bold.otf')           format('opentype'); font-weight:700; font-style:normal; font-display:swap; }
     @font-face { font-family:'cotoris';        src:url('./Fonts/cotoris.otf')               format('opentype'); font-weight:400; font-style:normal; font-display:swap; }
     @font-face { font-family:'cotorisi';       src:url('./Fonts/cotorisita.otf')            format('opentype'); font-weight:400; font-style:normal; font-display:swap; }
-
-    /* ---------------------------
-       Video overlay (scoped)
-    ----------------------------*/
-    .serve-wrap{ position:relative; }
-    .vid-layer{
-      --vid-opacity: 1;
-      --vid-blend: normal;
-      position:absolute; inset:0; z-index:0; pointer-events:none; overflow:hidden;
-    }
-    .vid-layer .vid{
-      position:absolute; inset:0; width:100%; height:100%;
-      object-fit:cover; opacity:var(--vid-opacity); mix-blend-mode:var(--vid-blend);
-      transform:translateZ(0);
-    }
-    /* Ensure content sits above video */
-    #serve > *:not(.vid-layer){ position:relative; z-index:1; }
 
     /* ---------------------------
        Section variables
@@ -72,8 +44,8 @@
     ----------------------------*/
     .serve-wrap{
       min-height: 100svh;
-      background: var(--bg-light,#FAF7F2);
-      color: var(--fg-light,#1a1a1a);
+      background: transparent;
+      color: #13294B;
       display: grid;
       align-items: start;
       justify-items: center;
@@ -117,14 +89,14 @@
     }
     .identity-btn:not([aria-selected="true"]):hover { transform: none; opacity: 1; }
     .identity-btn::after{
-      content:""; position:absolute; left:0; bottom:-4px; height:2px; width:100%; background:#111;
+      content:""; position:absolute; left:0; bottom:-4px; height:2px; width:100%; background:#13294B;
       opacity:0; transform:scaleX(.6); transform-origin:center;
       transition: opacity .26s var(--lux-curve), transform .34s var(--lux-curve);
       pointer-events:none;
     }
     .identity-btn:not([aria-selected="true"]):hover::after{ opacity:1; transform:scaleX(1); }
     .identity-btn[aria-selected="true"]::after{ opacity:0; transform:scaleX(.2); }
-    .tabs.has-active .identity-btn{ opacity:.45; }
+    .tabs.has-active .identity-btn{ opacity:.55; }
     .tabs.has-active .identity-btn[aria-selected="true"]{ opacity:1; }
 
     .identity-btn::before{
@@ -173,7 +145,7 @@
       font-family: 'cotoris', ui-serif, serif;
       font-size: 23px;
       line-height: 1.3;
-      color:#111;
+      color:#13294B;
       text-align: left;
     }
     .box-content ul { list-style: "✧"; }
@@ -680,4 +652,5 @@ if (metrics.radius != null && isFinite(metrics.radius)) {
     })();
   </script>
 </section>
+
 
