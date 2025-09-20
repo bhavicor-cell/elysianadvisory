@@ -1,15 +1,5 @@
 <section id="cta" class="s68" aria-label="Get Clarity CTA" tabindex="0">
-  <!-- Video layer FIRST inside the section (full-bleed, consistent with #ways-we-work) -->
-  <div class="vid-layer"
-       data-src="video.webm"
-       data-opacity="0.03"
-       data-speed="0.35"
-       data-blend="soft-light">
-    <video class="vid" muted playsinline autoplay loop preload="metadata">
-      <source src="video.webm" type="video/webm">
-    </video>
-  </div>
-
+  
   <style>
     /* Local fonts (paths unchanged) */
     @font-face { font-family:'Eyesome';        src:url('./Fonts/Eyesome-Regular.otf')       format('opentype'); font-display:swap; }
@@ -21,7 +11,7 @@
        ========================================================= */
     #cta{
       /* Palette */
-      --bg:#f8f5ef; --ink:#151311; --muted:#6f6d69; --panel:#ffffff; --hair:#e6e1d8;
+      --bg:transparent; --ink:#13294b; --muted:#6f6d69; --panel:#ffffff; --hair:#e6e1d8;
       --danger:#b3261e;
 
       /* Typography families */
@@ -1047,39 +1037,9 @@ try {
     })();
   </script>
 
-  <!-- Section-local video initializer (same pattern as #ways-we-work) -->
-  <script>
-    (function(){
-      const layer = document.querySelector('#cta .vid-layer');
-      if(!layer) return;
-      const vid = layer.querySelector('video.vid');
-      if(!vid) return;
-
-      function applyControls(){
-        const op    = parseFloat(layer.dataset.opacity ?? '.03');
-        const rate  = parseFloat(layer.dataset.speed   ?? '0.35');
-        const blend = (layer.dataset.blend || 'soft-light').trim();
-        layer.style.setProperty('--vid-opacity', isFinite(op) ? op : .03);
-        layer.style.setProperty('--vid-blend', blend || 'soft-light');
-        try { vid.playbackRate = isFinite(rate) ? rate : 1.0; } catch(e){}
-      }
-
-      const io = new IntersectionObserver((entries)=>{
-        entries.forEach(entry=>{
-          if(entry.isIntersecting){
-            applyControls();
-            const p = vid.play(); if(p && p.catch){ p.catch(()=>{}); }
-          } else {
-            vid.pause();
-          }
-        });
-      }, { threshold: 0.2 });
-
-      io.observe(layer);
-    })();
-  </script>
   <script src="https://www.google.com/recaptcha/api.js?render=6Lc4gs0rAAAAAI0aXXts_OCCquoEdduHM5l98EcH" async defer></script>
 
 </section>
+
 
 
