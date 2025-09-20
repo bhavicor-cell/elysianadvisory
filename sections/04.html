@@ -1,31 +1,7 @@
 <section id="truth-testimonials" class="tt" aria-label="Testimonials Canvas">
-  <!-- === VIDEO OVERLAY (behind all content) === -->
-  <div class="vid-layer"
-       data-src="video.webm"
-       
-       data-opacity="0.03"
-       data-speed="0.25"
-       data-blend="soft-light">
-    <video class="vid" muted playsinline autoplay loop preload="metadata"></video>
-    
-    <source src="video.webm" type="video/webm">
-  </div>
-
+  
   <style>
-    /* === keep video behind everything in this section === */
-    #truth-testimonials{ position: relative; }
-    #truth-testimonials .vid-layer{
-      --vid-opacity: .28;
-      --vid-blend: normal;
-      position:absolute; inset:0; z-index:0; pointer-events:none; overflow:hidden;
-    }
-    #truth-testimonials .vid-layer .vid{
-      position:absolute; inset:0; width:100%; height:100%;
-      object-fit:cover; opacity:var(--vid-opacity); mix-blend-mode:var(--vid-blend);
-      transform:translateZ(0);
-    }
-    #truth-testimonials > *:not(.vid-layer){ position:relative; z-index:1; }
-
+  
     /* ===== Local fonts (scoped) ===== */
     @font-face { font-family:'Coterie';        src:url('./Fonts/coterie-regular.woff2')     format('woff2');    font-weight:400; font-style:normal; font-display:swap; }
     @font-face { font-family:'EyesomeR';       src:url('./Fonts/Eyesome-Regular.otf')       format('opentype'); font-weight:400; font-style:normal; font-display:swap; }
@@ -37,8 +13,8 @@
     /* ===== Local palette + tokens (scoped) ===== */
     #truth-testimonials.tt{
       /* Colors */
-      --bg: #FAF7F2;
-      --ink: #1A1A1A;
+      --bg: transparent;
+      --ink: #13294B;
       --muted: rgba(0,0,0,.54);
       --subtxt-opacity: .72;
       --card-border: rgba(0,0,0,.12);
@@ -73,39 +49,6 @@
   </style>
 
   <canvas class="tt-canvas" aria-hidden="true"></canvas>
-
-  <!-- SECTION-LOCAL video loader -->
-  <script>
-    (function(){
-      const layer = document.querySelector('#truth-testimonials .vid-layer');
-      const vid   = layer?.querySelector('video.vid');
-      if(!layer || !vid) return;
-
-      function applyControls(){
-        const op    = parseFloat(layer.dataset.opacity ?? '0.28');
-        const rate  = parseFloat(layer.dataset.speed   ?? '1.0');
-        const blend = (layer.dataset.blend || 'normal').trim();
-        layer.style.setProperty('--vid-opacity', isFinite(op) ? op : .28);
-        layer.style.setProperty('--vid-blend', blend || 'normal');
-        try { vid.playbackRate = isFinite(rate) ? rate : 1.0; } catch(e){}
-      }
-
-      const io = new IntersectionObserver((entries)=>{
-        entries.forEach(entry=>{
-          if(entry.isIntersecting){
-            if(!vid.src && layer.dataset.src){ vid.src = layer.dataset.src; }
-            applyControls();
-            const p = vid.play();
-            if(p && p.catch){ p.catch(()=>{}); }
-          }else{
-            vid.pause();
-          }
-        });
-      }, { threshold: 0.25 });
-
-      io.observe(layer);
-    })();
-  </script>
 
   <script>
   (() => {
@@ -453,4 +396,5 @@
   })();
   </script>
 </section>
+
 
