@@ -70,29 +70,30 @@
     #cta.show-form{ --dock-gap: var(--dock-gap-open); }
     #cta *{ box-sizing:border-box; }
 
-/* Tunables (feel free to tweak) */
 #cta{
-  --auto-open-delay: 3000;           /* quote hold time (ms) */
-  --q-start-scale: 1.14;             /* initial size (bigger) */
-  --q-end-scale: .92;                /* final size (smaller) */
-  --q-end-shift: clamp(80px,12vw,180px); /* how far it slides right, but clamped */
+  --auto-open-delay: 3200;           /* quote hold time in ms (make this higher to linger longer) */
+  --fs-quote: clamp(32px, 7.5vw, 72px); /* MUCH larger base text size */
+  --q-start-scale: 1.8;              /* starts bigger */
+  --q-end-scale: .92;                /* ends slightly smaller */
 }
-
-/* start state: bigger and centered */
+/* start: big + centered */
 #cta .quote{
+  grid-column: 2;                    /* keep it in the right grid column */
+  justify-self: center;              /* center in that column */
   transform: scale(var(--q-start-scale));
   transform-origin: center;
   transition:
     opacity var(--t-fast) var(--curve),
     filter var(--t-fast) var(--curve),
     transform 720ms var(--curve);
-  justify-self: center;              /* keep it centered initially */
 }
 
-/* when the form opens: shrink + slide right but stay visible */
+/* when form opens: shrink + dock to the right, but never push outside */
 #cta.show-form .quote{
-  justify-self: end;                 /* anchor to the right column */
-  transform: translateX(var(--q-end-shift)) scale(var(--q-end-scale));
+  justify-self: end;                 /* align to right _inside_ the column */
+  transform: scale(var(--q-end-scale));  /* no translateX — avoids overflow */
+  max-width: min(48ch, 46vw);        /* hard cap so it can’t overflow */
+  margin-right: clamp(12px, 3vw, 36px);
 }
 
 /* motion accessibility */
@@ -1070,6 +1071,7 @@ try {
   <script src="https://www.google.com/recaptcha/api.js?render=6Lc4gs0rAAAAAI0aXXts_OCCquoEdduHM5l98EcH" async defer></script>
 
 </section>
+
 
 
 
