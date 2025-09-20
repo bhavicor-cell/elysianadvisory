@@ -1,31 +1,7 @@
 <section id="working-with-us" class="wwu" aria-label="Working With Us" data-boot="preload">
-  <!-- === VIDEO OVERLAY (behind all content) === -->
-  <div class="vid-layer"
-       data-src="video.webm"
-       
-       data-opacity="0.03"
-       data-speed="0.25"
-       data-blend="soft-light">
-    <video class="vid" muted playsinline autoplay loop preload="metadata"></video>
-    
-    <source src="video.webm" type="video/webm">
-  </div>
-
+  
   <style>
-    /* === keep video behind everything in this section === */
-    #working-with-us{ position: relative; }
-    #working-with-us .vid-layer{
-      --vid-opacity: .35;           /* default if data-opacity missing */
-      --vid-blend: soft-light;      /* default mix-blend-mode */
-      position:absolute; inset:0; z-index:0; pointer-events:none; overflow:hidden;
-    }
-    #working-with-us .vid-layer .vid{
-      position:absolute; inset:0; width:100%; height:100%;
-      object-fit:cover; opacity:var(--vid-opacity); mix-blend-mode:var(--vid-blend);
-      transform:translateZ(0);
-    }
-    #working-with-us > *:not(.vid-layer){ position:relative; z-index:1; }
-
+    
     /* ===== Local fonts (registered here; safe to reuse elsewhere) ===== */
     @font-face { font-family:'Coterie';        src:url('./Fonts/coterie-regular.woff2')     format('woff2');    font-weight:400; font-style:normal; font-display:swap; }
     @font-face { font-family:'EyesomeI';       src:url('./Fonts/Eyesome-Italic.otf')        format('opentype'); font-weight:400; font-style:italic; font-display:swap; }
@@ -34,7 +10,7 @@
     
     /* ===== Scoped tokens (no globals) ===== */
     #working-with-us{
-      --bg:#faf7f2; --ink:#1a1a1a; --muted:#6f6d69; --hair:#d6d3cd;
+      --bg:transparent; --ink:#13294b; --muted:#6f6d69; --hair:#d6d3cd;
       --ivory:#f7f2e7; --ink-dark:#23201a;
       --radius:12px; --hair-thickness:.5px;
       --gap:18px;
@@ -257,39 +233,6 @@
     <h1 class="title">Working With Us</h1>
   </div>
 
-  <!-- SECTION-LOCAL video loader -->
-  <script>
-    (function(){
-      const layer = document.querySelector('#working-with-us .vid-layer');
-      const vid   = layer?.querySelector('video.vid');
-      if(!layer || !vid) return;
-
-      function applyControls(){
-        const op    = parseFloat(layer.dataset.opacity ?? '.35');
-        const rate  = parseFloat(layer.dataset.speed   ?? '1.0');
-        const blend = (layer.dataset.blend || 'soft-light').trim();
-        layer.style.setProperty('--vid-opacity', isFinite(op) ? op : .35);
-        layer.style.setProperty('--vid-blend', blend || 'soft-light');
-        try { vid.playbackRate = isFinite(rate) ? rate : 1.0; } catch(e){}
-      }
-
-      const io = new IntersectionObserver((entries)=>{
-        entries.forEach(entry=>{
-          if(entry.isIntersecting){
-            if(!vid.src && layer.dataset.src){ vid.src = layer.dataset.src; }
-            applyControls();
-            const p = vid.play();
-            if(p && p.catch){ p.catch(()=>{}); }
-          }else{
-            vid.pause();
-          }
-        });
-      }, { threshold: 0.25 });
-
-      io.observe(layer);
-    })();
-  </script>
-
   <script>
     (() => {
       const section = document.getElementById('working-with-us');
@@ -355,4 +298,5 @@
     })();
   </script>
 </section>
+
 
