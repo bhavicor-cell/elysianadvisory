@@ -5,159 +5,123 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>Elysian Advisory</title>
 
-<!-- Preload the single global video -->
 <link rel="preload" as="video" href="video.webm" type="video/webm">
 
 <style>
-  :root {
-    --vh: 100svh;
-
-    /* Brand + background controls */
-    --page-bg:#fffcf8;    /* background */
-    --ink:#13294B;        /* text color */
-    --video-opacity:0.03; /* default video opacity */
+  :root{
+    --vh:100svh;
+    --page-bg:#fffcf8;
+    --ink:#13294B;
+    --video-opacity:0.03;
     --video-speed:0.05;
-    --tint-opacity:0.00;  /* optional tiny color cast */
+    --tint-opacity:0.00;
+  }
+  :root.final-reveal{
+    --page-bg:#FFFFFF;
+    --video-opacity:0.001;
   }
 
-  /* State for final reveal */
-  :root.final-reveal {
-    --page-bg:#FFFFFF;     /* pure white */
-    --video-opacity:0.001;  /* soften texture at end */
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;overflow:hidden}
+  html{background-color:#000;color:var(--ink);}
+  body{font:400 16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:var(--ink)}
+
+  @font-face{font-family:'Anecor';src:url('./Fonts/anecor-gheroos.otf') format('opentype');font-display:swap}
+
+  /* Boot cover */
+  #boot-cover{
+    position:fixed; inset:0; background:#000; z-index:100000;
+    opacity:1; transition:opacity .45s ease;
+    pointer-events:none; user-select:none;
   }
+  #boot-cover.is-gone{ opacity:0; }
+  #boot-cover[aria-hidden="true"]{ display:none; }
 
-  *{ box-sizing:border-box; margin:0; padding:0; }
-
-  html, body{ height:100%; overflow:hidden; }
-  html{ background-color:var(--page-bg); color:var(--ink); transition: background-color .6s ease; }
-  body{ font:400 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; color:var(--ink); }
-
-  /* Local fonts */
-  @font-face { font-family:'Anecor'; src:url('./Fonts/anecor-gheroos.otf') format('opentype'); font-display:swap; }
-
-  /* ===== GLOBAL BACKGROUND LAYER (one per site) ===== */
+  /* Global BG */
   #site-bg{
     position:fixed; inset:0; z-index:0;
     background-color:var(--page-bg);
     pointer-events:none; overflow:hidden;
-    transition: background-color .6s ease; /* smooth flip */
+    transition: background-color .6s ease;
   }
   #bg-video{
     position:absolute; top:50%; left:50%;
     min-width:100%; min-height:100%;
     transform:translate(-50%,-50%);
-    object-fit:cover;
-    opacity:var(--video-opacity);
-    transition: opacity .6s ease;   /* added */
+    object-fit:cover; opacity:var(--video-opacity);
+    transition:opacity .6s ease;
   }
-  /* Optional soft-light tint */
-  #bg-tint{
-    position:absolute; inset:0;
-    mix-blend-mode:soft-light;
-    background:var(--ink);
-    opacity:var(--tint-opacity);
-  }
-  @media (prefers-reduced-motion: reduce){
-    #bg-video{ display:none; }
-    #bg-tint{ mix-blend-mode:normal; opacity:0.06; }
+  #bg-tint{position:absolute; inset:0; mix-blend-mode:soft-light; background:var(--ink); opacity:var(--tint-opacity)}
+  @media (prefers-reduced-motion:reduce){
+    #bg-video{display:none}
+    #bg-tint{mix-blend-mode:normal;opacity:.06}
   }
 
-  /* Scrollable stack area */
+  /* Scroll stack */
   #stackScroll{
     position:fixed; inset:0; width:100vw; height:var(--vh);
     overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch;
-    scroll-snap-type:y mandatory;
-    background:transparent;
-    z-index:1;
+    /* We fully control paging, so disable native snap & native smoothing */
+    scroll-snap-type:none;
+    scroll-behavior:auto;
+    overscroll-behavior-y:contain;
+    touch-action:pan-y;
+    background:transparent; z-index:1;
   }
   .stack-section{
     position:relative; width:100vw; height:var(--vh);
-    scroll-snap-align:start; scroll-snap-stop:always; overflow:hidden;
+    overflow:hidden;
   }
 
-  /* Seam-guard */
   .stack-frame{
     position:absolute; top:-1px; left:-1px;
-    width: calc(100vw + 2px); height: calc(var(--vh) + 2px);
+    width:calc(100vw + 2px); height:calc(var(--vh) + 2px);
     display:block; border:0; background:transparent;
   }
 
-  /* Fixed glass nav */
+  /* Glass nav */
   .subtle-nav{
-    position:fixed; top:20px; right:24px;
-    display:flex; gap:6px; padding:8px 10px;
-    border-radius:999px;
-    background:rgba(255,255,255,.55);
-    border:1px solid rgba(0,0,0,.07);
-    backdrop-filter:none;
-    -webkit-backdrop-filter:none;
-    box-shadow:0 8px 24px rgba(0,0,0,.06);
-    color:var(--ink);
-    opacity:0; transform:translateY(-6px);
-    z-index:9999; pointer-events:none;
+    position:fixed; top:20px; right:24px; display:flex; gap:6px; padding:8px 10px;
+    border-radius:999px; background:rgba(255,255,255,.55); border:1px solid rgba(0,0,0,.07);
+    box-shadow:0 8px 24px rgba(0,0,0,.06); color:var(--ink);
+    opacity:0; transform:translateY(-6px); z-index:9999; pointer-events:none;
     transition:opacity .25s ease, transform .25s ease;
   }
-  .subtle-nav.is-visible{
-    opacity:.95; transform:translateY(0); pointer-events:auto;
-  }
-  .subtle-nav:hover{
-    opacity:1; box-shadow:0 10px 28px rgba(0,0,0,.06);
-  }
+  .subtle-nav.is-visible{opacity:.95; transform:translateY(0); pointer-events:auto}
+  .subtle-nav:hover{opacity:1; box-shadow:0 10px 28px rgba(0,0,0,.06)}
   .nav-btn{
-    background:transparent; border:0; border-radius:999px;
-    padding:6px 10px; cursor:pointer;
-    font:600 12px/1.1 'Anecor', system-ui, -apple-system, Segoe UI, sans-serif;
+    background:transparent; border:0; border-radius:999px; padding:6px 10px; cursor:pointer;
+    font:600 12px/1.1 'Anecor',system-ui,-apple-system,Segoe UI,sans-serif;
     letter-spacing:.12em; text-transform:uppercase;
-    transition:opacity .2s ease, background-color .2s ease, transform .12s ease;
-    color:var(--ink);
+    transition:opacity .2s ease, background-color .2s ease, transform .12s ease; color:var(--ink)
   }
-  .nav-btn:hover{ background:rgba(0,0,0,.04); }
-  .nav-btn:active{ transform:translateY(1px); }
+  .nav-btn:hover{background:rgba(0,0,0,.04)}
+  .nav-btn:active{transform:translateY(1px)}
 
-  footer{
-    position:fixed; left:0; right:0; bottom:8px; text-align:center;
-    color:#777; font-size:12px; pointer-events:none;
-  }
-
-  /* ===== Dock Logo (visible from Section 2 onward) ===== */
+  /* Dock logo */
   :root{
-    --dock-logo-w: clamp(90px, 8vw, 170px);
-    --dock-logo-top: calc(18px + env(safe-area-inset-top));
-    --dock-logo-left: 18px;
-    --dock-reveal-blur: 10px;
-    --dock-reveal-scale: .96;
-    --dock-shadow-strong: 0 20px 30px rgba(0,0,0,.08);
-    --dock-shadow-soft: 0 10px 18px rgba(0,0,0,.06);
+    --dock-logo-w:clamp(90px,8vw,170px);
+    --dock-logo-top:calc(18px + env(safe-area-inset-top));
+    --dock-logo-left:18px;
+    --dock-shadow-soft:0 10px 18px rgba(0,0,0,.06);
   }
   #ElysianDockLogo{
     position:fixed; z-index:10000; pointer-events:none;
     top:var(--dock-logo-top); left:var(--dock-logo-left);
     width:var(--dock-logo-w); height:auto;
-    opacity:0;
-    filter: blur(var(--dock-reveal-blur)) drop-shadow(var(--dock-shadow-strong));
-    transform-origin: top left; transform: scale(var(--dock-reveal-scale));
-    transition:
-      opacity .50s cubic-bezier(.25,1,.5,1),
-      filter .65s cubic-bezier(.25,1,.5,1),
-      transform .65s cubic-bezier(.25,1,.5,1);
+    opacity:0; transform:none; filter:drop-shadow(var(--dock-shadow-soft));
+    transition:opacity .5s cubic-bezier(.25,1,.5,1);
+    will-change:opacity; contain:layout paint;
   }
-  #ElysianDockLogo > img,
-  #ElysianDockLogo > svg{
-    display:block; width:100%; height:auto;
-  }
-  body.logo-visible #ElysianDockLogo{
-    opacity:1;
-    filter: blur(0) drop-shadow(var(--dock-shadow-soft));
-    transform: scale(1);
-  }
-  @media (prefers-reduced-motion: reduce){
-    #ElysianDockLogo{ transition:none; filter:none; transform:none; }
-  }
+  #ElysianDockLogo>img,#ElysianDockLogo>svg{display:block;width:100%;height:auto}
+  body.logo-visible #ElysianDockLogo{opacity:1}
+  @media (prefers-reduced-motion:reduce){#ElysianDockLogo{transition:none}}
 </style>
 </head>
 <body>
 
-  <!-- ONE global background (video + optional tint) -->
+  <div id="boot-cover" aria-hidden="false"></div>
+
   <div id="site-bg" aria-hidden="true">
     <video id="bg-video" muted playsinline autoplay loop preload="metadata" poster="video-poster.jpg">
       <source src="video.webm" type="video/webm">
@@ -166,9 +130,8 @@
     <div id="bg-tint"></div>
   </div>
 
-  <!-- Fixed, site-wide logo that appears from Section 2 onward (top-left) -->
   <div id="ElysianDockLogo" aria-hidden="true">
-    <img src="./assets/LS.svg" alt="Elysian Advisory" decoding="async" fetchpriority="low" width="200" height="60" />
+    <img src="./assets/LF.svg" alt="Elysian Advisory" decoding="async" fetchpriority="low" width="200" height="60" />
   </div>
 
   <nav class="subtle-nav" id="globalHeroNav" aria-label="Primary">
@@ -180,83 +143,116 @@
   <main id="stackScroll" aria-label="Stacked sections"></main>
 
   <script>
-    /* Per-section background controls */
+    /* Per-section bg controls */
     const BG_CONFIG = {
-      hero:     { opacity: 0.03, speed: 0.6 },
-      for:      { opacity: 0.03, speed: 0.6 },
-      action:   { opacity: 0.03, speed: 0.6 },
-      truth:    { opacity: 0.03, speed: 0.6 },
-      work:     { opacity: 0.03, speed: 0.6 },
-      trust:    { opacity: 0.03, speed: 0.6 },
-      'trust-2':{ opacity: 0.01, speed: 0.2 }
+      hero:{opacity:0.047,speed:0.3},
+      for:{opacity:0.033,speed:0.28},
+      action:{opacity:0.033,speed:0.28},
+      truth:{opacity:0.033,speed:0.28},
+      work:{opacity:0.033,speed:0.28},
+      trust:{opacity:0.033,speed:0.28},
+      'trust-2':{opacity:0.0012,speed:0.25}
     };
 
-    /* Sections */
     const SECTION_MANIFEST = [
-      { id: 'hero',    title: 'Hero',               src: './sections/01.html' },
-      { id: 'for',     title: 'Clarity For',        src: './sections/02.html' },
-      { id: 'action',  title: 'Clarity In Action',  src: './sections/03.html' },
-      { id: 'truth',   title: 'Truth',              src: './sections/04.html' },
-      { id: 'work',    title: 'Work With Us',       src: './sections/05.html' },
-      { id: 'trust',   title: 'Trust Us',           src: './sections/06.html' },
-      { id: 'trust-2', title: 'Trust Us',           src: './sections/07.html' }
+      {id:'hero',title:'Hero',src:'./sections/01.html'},
+      {id:'for',title:'Clarity For',src:'./sections/02.html'},
+      {id:'action',title:'Clarity In Action',src:'./sections/03.html'},
+      {id:'truth',title:'Truth',src:'./sections/04.html'},
+      {id:'work',title:'Work With Us',src:'./sections/05.html'},
+      {id:'trust',title:'Trust Us',src:'./sections/06.html'},
+      {id:'trust-2',title:'Trust Us',src:'./sections/07.html'}
     ];
 
-    /* Viewport height fix (--vh) */
+    /* Viewport height prop */
     function setVH(){
       const h = Math.max(1, Math.round(window.innerHeight || document.documentElement.clientHeight || 0));
       document.documentElement.style.setProperty('--vh', h + 'px');
     }
     setVH();
-    window.addEventListener('resize', setVH, { passive:true });
+    window.addEventListener('resize', setVH, {passive:true});
     window.addEventListener('orientationchange', setVH);
 
-    /* Build the stack */
     const stackEl = document.getElementById('stackScroll');
+    const bootCover = document.getElementById('boot-cover');
 
-    function injectNoScrollCSS(doc){
+    /* Keep hero opaque; others transparent */
+    function injectNoScrollCSS(doc, makeTransparent = true){
       try{
         const style = doc.createElement('style');
         style.textContent =
-`html,body{height:100%;overflow:hidden!important;margin:0!important;padding:0!important;background:transparent!important;}
-*{box-sizing:border-box;}
-::-webkit-scrollbar{display:none;}`;
+'html,body{height:100%;overflow:hidden!important;margin:0!important;padding:0!important;' + (makeTransparent ? 'background:transparent!important;' : '') + '}' +
+'*{box-sizing:border-box;}::-webkit-scrollbar{display:none;}';
         doc.head.appendChild(style);
       }catch(e){}
     }
 
+    function applyBG(sectionEl){
+      const rootEl = document.documentElement;
+      const bgVideo = document.getElementById('bg-video');
+      const DEFAULT_VIDEO_OPACITY = parseFloat(getComputedStyle(rootEl).getPropertyValue('--video-opacity')) || 0.22;
+      const DEFAULT_BG_SPEED = 0.8;
+
+      const o = parseFloat(sectionEl && sectionEl.dataset ? sectionEl.dataset.bgOpacity : '');
+      const s = parseFloat(sectionEl && sectionEl.dataset ? sectionEl.dataset.bgSpeed : '');
+      const videoOpacity = Number.isFinite(o) ? o : DEFAULT_VIDEO_OPACITY;
+      const speed = Number.isFinite(s) ? s : DEFAULT_BG_SPEED;
+
+      rootEl.style.setProperty('--video-opacity', String(videoOpacity));
+      try{ if(bgVideo) bgVideo.playbackRate = speed; }catch(e){}
+    }
+
     function makeStack(){
       stackEl.innerHTML = '';
-      SECTION_MANIFEST.forEach(({id, title, src}, idx) => {
+      SECTION_MANIFEST.forEach(function(item, idx){
         const wrapper = document.createElement('section');
         wrapper.className = 'stack-section';
-        wrapper.id = 'sec-' + id;
-        wrapper.setAttribute('aria-label', title || `Section ${idx+1}`);
+        wrapper.id = 'sec-' + item.id;
+        wrapper.setAttribute('aria-label', item.title ? item.title : ('Section ' + (idx+1)));
 
-        const conf = BG_CONFIG[id] || {};
+        const conf = BG_CONFIG[item.id] || {};
         if (conf.opacity != null) wrapper.dataset.bgOpacity = String(conf.opacity);
-        if (conf.speed   != null) wrapper.dataset.bgSpeed   = String(conf.speed);
+        if (conf.speed != null) wrapper.dataset.bgSpeed = String(conf.speed);
 
         const frame = document.createElement('iframe');
         frame.className = 'stack-frame';
-        frame.id = 'frame-' + id;
-        frame.title = title || src;
-        frame.dataset.src = src;
-        frame.loading = idx === 0 ? 'eager' : 'lazy';
+        frame.id = 'frame-' + item.id;
+        frame.title = item.title || item.src;
+        frame.dataset.src = item.src;
         frame.referrerPolicy = 'no-referrer';
         frame.setAttribute('allowtransparency','true');
         frame.setAttribute('scrolling','no');
 
-        frame.addEventListener('load', () => {
+        if (idx === 0){
+          frame.src = frame.dataset.src; // load hero immediately
+        } else {
+          frame.loading = 'lazy';
+        }
+
+        frame.addEventListener('load', function(){
           try{
             const doc = frame.contentDocument;
-            if(!doc) return;
-            injectNoScrollCSS(doc);
+            if (doc) injectNoScrollCSS(doc, idx !== 0); // HERO stays opaque
           }catch(e){}
+
+          if (idx === 0){
+            const heroSection = document.getElementById('sec-hero');
+            if (heroSection) applyBG(heroSection);
+            requestAnimationFrame(()=>{
+              bootCover.classList.add('is-gone');
+              setTimeout(()=>bootCover.setAttribute('aria-hidden','true'), 500);
+            });
+          }
         });
 
-        frame.addEventListener('error', (e) => {
-          console.error('Iframe failed to load:', src, e);
+        frame.addEventListener('error', function(e){
+          console.error('Iframe failed to load:', item.src, e);
+          if (idx === 0){
+            requestAnimationFrame(()=>{
+              bootCover.classList.add('is-gone');
+              setTimeout(()=>bootCover.setAttribute('aria-hidden','true'), 500);
+            });
+          }
         });
 
         wrapper.appendChild(frame);
@@ -265,115 +261,230 @@
     }
     makeStack();
 
-    // Lazy-activate frames
-    const framesState = new Map();
-    const framesObserver = new IntersectionObserver((entries)=>{
-      entries.forEach(entry=>{
-        const frame = entry.target;
-        const id = frame.id || frame.title || frame.dataset.src;
+    // Lazy-activate non-hero frames
+    (function(){
+      const root = stackEl;
+      if (!root) return;
+      const framesState = new Map();
+      const framesObserver = new IntersectionObserver(function(entries){
+        entries.forEach(function(entry){
+          const frame = entry.target;
+          if (frame.id === 'frame-hero') return;
+          const id = frame.id || frame.title || frame.dataset.src;
+          if (!framesState.has(id)) framesState.set(id, {live:false});
 
-        if (!framesState.has(id)) framesState.set(id, {live:false});
-
-        if (entry.isIntersecting && !framesState.get(id).live) {
-          frame.src = frame.dataset.src;
-          framesState.get(id).live = true;
-        } else if (!entry.isIntersecting) {
-          const rect = frame.getBoundingClientRect();
-          const vh = window.innerHeight || document.documentElement.clientHeight;
-          if (rect.top > vh*2 || rect.bottom < -vh*2) {
-            if (framesState.get(id).live) {
-              frame.src = 'about:blank';
-              framesState.get(id).live = false;
+          if (entry.isIntersecting && !framesState.get(id).live){
+            frame.src = frame.dataset.src;
+            framesState.get(id).live = true;
+          } else if (!entry.isIntersecting){
+            const rect = frame.getBoundingClientRect();
+            const vh = window.innerHeight || document.documentElement.clientHeight;
+            if (rect.top > vh*2 || rect.bottom < -vh*2){
+              if (framesState.get(id).live){
+                frame.src = 'about:blank';
+                framesState.get(id).live = false;
+              }
             }
           }
-        }
-      });
-    }, { root: document.getElementById('stackScroll'), rootMargin: '120% 0px', threshold: 0.01 });
+        });
+      }, {root: root, rootMargin:'120% 0px', threshold:0.01});
 
-    document.querySelectorAll('.stack-frame').forEach(f => framesObserver.observe(f));
+      document.querySelectorAll('.stack-frame').forEach(function(f){ framesObserver.observe(f); });
+    })();
 
     /* Nav + logo visibility */
     const globalNav = document.getElementById('globalHeroNav');
-
-    function currentIndex(){
-      const vh = Math.max(1, Math.round(window.innerHeight || document.documentElement.clientHeight));
-      const idx = Math.floor((stackEl.scrollTop + vh * 0.1) / vh);
-      return idx;
-    }
-
+    function getVH(){ return Math.max(1, Math.round(window.innerHeight || document.documentElement.clientHeight || 0)); }
+    function sectionCount(){ return document.querySelectorAll('.stack-section').length; }
+    function currentIndex(){ return Math.round(stackEl.scrollTop / getVH()); }
     function updateChrome(){
       const idx = currentIndex();
       if (idx >= 1){
         globalNav.classList.add('is-visible');
         document.body.classList.add('logo-visible');
-      }else{
+      } else {
         globalNav.classList.remove('is-visible');
         document.body.classList.remove('logo-visible');
       }
     }
-
-    stackEl.addEventListener('scroll', () => {
-      requestAnimationFrame(updateChrome);
-    }, { passive:true });
-
-    window.addEventListener('resize', updateChrome, { passive:true });
+    stackEl.addEventListener('scroll', () => { requestAnimationFrame(updateChrome); }, {passive:true});
+    window.addEventListener('resize', updateChrome, {passive:true});
     updateChrome();
 
-    /* Background controller (VIDEO opacity + speed + final reveal) */
-    const bgVideo = document.getElementById('bg-video');
-    const rootEl  = document.documentElement;
+    /* BG controller + final reveal */
+    let finalTimer = null;
+    (function(){
+      const root = stackEl;
+      if (!root) return;
+      const bgObserver = new IntersectionObserver(function(entries){
+        entries.forEach(function(entry){
+          if (entry.isIntersecting) applyBG(entry.target);
+          if (entry.target.id === 'sec-trust-2'){
+            if (entry.isIntersecting){
+              clearTimeout(finalTimer);
+              finalTimer = setTimeout(function(){
+                document.documentElement.classList.add('final-reveal');
+              }, 4000);
+            } else {
+              clearTimeout(finalTimer);
+              document.documentElement.classList.remove('final-reveal');
+            }
+          }
+        });
+      }, {root: root, threshold:0.6});
 
-    const DEFAULT_VIDEO_OPACITY = parseFloat(getComputedStyle(rootEl).getPropertyValue('--video-opacity')) || 0.22;
-    const DEFAULT_BG_SPEED      = 0.8;
+      document.querySelectorAll('.stack-section').forEach(function(s){ bgObserver.observe(s); });
+    })();
 
-    function applyBG(sectionEl){
-      const o = parseFloat(sectionEl?.dataset.bgOpacity ?? '');
-      const s = parseFloat(sectionEl?.dataset.bgSpeed   ?? '');
-      const videoOpacity = Number.isFinite(o) ? o : DEFAULT_VIDEO_OPACITY;
-      const speed        = Number.isFinite(s) ? s : DEFAULT_BG_SPEED;
-
-      rootEl.style.setProperty('--video-opacity', String(videoOpacity));
-      try{ bgVideo.playbackRate = speed; }catch(e){}
-    }
-
-    const firstSection = document.querySelector('.stack-section');
-    if (firstSection) applyBG(firstSection);
-let finalTimer = null;
-
-const bgObserver = new IntersectionObserver((entries)=>{
-  entries.forEach(entry=>{
-    // Always apply the BG settings for whichever section reported
-    if (entry.isIntersecting) applyBG(entry.target);
-
-    // Only control the reveal based on the final section itself
-    if (entry.target.id === 'sec-trust-2') {
-      if (entry.isIntersecting) {
-        clearTimeout(finalTimer);
-        finalTimer = setTimeout(()=> {
-          document.documentElement.classList.add('final-reveal');
-        }, 4000); // keep your intended delay
-      } else {
-        clearTimeout(finalTimer);
-        document.documentElement.classList.remove('final-reveal');
-      }
-    }
-  });
-}, { root: stackEl, threshold: 0.6 });
-
-// attach observer to sections
-document.querySelectorAll('.stack-section').forEach(s => bgObserver.observe(s));
-    
     /* Ensure autoplay */
-    (function ensurePlay(){
+    (function(){
       const v = document.getElementById('bg-video');
       if (!v) return;
       v.muted = true;
       const p = v.play && v.play();
-      if (p && p.catch) p.catch(()=>{});
+      if (p && p.catch) p.catch(function(){});
     })();
+
+    /* ======== LUXE PAGER: no mid-stops, one section per move ======== */
+    (function(){
+      const root = stackEl;
+      if (!root) return;
+
+      const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      let isAnimating = false;
+      let animId = 0;
+      let settleTimer = null;
+
+      function clamp(n,min,max){ return Math.max(min, Math.min(max, n)); }
+      function indexToTop(i){ return i * getVH(); }
+
+      // Custom tween for buttery feel
+      function easeInOutCubic(t){ return t<0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2; }
+
+      function animateToIndex(targetIdx, dur=640){
+        const max = sectionCount()-1;
+        targetIdx = clamp(targetIdx, 0, max);
+        const startTop = root.scrollTop;
+        const endTop = indexToTop(targetIdx);
+        const delta = endTop - startTop;
+        if (Math.abs(delta) < 1 || prefersReduced){
+          root.scrollTop = endTop;
+          isAnimating = false;
+          return;
+        }
+        isAnimating = true;
+        const id = ++animId;
+        const t0 = performance.now();
+        const D = dur;
+
+        function step(now){
+          if (id !== animId) return; // canceled
+          const u = clamp((now - t0)/D, 0, 1);
+          const eased = easeInOutCubic(u);
+          root.scrollTop = startTop + delta * eased;
+          if (u < 1){
+            requestAnimationFrame(step);
+          } else {
+            isAnimating = false;
+            root.scrollTop = endTop; // exact land
+          }
+        }
+        requestAnimationFrame(step);
+      }
+
+      function nearestIndex(){
+        return clamp(Math.round(root.scrollTop / getVH()), 0, sectionCount()-1);
+      }
+
+      function go(delta){
+        if (isAnimating) return;
+        animateToIndex(currentIndex() + delta);
+      }
+
+      // Wheel / trackpad: coalesce to one move
+      let wheelAccum = 0, wheelTimer = null;
+      root.addEventListener('wheel', (e)=>{
+        e.preventDefault();
+        if (isAnimating) return;
+        wheelAccum += e.deltaY;
+        clearTimeout(wheelTimer);
+        wheelTimer = setTimeout(()=>{
+          const THRESH = 48;
+          if (Math.abs(wheelAccum) > THRESH){
+            go(wheelAccum > 0 ? +1 : -1);
+          }
+          wheelAccum = 0;
+        }, 80);
+      }, {passive:false});
+
+      // Touch swipes
+      let touchStartY = null, touchStartT = 0;
+      root.addEventListener('touchstart', (e)=>{
+        if (e.touches && e.touches.length === 1){
+          touchStartY = e.touches[0].clientY;
+          touchStartT = performance.now();
+          // cancel any running tween so the user can take over
+          animId++; isAnimating = false;
+        }
+      }, {passive:true});
+
+      root.addEventListener('touchend', (e)=>{
+        if (touchStartY == null) return;
+        const t = performance.now() - touchStartT;
+        const endY = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0].clientY : touchStartY;
+        const dy = endY - touchStartY; // + = swipe down
+        touchStartY = null;
+
+        if (Math.abs(dy) > 40 || t < 250){
+          go(dy < 0 ? +1 : -1);
+        } else {
+          // small flick: settle to nearest
+          animateToIndex(nearestIndex(), 520);
+        }
+      }, {passive:true});
+
+      // Keyboard
+      window.addEventListener('keydown', (e)=>{
+        if (isAnimating) return;
+        const idx = currentIndex();
+        if (e.key === 'ArrowDown' || e.key === 'PageDown' || (e.key === ' ' && !e.shiftKey)){
+          e.preventDefault(); animateToIndex(idx + 1);
+        } else if (e.key === 'ArrowUp' || e.key === 'PageUp' || (e.key === ' ' && e.shiftKey)){
+          e.preventDefault(); animateToIndex(idx - 1);
+        } else if (e.key === 'Home'){
+          e.preventDefault(); animateToIndex(0);
+        } else if (e.key === 'End'){
+          e.preventDefault(); animateToIndex(sectionCount()-1);
+        }
+      });
+
+      // Settle to nearest after manual scroll inertia stops
+      root.addEventListener('scroll', ()=>{
+        clearTimeout(settleTimer);
+        if (isAnimating) return;
+        settleTimer = setTimeout(()=>{ animateToIndex(nearestIndex(), 520); }, 120);
+      }, {passive:true});
+
+      // On resize, re-align to the exact pixel for current section
+      window.addEventListener('resize', ()=>{
+        const idx = nearestIndex();
+        animId++; isAnimating = false;
+        root.scrollTop = indexToTop(idx);
+      }, {passive:true});
+    })();
+    /* ======== END LUXE PAGER ======== */
+
+    /* Last-resort boot cover removal */
+    setTimeout(function(){
+      if (bootCover.getAttribute('aria-hidden') !== 'true'){
+        bootCover.classList.add('is-gone');
+        setTimeout(()=>bootCover.setAttribute('aria-hidden','true'), 500);
+      }
+    }, 1500);
   </script>
+
+  <noscript>
+    <style>html{background:#000}</style>
+  </noscript>
 </body>
 </html>
-
-
-
