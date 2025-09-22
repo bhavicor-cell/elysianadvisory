@@ -336,6 +336,27 @@
       document.querySelectorAll('.stack-section').forEach(function(s){ bgObserver.observe(s); });
     })();
 
+  // === Notify Section 3 ("action") when it is actually visible in the scroll viewport ===
+  (function(){
+    const root = document.getElementById('stackScroll');
+    if (!root) return;
+
+    const revealObserver = new IntersectionObserver((entries)=>{
+      entries.forEach((entry)=>{
+        const sec = entry.target;                             // e.g., <section id="sec-action">
+        const id = (sec.id || '').replace('sec-','');
+        if (id !== 'action') return;                          // only Section 3
+        const frame = document.getElementById('frame-' + id);
+        if (entry.isIntersecting && frame?.contentWindow){
+          // Tell the iframe: you are visibly on-screen now
+          frame.contentWindow.postMessage({ type:'elysian:section-visible', id }, location.origin);
+        }
+      });
+    }, { root, threshold: 0.6 });
+
+    document.querySelectorAll('.stack-section').forEach(sec => revealObserver.observe(sec));
+  })();
+ 
     /* Ensure autoplay */
     (function(){
       const v = document.getElementById('bg-video');
@@ -488,3 +509,4 @@
   </noscript>
 </body>
 </html>
+
