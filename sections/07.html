@@ -199,7 +199,7 @@
     #cta .form input[type="text"],
     #cta .form input[type="email"],
     #cta .form textarea{
-      width:100%; border:1px solid var(--hair); border-radius:12px; background:#fffcf8; color:#13294b;
+      width:100%; border:1px solid var(--hair); border-radius:12px; background:#fff; color:#13294b;
       padding:10px 12px; font:500 var(--fs-input)/1.45 var(--ff-ui); outline:none;
       transition: border-color var(--t-fast) var(--curve), box-shadow var(--t-fast) var(--curve), transform var(--t-fast) var(--curve);
     }
@@ -218,17 +218,17 @@
     #cta .choices{ display:flex; flex-wrap:wrap; gap:10px; }
     #cta .chip{
       display:inline-flex; align-items:center; gap:8px; padding:10px 14px; border:1px solid var(--hair);
-      border-radius:999px; background: color-mix(in oklab, #fffcf8 92%, #000 8%);
+      border-radius:999px; background: color-mix(in oklab, #fff 92%, #000 8%);
       font:600 var(--fs-chip)/1 var(--ff-ui); cursor:pointer; user-select:none;
       transition: all var(--t-fast) var(--curve); min-height: 38px;
     }
     #cta .chip:hover{ transform: translateY(-1px); box-shadow: 0 10px 28px rgba(0,0,0,.08); }
-    #cta .chip[data-checked="true"]{ background:#13294b; color:#fffcf8; border-color:#13294; }
+    #cta .chip[data-checked="true"]{ background:#13294b; color:#fff; border-color:#13294; }
 
     /* Submit area */
     #cta .submit{ display:flex; align-items:flex-start; gap:10px; }
     #cta .btn-primary{
-      height:44px; padding:0 16px; border-radius:12px; border:1px solid var(--hair); background:#fffcf8; color:#13294b;
+      height:44px; padding:0 16px; border-radius:12px; border:1px solid var(--hair); background:#fff; color:#13294b;
       font:700 14px/1 var(--ff-ui); cursor:pointer; box-shadow: 0 10px 22px rgba(0,0,0,.12);
       transition: transform var(--t-fast) var(--curve), box-shadow var(--t-fast) var(--curve);
     }
@@ -325,7 +325,7 @@
       display:inline-flex; align-items:center; justify-content:center;
       min-width:132px; height:36px; padding:0 18px; border-radius:999px;
       border:1px solid color-mix(in oklab, var(--hair) 80%, #000 20%);
-      background:#fffcf8; color:#13294b; cursor:pointer; user-select:none;
+      background:#fff; color:#13294b; cursor:pointer; user-select:none;
       font:700 12px/1 var(--ff-ui); letter-spacing:.12em; text-transform:uppercase;
       font-style: italic; text-decoration: none; text-underline-offset: 3px;
       text-decoration-thickness: 1px; text-decoration-color: color-mix(in oklab, currentColor 60%, transparent);
@@ -333,7 +333,7 @@
     }
     #cta .pop .act-link:hover, #cta .pop .act-link:focus-visible{ transform: translateY(-1px); box-shadow: 0 12px 28px rgba(0,0,0,.12); text-decoration-color: currentColor; }
     #cta .pop::after{
-      content:""; position:absolute; width:12px; height:12px; background:#fffcf8;
+      content:""; position:absolute; width:12px; height:12px; background:#fff;
       border-left:1px solid color-mix(in oklab, var(--hair) 85%, #000 15%);
       border-top:1px solid color-mix(in oklab, var(--hair) 85%, #000 15%);
       transform: rotate(45deg); left: calc(50% - 6px);
@@ -345,7 +345,7 @@
     #cta .modal{ position:fixed; inset:0; display:grid; place-items:center; background: rgba(10,10,10,.46);
       opacity:0; pointer-events:none; transition: opacity var(--t) var(--curve); z-index:2000; }
     #cta .modal[aria-hidden="false"]{ opacity:1; pointer-events:auto; }
-    #cta .modal__card{ width:min(560px, 92vw); background:#fffcf8; color:#13294b; border-radius:20px; border:1px solid var(--hair); padding:22px; box-shadow: 0 44px 120px rgba(0,0,0,.28); }
+    #cta .modal__card{ width:min(560px, 92vw); background:#fff; color:#13294b; border-radius:20px; border:1px solid var(--hair); padding:22px; box-shadow: 0 44px 120px rgba(0,0,0,.28); }
     #cta .modal__card h4{ margin:0 0 8px; font-family: var(--ff-display); font-size: clamp(20px, 2.2vw, 26px); }
     #cta .modal__card p{ margin:0 0 12px; font:500 15px/1.6 var(--ff-ui); color:#2b2925; }
     #cta .modal__actions{ display:flex; justify-content:flex-end; gap:10px; }
@@ -364,7 +364,7 @@
     .fselect{ position:relative; }
     .fselect .fs-button{
       width:100%; display:flex; align-items:center; justify-content:space-between; gap:12px;
-      background: linear-gradient(180deg, #fffcf8, #fffcf8);
+      background: linear-gradient(180deg, #fff, #fff);
       border:1px solid var(--hair); border-radius:12px; padding:10px 12px;
       font:500 var(--fs-input)/1.45 var(--ff-ui); color:#111;
       cursor:pointer; user-select:none;
@@ -1071,6 +1071,7 @@ try {
   <script src="https://www.google.com/recaptcha/api.js?render=6Lc4gs0rAAAAAI0aXXts_OCCquoEdduHM5l98EcH" async defer></script>
 
 </section>
+
 
 
 
