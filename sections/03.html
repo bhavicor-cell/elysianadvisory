@@ -29,7 +29,7 @@
       --panel-gutter: 12px; --panel-maxh-fallback: 60vh;
       --title-size: clamp(60px, 7.2vw, 100px);
 
-      position:relative; max-width:1300; margin: 0 auto; width: 100vw;
+      position:relative; max-width:1300px; margin: 0 auto; width: 100vw;
       padding: clamp(24px, 6vw, 64px) 20px;
       padding-top: var(--section-pt);
       padding-bottom: var(--section-pb);
@@ -100,7 +100,7 @@
     .ci-card .sub{ font-family: 'Arsenica'; font-size: 12px; line-height: 1.35; color: var(--muted); }
     .ci-card .chips{ display:flex; flex-wrap:wrap; row-gap: 0; column-gap: 8px; margin-top: 6px; }
     .ci-card .chip{ padding:0; border:0; background:none; color: var(--card-meta-color); font-size: 12px; line-height:1.2; font-family: 'Canela', system-ui, -apple-system, 'Segoe UI', sans-serif; }
-    .ci-card .chip + .chip::before{ content: "✧\u2009"; margin: 0 6px; color: var(--card-meta-color); }
+    .ci-card .chip + .chip::before{ content: "✧\2009"; margin: 0 6px; color: var(--card-meta-color); }
 
     .ci-detail{ margin-top: 10px; min-height: 0; display:grid; grid-template-columns: 1fr; width: 100%; align-items: start; }
     .ci-detail .ea-surface-paper{
@@ -112,7 +112,7 @@
     }
     #clarity-in-action .ci-detail, #clarity-in-action #ciDetail, #clarity-in-action .ea-surface-paper{ box-shadow:none !important; filter:none !important; }
     #ciDetail .casehead .title br { display: none; }
-    #ciDetail .block li::marker{ content: "✧\u2005"; font-size: 0.9em; color: var(--muted); font-family: 'Arsenica', serif; }
+    #ciDetail .block li::marker{ content: "✧\2005"; font-size: 0.9em; color: var(--muted); font-family: 'Arsenica', serif; }
     #ciDetail .casehead{ margin-bottom: 0px; }
     #ciDetail .casehead .tagline{ display:none; font-family: 'Arsenica', serif; font-size: 12px; letter-spacing: .08em; color: var(--muted); margin-bottom: 10px; }
     #ciDetail .casehead .title{ font-family: 'Canela', ui-serif, serif; font-weight: 700; font-size: clamp(20px, 1.4vw, 26px); line-height: 1.25; margin-bottom: 0px !important; }
@@ -154,9 +154,7 @@
     #clarity-in-action.pre-reveal .view-viewport{ transition: none !important; }
 
     /* =================== Fixed card sizing =================== */
-    #clarity-in-action{
-      --card-h: 130px;
-    }
+    #clarity-in-action{ --card-h: 130px; }
     #clarity-in-action .ci-shelf{ height: calc(var(--card-h) + var(--shelf-pad-y) * 2); align-items: center; }
     #clarity-in-action .ci-shelf-viewport{ min-height: var(--card-h); }
     #clarity-in-action .ci-card{
@@ -170,31 +168,20 @@
       align-self: center; margin: 0; line-height: 1.2;
       display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
     }
-    #clarity-in-action .ci-card .subtext{
-      align-self: end; column-gap: 28px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
+    #clarity-in-action .ci-card .subtext{ align-self: end; column-gap: 28px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     #clarity-in-action .ci-card .subtext .sub{ max-width: 46%; overflow: hidden; text-overflow: ellipsis; }
-    #clarity-in-action .ci-card .chips{
-      align-self: end; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 4px;
-    }
+    #clarity-in-action .ci-card .chips{ align-self: end; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 4px; }
 
     /* ================= NO-FOUC + CUMULATIVE VISIBILITY ================= */
-    #clarity-in-action [hidden]{
-      display:block !important;
-      visibility:hidden !important;
-      opacity:0 !important;
-      transform: translateY(var(--reveal-offset)) !important;
-    }
-    #clarity-in-action .tabs,
-    #clarity-in-action .ci-shelf,
-    #clarity-in-action .ci-detail{
+    /* [hidden] keeps layout but concealed until staged in */
+    #clarity-in-action [hidden]{ display:block !important; visibility:hidden !important; opacity:0 !important; transform: translateY(var(--reveal-offset)) !important; }
+    /* Default concealed */
+    #clarity-in-action .tabs, #clarity-in-action .ci-shelf, #clarity-in-action .ci-detail{
       opacity:0; visibility:hidden; transform: translateY(var(--reveal-offset)); will-change:opacity, transform;
     }
-    [data-stage="1"] .tabs,
-    [data-stage="2"] .tabs,
-    [data-stage="3"] .tabs{ visibility:visible !important; opacity:1 !important; transform:none !important; }
-    [data-stage="2"] .ci-shelf,
-    [data-stage="3"] .ci-shelf{ visibility:visible !important; opacity:1 !important; transform:none !important; }
+    /* Cumulative reveal — once visible, stays visible */
+    [data-stage="1"] .tabs, [data-stage="2"] .tabs, [data-stage="3"] .tabs{ visibility:visible !important; opacity:1 !important; transform:none !important; }
+    [data-stage="2"] .ci-shelf, [data-stage="3"] .ci-shelf{ visibility:visible !important; opacity:1 !important; transform:none !important; }
     [data-stage="3"] .ci-detail{ visibility:visible !important; opacity:1 !important; transform:none !important; }
   </style>
 
@@ -268,7 +255,6 @@
     function setButtonState(){
       let any = false;
       filters.forEach(btn=>{ const on = btn.dataset.identity === selectedIdentity; btn.setAttribute('aria-selected', on ? 'true' : 'false'); if(on) any = true; });
-      const tabsEl = section.querySelector('.tabs');
       tabsEl.classList.toggle('has-active', any);
     }
 
@@ -430,20 +416,16 @@
     async function revealSequence(){
       const unfreeze = () => requestAnimationFrame(()=> section.classList.remove('pre-reveal'));
 
-      if (prefersReduced){
-        setButtonState();
-        await waitFontsOnce();
-        renderShelf(); 
-        selectStory(0);
-        setStage(3);
-        unfreeze();
-        return;
-      }
-
       setButtonState();
       await waitFontsOnce();
       renderShelf();
       selectStory(0);
+
+      if (prefersReduced){
+        setStage(3);
+        unfreeze();
+        return;
+      }
 
       requestAnimationFrame(() => {
         setStage(1);
@@ -470,22 +452,18 @@
     window.addEventListener('resize', ()=>{ updateShelfLayout(); updateArrows(); }, { passive:true });
     section.addEventListener('keydown', (e)=>{ if(e.key==='ArrowRight'){ nextBtn.click(); } if(e.key==='ArrowLeft'){ prevBtn.click(); }});
 
-    /* ===== Start reveal ONLY when parent marks this section visible ===== */
-    let started = false;
-    function startOnce(){ if (started) return; started = true; revealSequence(); }
+    /* ===== Auto start, always (works standalone too) ===== */
+    function start(){ try{ revealSequence(); }catch(err){ console.error(err); setStage(3); section.classList.remove('pre-reveal'); } }
+    if (document.readyState !== 'loading') start();
+    else window.addEventListener('DOMContentLoaded', start, { once:true });
 
-    window.addEventListener('message', (e)=>{
-      const data = e.data || {};
-      if (data && data.type === 'elysian:section-visible' && data.id === 'action'){ startOnce(); }
-    });
+    /* Hard fallback: force visible even if something stalls */
+    setTimeout(()=>{ 
+      if (section.getAttribute('data-stage') !== '3'){ setStage(3); section.classList.remove('pre-reveal'); }
+    }, 1200);
 
-    /* Fallbacks for standalone preview (no parent) */
-    ['pointerdown','keydown','visibilitychange'].forEach(evt=>{
-      window.addEventListener(evt, ()=>{
-        if (document.visibilityState === 'visible') startOnce();
-      }, { once:true, passive:true });
-    });
-    setTimeout(()=>{ if (window.top === window) startOnce(); }, 1200);
+    /* Optional: if a runtime error occurs later, ensure content shows */
+    window.addEventListener('error', ()=>{ setStage(3); section.classList.remove('pre-reveal'); }, { once:true });
   })();
   </script>
 </section>
