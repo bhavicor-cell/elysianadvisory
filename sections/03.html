@@ -31,7 +31,7 @@
       --panel-gutter: 12px; --panel-maxh-fallback: 60vh;
       --title-size: clamp(60px, 7.2vw, 100px);
 
-      position:relative; max-width:1300; margin: 0 auto; width: 100vw;
+      position:relative; max-width:1300px; margin: 0 auto; width: 100vw;
       padding: clamp(24px, 6vw, 64px) 20px;
       padding-top: var(--section-pt);
       padding-bottom: var(--section-pb);
@@ -234,9 +234,6 @@
     #clarity-in-action .pane-ir .two-col{ column-gap: var(--ir-col-gap); row-gap: var(--ir-row-gap); }
     #clarity-in-action .pane-eo .two-col{ column-gap: var(--ir-col-gap); row-gap: var(--ir-row-gap); }
 
-    /* Optional: soften font swap for shelf type only */
-    @font-face { font-family:'Canela';   src:url('./Fonts/Canela-Bold.otf') format('opentype'); font-weight:700; font-style:normal; font-display:optional; }
-    @font-face { font-family:'cotoris';  src:url('./Fonts/cotoris.otf')     format('opentype'); font-weight:400; font-style:normal; font-display:optional; }
   </style>
 
   <h2 id="cia-title">Clarity in Action</h2>
@@ -261,328 +258,251 @@
     <div id="ciDetail" class="ea-surface-paper"></div>
   </div>
 
-  <!-- SECTION-LOCAL video loader (single-shot, no flicker) -->
   <script>
-    (function(){
-      const section = document.getElementById('clarity-in-action');
-      const layer = section.querySelector('.vid-layer');
-      const vid   = layer?.querySelector('video.vid');
-      if(!layer || !vid) return;
+(() => {
+  const section   = document.getElementById('clarity-in-action');
+  const tabsEl    = section.querySelector('.tabs');
+  const filters   = [...section.querySelectorAll('.identity-btn')];
+  const shelf     = section.querySelector('.ci-shelf');
+  const track     = document.getElementById('ciTrack');
+  const prevBtn   = section.querySelector('.ci-arrow.prev');
+  const nextBtn   = section.querySelector('.ci-arrow.next');
+  const panelWrap = section.querySelector('.ci-detail');
+  const panel     = document.getElementById('ciDetail');
+  const viewport  = section.querySelector('.ci-shelf-viewport');
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-      function applyControls(){
-        const op    = parseFloat(layer.dataset.opacity ?? '0.28');
-        const rate  = parseFloat(layer.dataset.speed   ?? '1.0');
-        const blend = (layer.dataset.blend || 'normal').trim();
-        layer.style.setProperty('--vid-opacity', isFinite(op) ? op : .28);
-        layer.style.setProperty('--vid-blend', blend || 'normal');
-        try { vid.playbackRate = isFinite(rate) ? rate : 1.0; } catch(e){}
-      }
+  // Prevent transition jumps on first paint
+  section.classList.add('pre-reveal');
 
-      let armed = false;
-      const io = new IntersectionObserver((entries)=>{
-        entries.forEach(entry=>{
-          if(entry.isIntersecting){
-            if(!armed){
-              applyControls();
-              try{ if (vid.readyState < 1) vid.load(); }catch(e){}
-              armed = true;
-            }
-            layer.style.visibility = 'visible';
-            const p = vid.play(); if(p && p.catch){ p.catch(()=>{}); }
-          }else{
-            layer.style.visibility = 'hidden';
-            vid.pause();
-          }
-        });
-      }, { threshold: 0.25, rootMargin: "0px 0px -10% 0px" });
+  // ---- SINGLE-SHOT START (covers IO + fallback) ----
+  let started = false;
+  function startOnce(){ if(started) return; started = true; revealSequence(); }
 
-      io.observe(section);
-    })();
-  </script>
+  const identities = ['Vision Builders','System Shapers','Solo Strategists','Beyond These'];
 
-  <!-- MAIN logic: single-shot staged reveal + anti-jump guards -->
-  <script>
-  (() => {
-    const section   = document.getElementById('clarity-in-action');
-    const tabsEl    = section.querySelector('.tabs');
-    const filters   = [...section.querySelectorAll('.identity-btn')];
-    const shelf     = section.querySelector('.ci-shelf');
-    const track     = document.getElementById('ciTrack');
-    const prevBtn   = section.querySelector('.ci-arrow.prev');
-    const nextBtn   = section.querySelector('.ci-arrow.next');
-    const panelWrap = section.querySelector('.ci-detail');
-    const panel     = document.getElementById('ciDetail');
-    const viewport  = section.querySelector('.ci-shelf-viewport');
-    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // === YOUR STORIES (unchanged) ===
+  const stories = {
+    'Vision Builders': [
+      { tag:'Clarity for Entrepreneurs', headline:'Scaling, but Sinking', subtext:['Big team.','Big burn.','No cashflow.'], problem:'A tech entrepreneur approached us for help with expansion — which quickly revealed deeper issues beneath the surface.', reveal:['Growth was based on assumptions, not actual demand.','Team was sized for optics, not function.','Heavy burn on “presence” — branding, social, PR.','No tested model for reliable revenue.'], execution:['Paused non-performing lines.','Rebuilt operating model from cost-centre out.','Repositioned product for clear cashflow path.'], outcome:['Burn dropped by 60%.','Revenue-positive within 2 months.'] },
+      { tag:'Clarity for Businessmen', headline:'Revenue, but No Reserves', subtext:['Profitable on paper.','Dry in bank.'], problem:'A successful businessman reached out with concerns about constant revenue, yet a chronic feeling of “no money left.”', reveal:['Margins looked good — until you saw actual cash cycles.','Payment terms bled liquidity.','High-revenue accounts were slow-paying, draining faster ones.','Expansion moves made without stress-testing cash buffers.'], execution:['Mapped cashflow down to daily stress points.','Rebalanced client portfolio for payment hygiene.','Rebuilt reserve model based on reality, not projection.','Swapped one bleeding revenue stream for slower but reliable cash.'], outcome:['Within 60 days, cash reserve doubled without cutting core ops.'] },
+      { tag:'Clarity for Founders', headline:'Pitch Failed Twice. Raised on the Third.', subtext:['Big stage.','Strong deck.','No conviction.'], problem:'A founder approached us after two failed fundraising rounds. Decks had been polished by experts, presentations rehearsed — but investors walked away unconvinced.', reveal:['Narrative was built for drama, not logic.','Financial model sounded bold, but lacked internal proof.','Hires and structure inflated burn without showing leverage.','The pitch sold hope, not inevitability.'], execution:['Reframed deck around unavoidable logic.','Cut vanity projections; rebuilt model from real unit economics.','Simplified org chart → lean, clear burn path.','Aligned story to investor psychology, not founder ego.'], outcome:['Within 30 days, round closed successfully.'] }
+    ],
+    'System Shapers': [
+      { tag:'Ops Clarity', headline:'Too Much Moving,<br> Not Enough Forward', subtext:['Everything’s active.','But nothing compounds.'], problem:'An ops leader from a fast-scaling DTC brand approached us. “Everything is moving. Tools, updates, meetings. But somehow... we’re not moving forward.”', reveal:['Every team had local clarity, but no shared compass.','Founder and ops were solving different problems.','Weekly rituals became noise.','Execution was everywhere — but decisions weren’t cascading.'], execution:['Mapped actual flows (not the ones on Notion) and exposed friction.','Reframed around outcomes, not updates.','Shrunk decision windows from 7-day loops to 36-hour clarity bursts.','Rolled out structural rhythm aligning founder ↔ ops ↔ team.'], outcome:['Within weeks, energy changed: quieter, sharper, cohesive.','A business in motion — that moved forward.'] },
+      { tag:'Team Rhythm', headline:'Team Sync Was a Ritual,<br> Not a System', subtext:['People showed up.','But alignment didn’t.'], problem:'A COO in a SaaS company reached out. Teams were talking weekly — but still asking the same questions. Syncs weren’t broken; nothing stuck.', reveal:['Check-ins became status performances.','No one knew which decisions were live, closed, or drifting.','Everyone assumed someone else tracked outcomes.','Leadership thought sync = alignment. It wasn’t.'], execution:['Introduced a “Clarity Loop” cadence.','Reduced meetings by 40% while increasing alignment.','Created a shared spine across Product, Ops, and GTM.','Made every sync traceable: what moved, what’s blocked, what’s next.'], outcome:['Meetings turned from motion to movement.','Decisions stuck. Delivery became reliable — and quiet.'] },
+      { tag:'From Reacting to Seeing', headline:'System Ran on Firefighting,<br> Not Forecasting', subtext:['Always urgent.','Never clear.'], problem:'A VP of Ops at a logistics startup: “We don’t plan. We react.” Problems got solved — until they returned, slightly worse.', reveal:['No one trusted numbers beyond the week.','Ops dashboards looked full — and felt hollow.','Teams solved symptoms, not systems.','Growth was visible — and chaotic.'], execution:['Built short-range + long-range system clarity map.','Separated signal from noise via cascading triage.','Embedded clarity checkpoints inside recurring ops.','Aligned decisions with projected scenarios, not surges.'], outcome:['Firefighting dropped by 70%.','Forecasts became reality.'] }
+    ],
+    'Solo Strategists': [
+      { tag:'Solo Operator', headline:'Endless Work, No Strategic Movement', subtext:['Solo Builder',' Zero momentum.'], problem:'A solo operator running calls, content, ops, and product wanted “clarity on scale.” Scale wasn’t the bleed — strategy was.', reveal:['No decision framework — everything urgent, nothing right.','Offer too broad — attracted work, not the right work.','Rhythm served delivery, not direction.','Energy leaks disguised as “necessary tasks”.'], execution:['Rebuilt the week around clarity (strategic first, delivery second).','Restructured offer stack to create natural filters.','Defined a single mental dashboard for momentum (not motion).','Removed performative productivity; chose asymmetrical moves.'], outcome:['More time. Sharper clients.','For the first time in 18 months — actual forward traction.'] },
+      { tag:'Indie Creator', headline:'Creative Fire, Constant Burn',subtext:['Indie Creator.',' Output overflowing.'], problem:'An independent creator with strong audience and products asked us to “make sense of it all.” Everything was growing; nothing felt aligned.', reveal:['Monetization reactive to audience shifts.','Creatorship turned into survival, not scaling.','No clarity on what to build next.','Identity fused with output — exhausting.'], execution:['Created breathing room; brought creative distance.','Designed a long-game roadmap focused on leverage.','Defined “enough” so effort had direction.','Offered ways to not create — yet still move forward.'], outcome:['Creation returned to joy.','Revenue stabilized. Momentum no longer depended on daily presence.'] },
+      { tag:'Solo SaaS Founder', headline:'Code. Launch. Spiral.', subtext:['Solo SaaS Founder.', 'One product - One mind'], problem:'A solo founder sought sanity more than scale. Product shipped, users existed — but signals conflicted.', reveal:['User growth decent — churn hidden behind hope.','Pricing made sense to no one.','Feature decisions reactive — too many inputs, no filters.'], execution:['Clarified the core metric that mattered now.','Restructured roadmap to remove noise and focus leverage.','Reset pricing from gut to strategic tiers.','Rebuilt weekly rhythm: build with aim.'], outcome:['Clarity restored. Growth steady.','For the first time — it didn’t all depend on him.'] }
+    ],
+    'Beyond These': [
+      { tag:'Drive Without Direction.', headline:'No Map. Just Drive.', subtext:['Had the energy.','Kept moving - But not forward.'], problem:'A solo builder in his early 30s: not confused — just map-less. Trying everything, failing nothing, achieving little.', reveal:['Five parallel projects, all shallow.','Mistook constant doing for meaningful progress.','Craved traction but lacked narrative clarity.','Productivity had become the identity.'], execution:['Ran a clarity distillation: what matters, what compounds, what dies.','Killed dead-weight ideas; re-centered on desire × leverage.','Built a path that wouldn’t burn him.'], outcome:['Launched and stabilized in 8 weeks — not by working harder, but by stopping the wrong work.'] },
+      { tag:'Post-Exit Recalibration', headline:'Everything. Yet Nothing.', subtext:['Success on paper.','But something was off.'], problem:'A founder post-acquisition: free, yet directionless. Not depression. Not confusion. Misalignment.', reveal:['Inner pace changed; outer plans hadn’t.','Legacy projects lived on, but meaning didn’t.','New ideas felt like polished repeats.','Didn’t need therapy — needed recalibration.'], execution:['Ran values × leverage audit.','Scrapped performative goals; defined metrics of depth and energy.','Mapped a new direction — not bigger, but aligned.'], outcome:['Within 3 weeks, exit haze turned into lucid clarity.','He didn’t just get direction. He reclaimed authorship.'] },
+      { tag:'The Dream. No Map.', headline:'The Dream. No Map.', subtext:['Not lazy - Not lost.','Just no clear path.'], problem:'A disciplined, tireless young operator: not failing, just circling. Working hard everywhere — getting nowhere.', reveal:['No strategy problem — direction problem.','Vision real; steps weren’t.','Decisions reactive, not rooted.','No lack of talent — just no frame to channel it.'], execution:['Extracted the deeper why — the true end-state.','Built a reverse path: end → next step.','Reorganized all efforts — no more effort, just focused effort.'], outcome:['Within weeks, momentum turned magnetic. The fog lifted.'] }
+    ]
+  };
 
-    // Freeze first-paint transitions to avoid late layout jump
-    section.classList.add('pre-reveal');
+  // ---- STATE ----
+  let selectedIdentity = window.elysianSelectedIdentity || sessionStorage.getItem('elysianSelectedIdentity') || identities[0];
+  let selectedIndex = 0, shelfIndex = 0, visibleCount = 3;
 
-    // Single-shot guard
-    let revealed = false;
-    const runOnce = (fn) => { if (revealed) return false; revealed = true; fn?.(); return true; };
+  // ---- HELPERS (unchanged logic) ----
+  function setButtonState(){
+    let any = false;
+    filters.forEach(btn=>{ const on = btn.dataset.identity === selectedIdentity; btn.setAttribute('aria-selected', on ? 'true' : 'false'); if(on) any = true; });
+    tabsEl.classList.toggle('has-active', any);
+  }
+  function buildCard(item, idx){
+    const b = document.createElement('button'); b.className = 'ci-card'; b.type='button'; b.setAttribute('aria-selected', idx===selectedIndex);
+    const sub = Array.isArray(item.subtext) && item.subtext.length ? `<div class="subtext">${item.subtext.map(line => `<div class="sub">${line}</div>`).join('')}</div>` : '';
+    b.innerHTML = `<div class="tag">${item.tag||''}</div><div class="headline">${item.headline||''}</div>${sub}<div class="chips">${(item.chips||[]).map(c=>`<span class='chip'>${c}</span>`).join('')}</div>`;
+    b.addEventListener('click', ()=> { revealTo(3); selectStory(idx); ensureCardVisible(idx); });
+    b.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); revealTo(3); selectStory(idx); ensureCardVisible(idx); }});
+    return b;
+  }
+  function renderShelf(){ track.innerHTML = ''; stories[selectedIdentity].forEach((s,i)=> track.appendChild(buildCard(s,i))); updateShelfLayout(); updateArrows(); }
+  function updateShelfLayout(){
+    const cw = viewport.clientWidth || section.clientWidth;
+    const cssCardW = parseInt(getComputedStyle(section).getPropertyValue('--card-w')) || 320;
+    const gap = parseInt(getComputedStyle(section).getPropertyValue('--track-gap')) || 10;
+    const cardW = Math.min(cssCardW, Math.round((cw - 20) / 3));
+    const cards = [...track.children]; cards.forEach(el => el.style.width = cardW + 'px');
+    visibleCount = Math.max(1, Math.floor((cw + gap) / (cardW + gap)));
+    const maxPage = Math.max(0, Math.ceil(stories[selectedIdentity].length / visibleCount) - 1);
+    shelfIndex = Math.min(shelfIndex, maxPage);
+    const pageWidth = (cardW + gap) * visibleCount;
+    const x = -shelfIndex * pageWidth;
+    track.style.transform = prefersReduced ? 'none' : `translate3d(${Math.round(x)}px,0,0)`;
+    cards.forEach((c,i)=> c.setAttribute('aria-selected', i===selectedIndex));
+  }
+  function updateArrows(){
+    const total = stories[selectedIdentity].length;
+    const maxPage = Math.max(0, Math.ceil(total / visibleCount) - 1);
+    prevBtn.disabled = shelfIndex <= 0; nextBtn.disabled = shelfIndex >= maxPage;
+    prevBtn.setAttribute('aria-disabled', String(prevBtn.disabled));
+    nextBtn.setAttribute('aria-disabled', String(nextBtn.disabled));
+  }
+  function ensureCardVisible(idx){
+    const start = shelfIndex * visibleCount;
+    const end   = start + visibleCount - 1;
+    if (idx >= start && idx <= end) return;
+    const cw = viewport.clientWidth || section.clientWidth;
+    const cssCardW = parseInt(getComputedStyle(section).getPropertyValue('--card-w')) || 320;
+    const gap = parseInt(getComputedStyle(section).getPropertyValue('--track-gap')) || 10;
+    const cardW = Math.min(cssCardW, Math.round((cw - 20) / 3));
+    shelfIndex = Math.floor(idx / visibleCount);
+    const pageWidth = (cardW + gap) * visibleCount;
+    const x = -shelfIndex * pageWidth;
+    track.style.transform = prefersReduced ? 'none' : `translate3d(${Math.round(x)}px,0,0)`;
+    updateArrows();
+  }
 
-    const identities = ['Vision Builders','System Shapers','Solo Strategists','Beyond These'];
-
-    /* ================== STORIES ================== */
-    const stories = {
-      'Vision Builders': [
-        { tag:'Clarity for Entrepreneurs', headline:'Scaling, but Sinking', subtext:['Big team.','Big burn.','No cashflow.'], problem:'A tech entrepreneur approached us for help with expansion — which quickly revealed deeper issues beneath the surface.', reveal:['Growth was based on assumptions, not actual demand.','Team was sized for optics, not function.','Heavy burn on “presence” — branding, social, PR.','No tested model for reliable revenue.'], execution:['Paused non-performing lines.','Rebuilt operating model from cost-centre out.','Repositioned product for clear cashflow path.'], outcome:['Burn dropped by 60%.','Revenue-positive within 2 months.'] },
-        { tag:'Clarity for Businessmen', headline:'Revenue, but No Reserves', subtext:['Profitable on paper.','Dry in bank.'], problem:'A successful businessman reached out with concerns about constant revenue, yet a chronic feeling of “no money left.”', reveal:['Margins looked good — until you saw actual cash cycles.','Payment terms bled liquidity.','High-revenue accounts were slow-paying, draining faster ones.','Expansion moves made without stress-testing cash buffers.'], execution:['Mapped cashflow down to daily stress points.','Rebalanced client portfolio for payment hygiene.','Rebuilt reserve model based on reality, not projection.','Swapped one bleeding revenue stream for slower but reliable cash.'], outcome:['Within 60 days, cash reserve doubled without cutting core ops.'] },
-        { tag:'Clarity for Founders', headline:'Pitch Failed Twice. Raised on the Third.', subtext:['Big stage.','Strong deck.','No conviction.'], problem:'A founder approached us after two failed fundraising rounds. Decks had been polished by experts, presentations rehearsed — but investors walked away unconvinced.', reveal:['Narrative was built for drama, not logic.','Financial model sounded bold, but lacked internal proof.','Hires and structure inflated burn without showing leverage.','The pitch sold hope, not inevitability.'], execution:['Reframed deck around unavoidable logic.','Cut vanity projections; rebuilt model from real unit economics.','Simplified org chart → lean, clear burn path.','Aligned story to investor psychology, not founder ego.'], outcome:['Within 30 days, round closed successfully.'] }
-      ],
-      'System Shapers': [
-        { tag:'Ops Clarity', headline:'Too Much Moving,<br> Not Enough Forward', subtext:['Everything’s active.','But nothing compounds.'], problem:'An ops leader from a fast-scaling DTC brand approached us. “Everything is moving. Tools, updates, meetings. But somehow... we’re not moving forward.”', reveal:['Every team had local clarity, but no shared compass.','Founder and ops were solving different problems.','Weekly rituals became noise.','Execution was everywhere — but decisions weren’t cascading.'], execution:['Mapped actual flows (not the ones on Notion) and exposed friction.','Reframed around outcomes, not updates.','Shrunk decision windows from 7-day loops to 36-hour clarity bursts.','Rolled out structural rhythm aligning founder ↔ ops ↔ team.'], outcome:['Within weeks, energy changed: quieter, sharper, cohesive.','A business in motion — that moved forward.'] },
-        { tag:'Team Rhythm', headline:'Team Sync Was a Ritual,<br> Not a System', subtext:['People showed up.','But alignment didn’t.'], problem:'A COO in a SaaS company reached out. Teams were talking weekly — but still asking the same questions. Syncs weren’t broken; nothing stuck.', reveal:['Check-ins became status performances.','No one knew which decisions were live, closed, or drifting.','Everyone assumed someone else tracked outcomes.','Leadership thought sync = alignment. It wasn’t.'], execution:['Introduced a “Clarity Loop” cadence.','Reduced meetings by 40% while increasing alignment.','Created a shared spine across Product, Ops, and GTM.','Made every sync traceable: what moved, what’s blocked, what’s next.'], outcome:['Meetings turned from motion to movement.','Decisions stuck. Delivery became reliable — and quiet.'] },
-        { tag:'From Reacting to Seeing', headline:'System Ran on Firefighting,<br> Not Forecasting', subtext:['Always urgent.','Never clear.'], problem:'A VP of Ops at a logistics startup: “We don’t plan. We react.” Problems got solved — until they returned, slightly worse.', reveal:['No one trusted numbers beyond the week.','Ops dashboards looked full — and felt hollow.','Teams solved symptoms, not systems.','Growth was visible — and chaotic.'], execution:['Built short-range + long-range system clarity map.','Separated signal from noise via cascading triage.','Embedded clarity checkpoints inside recurring ops.','Aligned decisions with projected scenarios, not surges.'], outcome:['Firefighting dropped by 70%.','Forecasts became reality.'] }
-      ],
-      'Solo Strategists': [
-        { tag:'Solo Operator', headline:'Endless Work, No Strategic Movement', subtext:['Solo Builder',' Zero momentum.'], problem:'A solo operator running calls, content, ops, and product wanted “clarity on scale.” Scale wasn’t the bleed — strategy was.', reveal:['No decision framework — everything urgent, nothing right.','Offer too broad — attracted work, not the right work.','Rhythm served delivery, not direction.','Energy leaks disguised as “necessary tasks”.'], execution:['Rebuilt the week around clarity (strategic first, delivery second).','Restructured offer stack to create natural filters.','Defined a single mental dashboard for momentum (not motion).','Removed performative productivity; chose asymmetrical moves.'], outcome:['More time. Sharper clients.','For the first time in 18 months — actual forward traction.'] },
-        { tag:'Indie Creator', headline:'Creative Fire, Constant Burn',subtext:['Indie Creator.',' Output overflowing.'], problem:'An independent creator with strong audience and products asked us to “make sense of it all.” Everything was growing; nothing felt aligned.', reveal:['Monetization reactive to audience shifts.','Creatorship turned into survival, not scaling.','No clarity on what to build next.','Identity fused with output — exhausting.'], execution:['Created breathing room; brought creative distance.','Designed a long-game roadmap focused on leverage.','Defined “enough” so effort had direction.','Offered ways to not create — yet still move forward.'], outcome:['Creation returned to joy.','Revenue stabilized. Momentum no longer depended on daily presence.'] },
-        { tag:'Solo SaaS Founder', headline:'Code. Launch. Spiral.', subtext:['Solo SaaS Founder.', 'One product - One mind'], problem:'A solo founder sought sanity more than scale. Product shipped, users existed — but signals conflicted.', reveal:['User growth decent — churn hidden behind hope.','Pricing made sense to no one.','Feature decisions reactive — too many inputs, no filters.'], execution:['Clarified the core metric that mattered now.','Restructured roadmap to remove noise and focus leverage.','Reset pricing from gut to strategic tiers.','Rebuilt weekly rhythm: build with aim.'], outcome:['Clarity restored. Growth steady.','For the first time — it didn’t all depend on him.'] }
-      ],
-      'Beyond These': [
-        { tag:'Drive Without Direction.', headline:'No Map. Just Drive.', subtext:['Had the energy.','Kept moving - But not forward.'], problem:'A solo builder in his early 30s: not confused — just map-less. Trying everything, failing nothing, achieving little.', reveal:['Five parallel projects, all shallow.','Mistook constant doing for meaningful progress.','Craved traction but lacked narrative clarity.','Productivity had become the identity.'], execution:['Ran a clarity distillation: what matters, what compounds, what dies.','Killed dead-weight ideas; re-centered on desire × leverage.','Built a path that wouldn’t burn him.'], outcome:['Launched and stabilized in 8 weeks — not by working harder, but by stopping the wrong work.'] },
-        { tag:'Post-Exit Recalibration', headline:'Everything. Yet Nothing.', subtext:['Success on paper.','But something was off.'], problem:'A founder post-acquisition: free, yet directionless. Not depression. Not confusion. Misalignment.', reveal:['Inner pace changed; outer plans hadn’t.','Legacy projects lived on, but meaning didn’t.','New ideas felt like polished repeats.','Didn’t need therapy — needed recalibration.'], execution:['Ran values × leverage audit.','Scrapped performative goals; defined metrics of depth and energy.','Mapped a new direction — not bigger, but aligned.'], outcome:['Within 3 weeks, exit haze turned into lucid clarity.','He didn’t just get direction. He reclaimed authorship.'] },
-        { tag:'The Dream. No Map.', headline:'The Dream. No Map.', subtext:['Not lazy - Not lost.','Just no clear path.'], problem:'A disciplined, tireless young operator: not failing, just circling. Working hard everywhere — getting nowhere.', reveal:['No strategy problem — direction problem.','Vision real; steps weren’t.','Decisions reactive, not rooted.','No lack of talent — just no frame to channel it.'], execution:['Extracted the deeper why — the true end-state.','Built a reverse path: end → next step.','Reorganized all efforts — no more effort, just focused effort.'], outcome:['Within weeks, momentum turned magnetic. The fog lifted.'] }
-      ]
-    };
-
-    /* ---------- STATE ---------- */
-    let selectedIdentity = window.elysianSelectedIdentity || sessionStorage.getItem('elysianSelectedIdentity') || identities[0];
-    let selectedIndex = 0, shelfIndex = 0, visibleCount = 3; // preselect first card
-
-    /* ---------- HELPERS ---------- */
-    function setButtonState(){
-      let any = false;
-      filters.forEach(btn=>{ const on = btn.dataset.identity === selectedIdentity; btn.setAttribute('aria-selected', on ? 'true' : 'false'); if(on) any = true; });
-      tabsEl.classList.toggle('has-active', any);
-    }
-
-    function buildCard(item, idx){
-      const b = document.createElement('button'); b.className = 'ci-card'; b.type='button'; b.setAttribute('aria-selected', idx===selectedIndex);
-      const sub = Array.isArray(item.subtext) && item.subtext.length ? `<div class="subtext">${item.subtext.map(line => `<div class="sub">${line}</div>`).join('')}</div>` : '';
-      b.innerHTML = `
-        <div class="tag">${item.tag || ''}</div>
-        <div class="headline">${item.headline || ''}</div>
+  // ---- PANEL ----
+  function renderPanelFor(item){
+    const sub = Array.isArray(item.subtext) && item.subtext.length ? `<div class="kv subtle">${item.subtext.map(s=>`<span>${s}</span>`).join('<span class="dot">•</span>')}</div>` : '';
+    const issueBlock = item.problem ? `<div class="block"><h3>Problem</h3><p>${item.problem}</p></div>` : (item.mech ? `<div class="block"><h3>Mechanism</h3><p>${item.mech}</p></div>` : '');
+    const revealBlock = Array.isArray(item.reveal)&&item.reveal.length ? `<div class="block"><h3>Reveal</h3><ul>${item.reveal.map(r=>`<li>${r}</li>`).join('')}</ul></div>` : '';
+    const execBlock   = Array.isArray(item.execution)&&item.execution.length ? `<div class="block"><h3>Execution</h3><ul>${item.execution.map(e=>`<li>${e}</li>`).join('')}</ul></div>` : '';
+    const outBlock    = Array.isArray(item.outcome)&&item.outcome.length ? `<div class="block"><h3>Outcome</h3><ul>${item.outcome.map(o=>`<li>${o}</li>`).join('')}</ul></div>` : (item.out ? `<div class="block"><h3>Outcome</h3><p>${item.out}</p></div>` : '');
+    panel.innerHTML = `
+      <div class="casehead">
+        <div class="tagline">${item.tag || ''}</div>
+        <div class="title">${item.headline || ''}</div>
         ${sub}
-        <div class="chips">${(item.chips||[]).map(c=>`<span class='chip'>${c}</span>`).join('')}</div>
-      `;
-      b.addEventListener('click', ()=> { revealTo(3); selectStory(idx); ensureCardVisible(idx); });
-      b.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); revealTo(3); selectStory(idx); ensureCardVisible(idx); }});
-      return b;
-    }
-
-    function renderShelf(){ track.innerHTML = ''; stories[selectedIdentity].forEach((s, i)=> track.appendChild(buildCard(s, i))); updateShelfLayout(); updateArrows(); }
-
-    function updateShelfLayout(){
-      const cw = viewport.clientWidth || section.clientWidth;
-      const cssCardW = parseInt(getComputedStyle(section).getPropertyValue('--card-w')) || 320;
-      const gap = parseInt(getComputedStyle(section).getPropertyValue('--track-gap')) || 10;
-      const cardW = Math.min(cssCardW, Math.round((cw - 20) / 3));
-      const cards = [...track.children]; cards.forEach(el => el.style.width = cardW + 'px');
-      visibleCount = Math.max(1, Math.floor((cw + gap) / (cardW + gap)));
-      const maxPage = Math.max(0, Math.ceil(stories[selectedIdentity].length / visibleCount) - 1);
-      shelfIndex = Math.min(shelfIndex, maxPage);
-      const pageWidth = (cardW + gap) * visibleCount;
-      const x = -shelfIndex * pageWidth;
-      track.style.transform = prefersReduced ? 'none' : `translate3d(${Math.round(x)}px,0,0)`;
-      cards.forEach((c,i)=> c.setAttribute('aria-selected', i===selectedIndex));
-    }
-
-    function updateArrows(){
-      const total = stories[selectedIdentity].length;
-      const maxPage = Math.max(0, Math.ceil(total / visibleCount) - 1);
-      prevBtn.disabled = shelfIndex <= 0; nextBtn.disabled = shelfIndex >= maxPage;
-      prevBtn.setAttribute('aria-disabled', String(prevBtn.disabled));
-      nextBtn.setAttribute('aria-disabled', String(nextBtn.disabled));
-    }
-
-    // only move shelf if clicked card is off the current page
-    function ensureCardVisible(idx){
-      const start = shelfIndex * visibleCount;
-      const end   = start + visibleCount - 1;
-      if (idx >= start && idx <= end) return;
-
-      const cw = viewport.clientWidth || section.clientWidth;
-      const cssCardW = parseInt(getComputedStyle(section).getPropertyValue('--card-w')) || 320;
-      const gap = parseInt(getComputedStyle(section).getPropertyValue('--track-gap')) || 10;
-      const cardW = Math.min(cssCardW, Math.round((cw - 20) / 3));
-      shelfIndex = Math.floor(idx / visibleCount);
-      const pageWidth = (cardW + gap) * visibleCount;
-      const x = -shelfIndex * pageWidth;
-      track.style.transform = prefersReduced ? 'none' : `translate3d(${Math.round(x)}px,0,0)`;
-      updateArrows();
-    }
-
-    /* ---------- PANEL RENDER ---------- */
-    function renderPanelFor(item){
-      const sub = Array.isArray(item.subtext) && item.subtext.length ? `<div class="kv subtle">${item.subtext.map(s=>`<span>${s}</span>`).join('<span class="dot">·</span>')}</div>` : '';
-      const issueBlock = item.problem ? `<div class="block"><h3>Problem</h3><p>${item.problem}</p></div>` : (item.mech ? `<div class="block"><h3>Mechanism</h3><p>${item.mech}</p></div>` : '');
-      const revealBlock = Array.isArray(item.reveal)&&item.reveal.length ? `<div class="block"><h3>Reveal</h3><ul>${item.reveal.map(r=>`<li>${r}</li>`).join('')}</ul></div>` : '';
-      const execBlock   = Array.isArray(item.execution)&&item.execution.length ? `<div class="block"><h3>Execution</h3><ul>${item.execution.map(e=>`<li>${e}</li>`).join('')}</ul></div>` : '';
-      const outBlock    = Array.isArray(item.outcome)&&item.outcome.length ? `<div class="block"><h3>Outcome</h3><ul>${item.outcome.map(o=>`<li>${o}</li>`).join('')}</ul></div>` : (item.out ? `<div class="block"><h3>Outcome</h3><p>${item.out}</p></div>` : '');
-      panel.innerHTML = `
-        <div class="casehead">
-          <div class="tagline">${item.tag || ''}</div>
-          <div class="title">${item.headline || ''}</div>
-          ${sub}
+      </div>
+      <div class="panel-tabs" role="tablist" aria-label="Case sections">
+        <button class="panel-tab tab-ir" role="tab" aria-selected="true">Problem & Reveal</button>
+        <button class="panel-tab tab-eo" role="tab" aria-selected="false">Execution & Outcome</button>
+      </div>
+      <div class="view-viewport" data-dir="right">
+        <div class="view-pane pane-ir active">
+          <div class="two-col">${issueBlock}${revealBlock}</div>
         </div>
-        <div class="panel-tabs" role="tablist" aria-label="Case sections">
-          <button class="panel-tab tab-ir" role="tab" aria-selected="true">Problem & Reveal</button>
-          <button class="panel-tab tab-eo" role="tab" aria-selected="false">Execution & Outcome</button>
-        </div>
-        <div class="preview-overlay"><div class="half left"></div><div class="half right"></div></div>
-        <div class="view-viewport" data-dir="right">
-          <div class="view-pane pane-ir active">
-            <div class="two-col">
-              ${issueBlock}
-              ${revealBlock}
-            </div>
-          </div>
-          <div class="view-pane pane-eo">
-            <div class="two-col" style="position:relative;">
-              ${execBlock}
-              ${outBlock}
-              <div class="card-divider"></div>
-            </div>
+        <div class="view-pane pane-eo">
+          <div class="two-col" style="position:relative;">
+            ${execBlock}${outBlock}
+            <div class="card-divider"></div>
           </div>
         </div>
-      `;
-      const irBtn = panel.querySelector('.tab-ir');
-      const eoBtn = panel.querySelector('.tab-eo');
-      const viewWrap = panel.querySelector('.view-viewport');
-      const irPane = panel.querySelector('.pane-ir');
-      const eoPane = panel.querySelector('.pane-eo');
-      const divider = panel.querySelector('.card-divider');
-      function activate(target){
-        const entering = (target==='eo') ? eoPane : irPane;
-        const leaving  = (target==='eo') ? irPane : eoPane;  /* fixed */
-        const dir = (target==='eo') ? 'right' : 'left';
-        viewWrap.setAttribute('data-dir', dir);
-        entering.classList.add('will-enter');
-        leaving.classList.remove('active');
-        entering.classList.add('active');
-        requestAnimationFrame(()=> entering.classList.remove('will-enter'));
-        irBtn.setAttribute('aria-selected', String(target!=='eo'));
-        eoBtn.setAttribute('aria-selected', String(target==='eo'));
-        if(target==='eo' && divider){
-          divider.classList.remove('loaded');
-          requestAnimationFrame(()=>{ setTimeout(()=> divider.classList.add('loaded'), 120); });
-        }
+      </div>`;
+    const irBtn = panel.querySelector('.tab-ir');
+    const eoBtn = panel.querySelector('.tab-eo');
+    const viewWrap = panel.querySelector('.view-viewport');
+    const irPane = panel.querySelector('.pane-ir');
+    const eoPane = panel.querySelector('.pane-eo');
+    const divider = panel.querySelector('.card-divider');
+    function activate(target){
+      const entering = (target==='eo') ? eoPane : irPane;
+      const leaving  = (target==='eo') ? irPane : eoPane;
+      const dir = (target==='eo') ? 'right' : 'left';
+      viewWrap.setAttribute('data-dir', dir);
+      entering.classList.add('will-enter');
+      leaving.classList.remove('active');
+      entering.classList.add('active');
+      requestAnimationFrame(()=> entering.classList.remove('will-enter'));
+      irBtn.setAttribute('aria-selected', String(target!=='eo'));
+      eoBtn.setAttribute('aria-selected', String(target==='eo'));
+      if(target==='eo' && divider){
+        divider.classList.remove('loaded');
+        requestAnimationFrame(()=>{ setTimeout(()=> divider.classList.add('loaded'), 120); });
       }
-      irBtn.addEventListener('mouseenter', ()=> panel.classList.add('preview-ir'));
-      irBtn.addEventListener('mouseleave', ()=> panel.classList.remove('preview-ir'));
-      eoBtn.addEventListener('mouseenter', ()=> panel.classList.add('preview-eo'));
-      eoBtn.addEventListener('mouseleave', ()=> panel.classList.remove('preview-eo'));
-      irBtn.addEventListener('click', ()=> activate('ir'));
-      eoBtn.addEventListener('click', ()=> activate('eo'));
     }
+    irBtn.addEventListener('mouseenter', ()=> panel.classList.add('preview-ir'));
+    irBtn.addEventListener('mouseleave', ()=> panel.classList.remove('preview-ir'));
+    eoBtn.addEventListener('mouseenter', ()=> panel.classList.add('preview-eo'));
+    eoBtn.addEventListener('mouseleave', ()=> panel.classList.remove('preview-eo'));
+    irBtn.addEventListener('click', ()=> activate('ir'));
+    eoBtn.addEventListener('click', ()=> activate('eo'));
+  }
 
-    function selectStory(idx){
-      selectedIndex = idx;
-      const item = stories[selectedIdentity][idx];
-      renderPanelFor(item);
-      [...track.children].forEach((c,i)=> c.setAttribute('aria-selected', i===selectedIndex));
-      // IMPORTANT: no updateShelfLayout() here (prevents jump on selection)
+  function selectStory(idx){
+    selectedIndex = idx;
+    const item = stories[selectedIdentity][idx];
+    renderPanelFor(item);
+    [...track.children].forEach((c,i)=> c.setAttribute('aria-selected', i===selectedIndex));
+  }
+
+  function selectIdentity(id){
+    selectedIdentity = id;
+    sessionStorage.setItem('elysianSelectedIdentity', id);
+    window.elysianSelectedIdentity = id;
+    setButtonState();
+    selectedIndex = 0; shelfIndex = 0;
+    renderShelf();
+    if (stories[selectedIdentity]?.length) { selectStory(0); }
+  }
+
+  // ---- STAGED REVEAL ----
+  const css = getComputedStyle(section);
+  const DUR = { 
+    buttons: parseInt(css.getPropertyValue('--reveal-buttons')) || 700, 
+    shelf: parseInt(css.getPropertyValue('--reveal-shelf')) || 850 
+  };
+  const PANEL_DELAY = parseInt(css.getPropertyValue('--reveal-panel-delay')) || 0;
+
+  function setStage(n){
+    if(n>=1 && tabsEl.hidden)    tabsEl.hidden    = false;
+    if(n>=2 && shelf.hidden)     shelf.hidden     = false;
+    if(n>=3 && panelWrap.hidden) panelWrap.hidden = false;
+    section.setAttribute('data-stage', String(n));
+  }
+
+  async function waitFontsOnce(){
+    try { if (document.fonts && 'ready' in document.fonts) { await document.fonts.ready; } } catch(_){}
+  }
+
+  function unfreeze(){ requestAnimationFrame(()=> section.classList.remove('pre-reveal')); }
+
+  async function revealSequence(){
+    setButtonState();
+    await waitFontsOnce();
+    renderShelf();
+    selectStory(selectedIndex);
+
+    if (prefersReduced){
+      setStage(3); unfreeze(); return;
     }
-
-    function selectIdentity(id){
-      selectedIdentity = id;
-      sessionStorage.setItem('elysianSelectedIdentity', id);
-      window.elysianSelectedIdentity = id;
-      setButtonState();
-      selectedIndex = 0; shelfIndex = 0;
-      renderShelf();
-      if (stories[selectedIdentity]?.length) { selectStory(0); }
-    }
-
-    /* ---------- STAGED REVEAL ---------- */
-    const css = getComputedStyle(section);
-    const DUR = { 
-      buttons: parseInt(css.getPropertyValue('--reveal-buttons')) || 700, 
-      shelf: parseInt(css.getPropertyValue('--reveal-shelf')) || 850 
-    };
-    const PANEL_DELAY = parseInt(css.getPropertyValue('--reveal-panel-delay')) || 0;
-
-    function setStage(n){
-      if(n>=1 && tabsEl.hidden)   tabsEl.hidden   = false;
-      if(n>=2 && shelf.hidden)    shelf.hidden    = false;
-      if(n>=3 && panelWrap.hidden)panelWrap.hidden= false;
-      section.setAttribute('data-stage', String(n));
-    }
-
-    async function waitFontsOnce(){
-      try {
-        if (document.fonts && 'ready' in document.fonts) {
-          await document.fonts.ready;
-        }
-      } catch(_){}
-    }
-
-    async function revealSequence(){
-      const unfreeze = () => requestAnimationFrame(()=> section.classList.remove('pre-reveal'));
-
-      if (prefersReduced){
-        setButtonState();
-        await waitFontsOnce();
-        renderShelf(); 
-        selectStory(selectedIndex); // preselect before show
-        setStage(3);
-        unfreeze();
-        return;
-      }
-
-      setButtonState();
-      await waitFontsOnce();     // prevents card width jump
-      renderShelf();
-      selectStory(selectedIndex); // preselect BEFORE showing shelf
-      requestAnimationFrame(() => {
-        setStage(1);
-        unfreeze();
-
-        setTimeout(()=> setStage(2), DUR.buttons);
-        setTimeout(()=>{ setStage(3); }, DUR.buttons + DUR.shelf + PANEL_DELAY);
-      });
-    }
-
-    function revealTo(n){ for(let i=1;i<=n;i++) setStage(i); }
-
-    /* ---------- WIRE UP ---------- */
-    filters.forEach(btn=>{
-      btn.addEventListener('click', ()=> selectIdentity(btn.dataset.identity));
-      btn.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); selectIdentity(btn.dataset.identity); }});
+    requestAnimationFrame(() => {
+      setStage(1); unfreeze();
+      setTimeout(()=> setStage(2), DUR.buttons);
+      setTimeout(()=> setStage(3), DUR.buttons + DUR.shelf + PANEL_DELAY);
     });
-    prevBtn.addEventListener('click', ()=>{ shelfIndex = Math.max(0, shelfIndex-1); updateShelfLayout(); updateArrows(); });
-    nextBtn.addEventListener('click', ()=>{
-      const total = stories[selectedIdentity].length;
-      const maxPage = Math.max(0, Math.ceil(total / visibleCount) - 1);
-      shelfIndex = Math.min(maxPage, shelfIndex+1);
-      updateShelfLayout(); updateArrows();
-    });
-    window.addEventListener('resize', ()=>{ updateShelfLayout(); updateArrows(); }, { passive:true });
-    section.addEventListener('keydown', (e)=>{ if(e.key==='ArrowRight'){ nextBtn.click(); } if(e.key==='ArrowLeft'){ prevBtn.click(); }});
+  }
 
-    // IO triggers slightly earlier and only once. No fallback block.
-    const io = new IntersectionObserver((entries)=>{
-      entries.forEach(e=>{
-        if(e.isIntersecting){
-          if (runOnce(revealSequence)) io.disconnect();
-        }
-      });
-    }, { threshold: 0.15, rootMargin: "0px 0px -20% 0px" });
+  function revealTo(n){ for(let i=1;i<=n;i++) setStage(i); }
 
-    // Fallback: ensure the staged reveal runs even if IO doesn't fire
-    if (document.readyState !== 'loading') {
-      revealSequence();
-    } else {
-      window.addEventListener('DOMContentLoaded', revealSequence, { once: true });
-    }
+  // ---- EVENTS ----
+  filters.forEach(btn=>{
+    btn.addEventListener('click', ()=> selectIdentity(btn.dataset.identity));
+    btn.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); selectIdentity(btn.dataset.identity); }});
+  });
+  prevBtn.addEventListener('click', ()=>{ shelfIndex = Math.max(0, shelfIndex-1); updateShelfLayout(); updateArrows(); });
+  nextBtn.addEventListener('click', ()=>{
+    const total = stories[selectedIdentity].length;
+    const maxPage = Math.max(0, Math.ceil(total / visibleCount) - 1);
+    shelfIndex = Math.min(maxPage, shelfIndex+1);
+    updateShelfLayout(); updateArrows();
+  });
+  window.addEventListener('resize', ()=>{ updateShelfLayout(); updateArrows(); }, { passive:true });
+  section.addEventListener('keydown', (e)=>{ if(e.key==='ArrowRight'){ nextBtn.click(); } if(e.key==='ArrowLeft'){ prevBtn.click(); }});
 
-    io.observe(section);
+  // ---- START: prefer IO, then hard fallback after 200ms ----
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ startOnce(); io.disconnect(); }});
+  }, { threshold: 0.15, rootMargin: "0px 0px -20% 0px" });
+  io.observe(section);
 
-    if(!identities.includes(selectedIdentity)) selectedIdentity = identities[0];
-  })();
-  </script>
+  if (document.readyState !== 'loading') {
+    setTimeout(startOnce, 200);
+  } else {
+    window.addEventListener('DOMContentLoaded', () => setTimeout(startOnce, 200), { once:true });
+  }
+
+  if(!identities.includes(selectedIdentity)) selectedIdentity = identities[0];
+})();
+</script>
+
 </section>
-
