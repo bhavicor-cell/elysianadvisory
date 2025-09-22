@@ -60,7 +60,7 @@
 
     .ci h2{ font-family:'EyesomeI', serif; font-weight:400; font-size: var(--title-size); margin: 0 0 var(--gap-after-title); letter-spacing:.2px; line-height:1.2; text-align:left; }
 
-    /* ---------------- Staged reveal animations (unchanged) ---------------- */
+    /* ---------------- Staged reveal animations ---------------- */
     .ci .tabs, .ci .ci-shelf, .ci .ci-detail{ will-change: opacity, transform; }
     .ci[data-stage="1"] .tabs{ animation: fadeIn calc(var(--reveal-buttons) * 1ms) var(--reveal-ease) both; }
     .ci[data-stage="1"] .tabs .identity-btn{ opacity:0; transform: translateY(var(--reveal-offset)); animation: fadeInUp calc(var(--reveal-buttons) * 1ms) var(--reveal-ease) both; }
@@ -90,59 +90,43 @@
     .ci-arrow[disabled]{ opacity:.35; cursor: default; }
     .ci-shelf-viewport{ display: flex; justify-content: center; overflow-y: visible; overflow-x:visible; max-width: var(--shelf-maxw); margin: 0 auto; width: 100%; }
     .ci-shelf-track{ display:flex; flex:0 0 auto; width: max-content; margin: 0 auto; transform: none !important; gap: var(--track-gap); will-change: transform; transition: transform .50s var(--reveal-ease); }
-    .ci-card{ flex: 0 0 auto; width: var(--card-w); border:1px solid var(--card-border); border-radius: var(--card-radius); padding: var(--card-pad); background: var(--card-bg); cursor:pointer; transition: box-shadow .2s ease, background-color .2s ease, border-color .2s ease, transform .25s ease; font-family:'cotoris', ui-serif, serif; color: var(--fg); }
+    .ci-card{ flex: 0 0 auto; width: var(--card-w); border:1px solid var(--card-border); border-radius: 14px; padding: 12px 14px; background: transparent; cursor:pointer; transition: box-shadow .2s ease, background-color .2s ease, border-color .2s ease, transform .25s ease; font-family:'cotoris', ui-serif, serif; color: var(--fg); }
     .ci-card:hover{ transform: translateY(-2px); }
-    .ci-card[aria-selected="true"]{ background: var(--card-sel-bg); box-shadow: var(--card-sel-shadow); border-color: var(--card-sel-border); }
-    .ci-card .tag{ display:inline-block; font-size: var(--card-tag-size); color: var(--muted); margin-bottom:14px; font-family: 'Arsenica'; }
+    .ci-card[aria-selected="true"]{ background: var(--paper); box-shadow: var(--shadow); border-color: var(--border); }
+    .ci-card .tag{ display:inline-block; font-size: 12px; color: var(--muted); margin-bottom:14px; font-family: 'Arsenica'; }
     .ci-card .headline{ font-family:'Canela', ui-serif, serif; font-weight:400; font-size: 18px; margin: 0 0 10px; color: var(--fg); }
     .ci-card .subtext{ display: inline-flex; justify-content: center; width: 100%; align-items: baseline; column-gap: 40px; white-space: pre; overflow: hidden; text-overflow: ellipsis; margin-top: 6px; }
     .ci-card .subtext .sub{ white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: inline; }
     .ci-card .sub{ font-family: 'Arsenica'; font-size: 12px; line-height: 1.35; color: var(--muted); }
     .ci-card .chips{ display:flex; flex-wrap:wrap; row-gap: 0; column-gap: 8px; margin-top: 6px; }
-    .ci-card .chip{ padding:0; border:0; background:none; color: var(--card-meta-color); font-size: var(--card-meta-size); line-height:1.2; font-family: 'Canela', system-ui, -apple-system, 'Segoe UI', sans-serif; }
+    .ci-card .chip{ padding:0; border:0; background:none; color: var(--card-meta-color); font-size: 12px; line-height:1.2; font-family: 'Canela', system-ui, -apple-system, 'Segoe UI', sans-serif; }
     .ci-card .chip + .chip::before{ content: "✧\2009"; margin: 0 6px; color: var(--card-meta-color); }
 
     .ci-detail{ margin-top: 10px; min-height: 0; display:grid; grid-template-columns: 1fr; width: 100%; align-items: start; }
     .ci-detail .ea-surface-paper{
-      background: var(--panel-bg); border-radius: var(--panel-radius); padding: var(--panel-pad);
-      border: 1px solid var(--panel-border);
-      font-family: 'cotorisi', ui-serif, Georgia, 'Times New Roman', serif; font-size: 21px; line-height: var(--panel-line);
-      max-width: var(--panel-maxw); width: 100%; text-align: left; position:relative; justify-content: center;
-      box-shadow: none !important; height: var(--panel-fixed);
-      overflow: hidden; -webkit-overflow-scrolling: auto; align-self: start; padding-top: 15px;
+      background: var(--panel-bg); border-radius: 20px; padding: clamp(22px, 2.2vw, 36px);
+      border: 1px solid color-mix(in srgb, var(--border) 65%, #fff);
+      font-family: 'cotorisi', ui-serif, Georgia, 'Times New Roman', serif; font-size: 21px; line-height: 1.4;
+      max-width: min(105ch, 200vw); width: 100%; text-align: left; position:relative; justify-content: center;
+      height: 320px; overflow: hidden; -webkit-overflow-scrolling: auto; align-self: start; padding-top: 15px;
     }
     #clarity-in-action .ci-detail, #clarity-in-action #ciDetail, #clarity-in-action .ea-surface-paper{ box-shadow:none !important; filter:none !important; }
-    #clarity-in-action .ci-detail::before, #clarity-in-action .ci-detail::after, #clarity-in-action #ciDetail::before, #clarity-in-action #ciDetail::after{ content:none !important;}
     #ciDetail .casehead .title br { display: none; }
     #ciDetail .block li::marker{ content: "✧\2005"; font-size: 0.9em; color: var(--muted); font-family: 'Arsenica', serif; }
-
-    .ci-detail .ea-surface-paper .view-viewport{ height:100% !important; overflow:hidden !important; }
-    .ci-detail .ea-surface-paper, .ci-detail .ea-surface-paper .view-viewport{ overflow-x:hidden !important; }
-    .view-pane{ left:0; right:0; }
-
     #ciDetail .casehead{ margin-bottom: 0px; }
     #ciDetail .casehead .tagline{ display:none; font-family: 'Arsenica', serif; font-size: 12px; letter-spacing: .08em; color: var(--muted); margin-bottom: 10px; }
     #ciDetail .casehead .title{ font-family: 'Canela', ui-serif, serif; font-weight: 700; font-size: clamp(20px, 1.4vw, 26px); line-height: 1.25; margin-bottom: 0px !important; }
     #ciDetail .kv.subtle{ display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 10px; margin-top:2px; color: var(--muted); font-size:15px; }
     #ciDetail .kv.subtle .dot{ display:none; } #ciDetail .kv.subtle span:not(.dot) + span:not(.dot)::before{ content:"•"; opacity:.45; margin:0 8px; }
 
-    .pane-eo .card-divider{ top: var(--divider-top) !important; bottom: var(--divider-bottom) !important; }
-    .pane-eo .card-divider::before{ background:#e3ded6 !important; }
-    .pane-ir .two-col{ column-gap: var(--ir-col-gap); row-gap: var(--ir-row-gap); }
-    .pane-ir .block h3{ margin: 0 0 6px; }
-    .pane-ir .two-col > :first-child{ padding-right: var(--ir-gutter); }
-    .pane-ir .two-col > :last-child { padding-left:  var(--ir-gutter); }
-
-    .card-divider{ position:absolute; left:50%; top: var(--divider-top); bottom: var(--divider-bottom); width:1px; }
-    .card-divider::before{ content:""; position:absolute; left:0; top:0; width:1px; height:0; background:#dcd7cf; transition: height .6s var(--panel-ease) .3s; }
+    .pane-eo .card-divider{ position:absolute; left:50%; top: 28px; bottom: 24px; width:1px; }
+    .pane-eo .card-divider::before{ content:""; position:absolute; left:0; top:0; width:1px; height:0; background:#dcd7cf; transition: height .6s var(--reveal-ease) .3s; }
     .card-divider.loaded::before{ height:100%; }
 
     .panel-tabs{ display:flex; gap:12px; margin: 9px 0 1px; }
-    .panel-tab{ position:relative; overflow:hidden; height:var(--subtab-height); padding:0 14px; display:inline-grid; place-items:center; border:1px solid var(--subtab-border); border-radius:12px; background: var(--subtab-bg); color: var(--subtab-ink); font-family:'Arsenica', system-ui; font-size:12px; letter-spacing:.08em; cursor:pointer; user-select:none; transition: transform .2s var(--ease), box-shadow .2s var(--ease); }
+    .panel-tab{ position:relative; overflow:hidden; height:38px; padding:0 14px; display:inline-grid; place-items:center; border:1px solid var(--border); border-radius:12px; background: color-mix(in srgb, var(--fg) 4%, transparent); color: var(--fg); font-family:'Arsenica', system-ui; font-size:12px; letter-spacing:.08em; cursor:pointer; user-select:none; transition: transform .2s var(--ease), box-shadow .2s var(--ease); }
     .panel-tab:active{ transform: scale(1.02); }
-    .panel-tab::after{ content:""; position:absolute; width:200%; height:200%; top:50%; left:50%; transform: translate(-50%,-50%) scale(0); background: rgba(0,0,0,.05); border-radius:50%; transition: transform .5s var(--ease), opacity .5s var(--ease); opacity: .2; pointer-events:none; }
-    .panel-tab:active::after{ transform: translate(-50%,-50%) scale(1.8); opacity:0; }
-    .panel-tab[aria-selected="true"]{ box-shadow: inset 0 0 0 1px var(--subtab-ink); }
+    .panel-tab[aria-selected="true"]{ box-shadow: inset 0 0 0 1px var(--fg); }
 
     .view-viewport{ position:relative; width:100%; transition: height .35s var(--ease); }
     .view-pane{ position:absolute; top:0; left:0; width:100%; opacity:0; transform: translateX(100px); transition: opacity .5s var(--ease), transform .5s var(--ease); pointer-events:none; }
@@ -161,7 +145,6 @@
 
     @media (prefers-reduced-motion: reduce){
       .panel-tab{ transition:none; }
-      .panel-tab::after{ display:none; }
       .view-viewport, .view-pane{ transition:none !important; }
       .card-divider::before{ transition:none; height:100%; }
     }
@@ -170,21 +153,12 @@
     #clarity-in-action.pre-reveal .ci-shelf-track{ transition: none !important; }
     #clarity-in-action.pre-reveal .view-viewport{ transition: none !important; }
 
-    /* =================== CI: no-jump shelf + white-panel spacing =================== */
+    /* =================== Fixed card sizing =================== */
     #clarity-in-action{
-      --card-h: 130px;              /* shelf card height (try 140–170) */
-      --panel-fixed: 320px;         /* panel box height */
-      --gap-title-sub: 2px;         /* Title → subtext */
-      --gap-sub-tabs: 16px;         /* Subtext → tabs */
-      --gap-tabs-content: 12px;     /* Tabs → content panes */
-      --gap-pane-blocks: 16px;      /* Space between blocks inside pane */
-      --ir-col-gap: 28px;           /* inner 2-col column gap */
-      --ir-row-gap: 14px;           /* inner row gap */
+      --card-h: 130px;
     }
-
     #clarity-in-action .ci-shelf{ height: calc(var(--card-h) + var(--shelf-pad-y) * 2); align-items: center; }
     #clarity-in-action .ci-shelf-viewport{ min-height: var(--card-h); }
-
     #clarity-in-action .ci-card{
       height: var(--card-h);
       overflow: hidden;
@@ -192,7 +166,6 @@
       grid-template-rows: min-content 1fr min-content min-content;
       row-gap: 6px;
     }
-    #clarity-in-action .ci-card .tag{ align-self: start; margin: 0; }
     #clarity-in-action .ci-card .headline{
       align-self: center; margin: 0; line-height: 1.2;
       display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
@@ -206,12 +179,14 @@
     }
 
     /* ================= NO-FOUC + CUMULATIVE VISIBILITY ================= */
+    /* Keep layout for [hidden], but don’t show until staged */
     #clarity-in-action [hidden]{
-      display:block !important;          /* keep layout, avoid jump */
+      display:block !important;
       visibility:hidden !important;
       opacity:0 !important;
       transform: translateY(var(--reveal-offset)) !important;
     }
+    /* Default: all concealed */
     #clarity-in-action .tabs,
     #clarity-in-action .ci-shelf,
     #clarity-in-action .ci-detail{
@@ -220,20 +195,19 @@
       transform: translateY(var(--reveal-offset));
       will-change: opacity, transform;
     }
-    /* CUMULATIVE: once revealed, keep visible on later stages */
-    #clarity-in-action.ci:is([data-stage="1"],[data-stage="2"],[data-stage="3"]) .tabs{
-      visibility:visible; opacity:1; transform:none;
+    /* CUMULATIVE reveal — once visible, stays visible on later stages */
+    [data-stage="1"] .tabs,
+    [data-stage="2"] .tabs,
+    [data-stage="3"] .tabs{
+      visibility:visible !important; opacity:1 !important; transform:none !important;
     }
-    #clarity-in-action.ci:is([data-stage="2"],[data-stage="3"]) .ci-shelf{
-      visibility:visible; opacity:1; transform:none;
+    [data-stage="2"] .ci-shelf,
+    [data-stage="3"] .ci-shelf{
+      visibility:visible !important; opacity:1 !important; transform:none !important;
     }
-    #clarity-in-action.ci[data-stage="3"] .ci-detail{
-      visibility:visible; opacity:1; transform:none;
+    [data-stage="3"] .ci-detail{
+      visibility:visible !important; opacity:1 !important; transform:none !important;
     }
-
-    /* Optional: soften font swap for shelf type only */
-    @font-face { font-family:'Canela';   src:url('./Fonts/Canela-Bold.otf') format('opentype'); font-weight:700; font-style:normal; font-display:optional; }
-    @font-face { font-family:'cotoris';  src:url('./Fonts/cotoris.otf')     format('opentype'); font-weight:400; font-style:normal; font-display:optional; }
   </style>
 
   <h2 id="cia-title">Clarity in Action</h2>
@@ -258,43 +232,7 @@
     <div id="ciDetail" class="ea-surface-paper"></div>
   </div>
 
-  <!-- (Optional) SECTION-LOCAL video loader; safe if no .vid-layer present -->
-  <script>
-    (function(){
-      const section = document.getElementById('clarity-in-action');
-      const layer = section.querySelector('.vid-layer');
-      const vid   = layer?.querySelector('video.vid');
-      if(!layer || !vid) return;
-      function applyControls(){
-        const op    = parseFloat(layer.dataset.opacity ?? '0.28');
-        const rate  = parseFloat(layer.dataset.speed   ?? '1.0');
-        const blend = (layer.dataset.blend || 'normal').trim();
-        layer.style.setProperty('--vid-opacity', isFinite(op) ? op : .28);
-        layer.style.setProperty('--vid-blend', blend || 'normal');
-        try { vid.playbackRate = isFinite(rate) ? rate : 1.0; } catch(e){}
-      }
-      let armed = false;
-      const io = new IntersectionObserver((entries)=>{
-        entries.forEach(entry=>{
-          if(entry.isIntersecting){
-            if(!armed){
-              applyControls();
-              try{ if (vid.readyState < 1) vid.load(); }catch(e){}
-              armed = true;
-            }
-            layer.style.visibility = 'visible';
-            const p = vid.play(); if(p && p.catch){ p.catch(()=>{}); }
-          }else{
-            layer.style.visibility = 'hidden';
-            vid.pause();
-          }
-        });
-      }, { threshold: 0.25, rootMargin: "0px 0px -10% 0px" });
-      io.observe(section);
-    })();
-  </script>
-
-  <!-- MAIN logic: single-shot staged reveal + anti-jump guards -->
+  <!-- MAIN logic -->
   <script>
   (() => {
     const section   = document.getElementById('clarity-in-action');
@@ -309,6 +247,7 @@
     const viewport  = section.querySelector('.ci-shelf-viewport');
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+    /* Freeze transitions until first reveal */
     section.classList.add('pre-reveal');
 
     let revealed = false;
@@ -324,19 +263,19 @@
         { tag:'Clarity for Founders', headline:'Pitch Failed Twice. Raised on the Third.', subtext:['Big stage.','Strong deck.','No conviction.'], problem:'A founder approached us after two failed fundraising rounds. Decks had been polished by experts, presentations rehearsed — but investors walked away unconvinced.', reveal:['Narrative was built for drama, not logic.','Financial model sounded bold, but lacked internal proof.','Hires and structure inflated burn without showing leverage.','The pitch sold hope, not inevitability.'], execution:['Reframed deck around unavoidable logic.','Cut vanity projections; rebuilt model from real unit economics.','Simplified org chart → lean, clear burn path.','Aligned story to investor psychology, not founder ego.'], outcome:['Within 30 days, round closed successfully.'] }
       ],
       'System Shapers': [
-        { tag:'Ops Clarity', headline:'Too Much Moving,<br> Not Enough Forward', subtext:['Everything’s active.','But nothing compounds.'], problem:'An ops leader from a fast-scaling DTC brand approached us. “Everything is moving. Tools, updates, meetings. But somehow... we’re not moving forward.”', reveal:['Every team had local clarity, but no shared compass.','Founder and ops were solving different problems.','Weekly rituals became noise.','Execution was everywhere — but decisions weren’t cascading.'], execution:['Mapped actual flows (not the ones on Notion) and exposed friction.','Reframed around outcomes, not updates.','Shrunk decision windows from 7-day loops to 36-hour clarity bursts.','Rolled out structural rhythm aligning founder ↔ ops ↔ team.'], outcome:['Within weeks, energy changed: quieter, sharper, cohesive.','A business in motion — that moved forward.'] },
-        { tag:'Team Rhythm', headline:'Team Sync Was a Ritual,<br> Not a System', subtext:['People showed up.','But alignment didn’t.'], problem:'A COO in a SaaS company reached out. Teams were talking weekly — but still asking the same questions. Syncs weren’t broken; nothing stuck.', reveal:['Check-ins became status performances.','No one knew which decisions were live, closed, or drifting.','Everyone assumed someone else tracked outcomes.','Leadership thought sync = alignment. It wasn’t.'], execution:['Introduced a “Clarity Loop” cadence.','Reduced meetings by 40% while increasing alignment.','Created a shared spine across Product, Ops, and GTM.','Made every sync traceable: what moved, what’s blocked, what’s next.'], outcome:['Meetings turned from motion to movement.','Decisions stuck. Delivery became reliable — and quiet.'] },
-        { tag:'From Reacting to Seeing', headline:'System Ran on Firefighting,<br> Not Forecasting', subtext:['Always urgent.','Never clear.'], problem:'A VP of Ops at a logistics startup: “We don’t plan. We react.” Problems got solved — until they returned, slightly worse.', reveal:['No one trusted numbers beyond the week.','Ops dashboards looked full — and felt hollow.','Teams solved symptoms, not systems.','Growth was visible — and chaotic.'], execution:['Built short-range + long-range system clarity map.','Separated signal from noise via cascading triage.','Embedded clarity checkpoints inside recurring ops.','Aligned decisions with projected scenarios, not surges.'], outcome:['Firefighting dropped by 70%.','Forecasts became reality.'] }
+        { tag:'Ops Clarity', headline:'Too Much Moving,<br> Not Enough Forward', subtext:['Everything’s active.','But nothing compounds.'], problem:'An ops leader from a fast-scaling DTC brand: “Everything is moving… but we’re not moving forward.”', reveal:['Every team had local clarity, but no shared compass.','Founder and ops were solving different problems.','Weekly rituals became noise.','Execution was everywhere — but decisions didn’t cascade.'], execution:['Mapped actual flows (not the ones on Notion).','Reframed around outcomes, not updates.','Shrunk decision windows to 36-hour bursts.','Rolled a rhythm aligning founder ↔ ops ↔ team.'], outcome:['Weeks later: quieter, sharper, cohesive.','A business in motion — that moved forward.'] },
+        { tag:'Team Rhythm', headline:'Team Sync Was a Ritual,<br> Not a System', subtext:['People showed up.','But alignment didn’t.'], problem:'COO at a SaaS: check-ins turned into status theatre.', reveal:['No one knew which decisions were live/closed/drifting.','Everyone assumed someone else tracked outcomes.','Leadership thought sync = alignment.'], execution:['Introduced a “Clarity Loop” cadence.','-40% meetings, +alignment.','Shared spine across Product/Ops/GTM.','Every sync traceable: moved / blocked / next.'], outcome:['Motion → movement.','Decisions stuck; delivery got quiet.'] },
+        { tag:'From Reacting to Seeing', headline:'System Ran on Firefighting,<br> Not Forecasting', subtext:['Always urgent.','Never clear.'], problem:'Logistics startup lived in reaction mode.', reveal:['No one trusted numbers beyond the week.','Dashboards felt full and hollow.','Symptoms got solved; systems didn’t.'], execution:['Built short+long range clarity map.','Cascading triage for signal vs noise.','Checkpoints inside recurring ops.','Decisions tied to scenarios, not surges.'], outcome:['-70% firefighting.','Forecasts matched reality.'] }
       ],
       'Solo Strategists': [
-        { tag:'Solo Operator', headline:'Endless Work, No Strategic Movement', subtext:['Solo Builder',' Zero momentum.'], problem:'A solo operator running calls, content, ops, and product wanted “clarity on scale.” Scale wasn’t the bleed — strategy was.', reveal:['No decision framework — everything urgent, nothing right.','Offer too broad — attracted work, not the right work.','Rhythm served delivery, not direction.','Energy leaks disguised as “necessary tasks”.'], execution:['Rebuilt the week around clarity (strategic first, delivery second).','Restructured offer stack to create natural filters.','Defined a single mental dashboard for momentum (not motion).','Removed performative productivity; chose asymmetrical moves.'], outcome:['More time. Sharper clients.','For the first time in 18 months — actual forward traction.'] },
-        { tag:'Indie Creator', headline:'Creative Fire, Constant Burn',subtext:['Indie Creator.',' Output overflowing.'], problem:'An independent creator with strong audience and products asked us to “make sense of it all.” Everything was growing; nothing felt aligned.', reveal:['Monetization reactive to audience shifts.','Creatorship turned into survival, not scaling.','No clarity on what to build next.','Identity fused with output — exhausting.'], execution:['Created breathing room; brought creative distance.','Designed a long-game roadmap focused on leverage.','Defined “enough” so effort had direction.','Offered ways to not create — yet still move forward.'], outcome:['Creation returned to joy.','Revenue stabilized. Momentum no longer depended on daily presence.'] },
-        { tag:'Solo SaaS Founder', headline:'Code. Launch. Spiral.', subtext:['Solo SaaS Founder.', 'One product - One mind'], problem:'A solo founder sought sanity more than scale. Product shipped, users existed — but signals conflicted.', reveal:['User growth decent — churn hidden behind hope.','Pricing made sense to no one.','Feature decisions reactive — too many inputs, no filters.'], execution:['Clarified the core metric that mattered now.','Restructured roadmap to remove noise and focus leverage.','Reset pricing from gut to strategic tiers.','Rebuilt weekly rhythm: build with aim.'], outcome:['Clarity restored. Growth steady.','For the first time — it didn’t all depend on him.'] }
+        { tag:'Solo Operator', headline:'Endless Work, No Strategic Movement', subtext:['Solo Builder','Zero momentum.'], problem:'Running calls, content, ops, product — but no traction.', reveal:['No decision frame.','Offer too broad.','Rhythm served delivery, not direction.','Energy leaks masked as “must-do”.'], execution:['Rebuilt week around clarity.','Offer stack created natural filters.','Single mental dashboard for momentum.','Cut performative productivity.'], outcome:['More time. Sharper clients.','First real traction in 18 months.'] },
+        { tag:'Indie Creator', headline:'Creative Fire, Constant Burn', subtext:['Indie Creator.','Output overflowing.'], problem:'Everything grew; nothing aligned.', reveal:['Monetization reactive to audience shifts.','Survival, not scaling.','No next-build clarity.','Identity fused with output.'], execution:['Created breathing room & distance.','Long-game roadmap (leverage).','Defined “enough”.','Ways to not create — yet move.'], outcome:['Joy returned.','Revenue stabilized; momentum decoupled from presence.'] },
+        { tag:'Solo SaaS Founder', headline:'Code. Launch. Spiral.', subtext:['One product.','One mind.'], problem:'Signals conflicted; sanity over scale.', reveal:['Growth decent; churn hidden.','Pricing unclear.','Reactive roadmap; too many inputs.'], execution:['Clarified the one metric.','Noise-free roadmap.','Pricing to tiers.','Weekly build rhythm: with aim.'], outcome:['Clarity restored, steady growth.','No longer all on one person.'] }
       ],
       'Beyond These': [
-        { tag:'Drive Without Direction.', headline:'No Map. Just Drive.', subtext:['Had the energy.','Kept moving - But not forward.'], problem:'A solo builder in his early 30s: not confused — just map-less. Trying everything, failing nothing, achieving little.', reveal:['Five parallel projects, all shallow.','Mistook constant doing for meaningful progress.','Craved traction but lacked narrative clarity.','Productivity had become the identity.'], execution:['Ran a clarity distillation: what matters, what compounds, what dies.','Killed dead-weight ideas; re-centered on desire × leverage.','Built a path that wouldn’t burn him.'], outcome:['Launched and stabilized in 8 weeks — not by working harder, but by stopping the wrong work.'] },
-        { tag:'Post-Exit Recalibration', headline:'Everything. Yet Nothing.', subtext:['Success on paper.','But something was off.'], problem:'A founder post-acquisition: free, yet directionless. Not depression. Not confusion. Misalignment.', reveal:['Inner pace changed; outer plans hadn’t.','Legacy projects lived on, but meaning didn’t.','New ideas felt like polished repeats.','Didn’t need therapy — needed recalibration.'], execution:['Ran values × leverage audit.','Scrapped performative goals; defined metrics of depth and energy.','Mapped a new direction — not bigger, but aligned.'], outcome:['Within 3 weeks, exit haze turned into lucid clarity.','He didn’t just get direction. He reclaimed authorship.'] },
-        { tag:'The Dream. No Map.', headline:'The Dream. No Map.', subtext:['Not lazy - Not lost.','Just no clear path.'], problem:'A disciplined, tireless young operator: not failing, just circling. Working hard everywhere — getting nowhere.', reveal:['No strategy problem — direction problem.','Vision real; steps weren’t.','Decisions reactive, not rooted.','No lack of talent — just no frame to channel it.'], execution:['Extracted the deeper why — the true end-state.','Built a reverse path: end → next step.','Reorganized all efforts — no more effort, just focused effort.'], outcome:['Within weeks, momentum turned magnetic. The fog lifted.'] }
+        { tag:'Drive Without Direction.', headline:'No Map. Just Drive.', subtext:['Energy ≠ progress.','Always moving.'], problem:'Five parallel projects, all shallow.', reveal:['Doing ≠ meaningful progress.','Craved traction sans narrative.','Productivity became identity.'], execution:['Clarity distillation.','Killed dead-weight; desire×leverage.','Path that doesn’t burn.'], outcome:['Launched & stabilized in 8 weeks.'] },
+        { tag:'Post-Exit Recalibration', headline:'Everything. Yet Nothing.', subtext:['Success on paper.','Meaning off.'], problem:'Post-acquisition drift — not depression, misalignment.', reveal:['Inner pace changed; plans didn’t.','Legacy projects lingered.','New ideas = polished repeats.'], execution:['Values×leverage audit.','Scrapped performative goals.','Metrics of depth & energy.'], outcome:['3 weeks: haze → lucid clarity.','Direction + authorship reclaimed.'] },
+        { tag:'The Dream. No Map.', headline:'The Dream. No Map.', subtext:['Not lazy.','Not lost.'], problem:'Working hard everywhere — getting nowhere.', reveal:['Direction problem, not strategy.','Vision real; steps weren’t.','Reactive decisions.'], execution:['Extract deeper why.','Reverse path: end → next.','Reorganize effort: focused.'], outcome:['Weeks: momentum turned magnetic.'] }
       ]
     };
 
@@ -490,26 +429,17 @@
     };
     const PANEL_DELAY = parseInt(css.getPropertyValue('--reveal-panel-delay')) || 0;
 
+    /* Strong, cumulative visibility from JS too (prevents any CSS race) */
+    function forceVisible(el){
+      el.hidden = false;
+      el.style.visibility = 'visible';
+      el.style.opacity = '1';
+      el.style.transform = 'none';
+    }
     function setStage(n){
-      /* cumulative: once a stage is passed, keep prior groups visible */
-      if(n>=1){
-        tabsEl.hidden = false;
-        tabsEl.style.visibility = 'visible';
-        tabsEl.style.opacity = '1';
-        tabsEl.style.transform = 'none';
-      }
-      if(n>=2){
-        shelf.hidden = false;
-        shelf.style.visibility = 'visible';
-        shelf.style.opacity = '1';
-        shelf.style.transform = 'none';
-      }
-      if(n>=3){
-        panelWrap.hidden = false;
-        panelWrap.style.visibility = 'visible';
-        panelWrap.style.opacity = '1';
-        panelWrap.style.transform = 'none';
-      }
+      if(n>=1) forceVisible(tabsEl);
+      if(n>=2) forceVisible(shelf);
+      if(n>=3) forceVisible(panelWrap);
       section.setAttribute('data-stage', String(n));
     }
 
@@ -539,7 +469,6 @@
       requestAnimationFrame(() => {
         setStage(1);
         unfreeze();
-
         setTimeout(()=> setStage(2), DUR.buttons);
         setTimeout(()=> setStage(3), DUR.buttons + DUR.shelf + PANEL_DELAY);
       });
@@ -562,20 +491,17 @@
     window.addEventListener('resize', ()=>{ updateShelfLayout(); updateArrows(); }, { passive:true });
     section.addEventListener('keydown', (e)=>{ if(e.key==='ArrowRight'){ nextBtn.click(); } if(e.key==='ArrowLeft'){ prevBtn.click(); }});
 
-    const io = new IntersectionObserver((entries)=>{
-      entries.forEach(e=>{ if(e.isIntersecting){ if (runOnce(revealSequence)) io.disconnect(); }});
-    }, { threshold: 0.15, rootMargin: "0px 0px -20% 0px" });
-
+    /* Start reveal immediately inside iframe */
     if (document.readyState !== 'loading') { revealSequence(); }
     else { window.addEventListener('DOMContentLoaded', revealSequence, { once: true }); }
 
-    io.observe(section);
-
-    if(!identities.includes(selectedIdentity)) selectedIdentity = identities[0];
-
-    // Legacy fallback (no IO)
-    if (!('IntersectionObserver' in window)) {
-      setStage(1); setTimeout(()=>setStage(2), 10); setTimeout(()=>setStage(3), 250);
+    // In case this iframe is created offscreen then becomes visible later,
+    // re-run reveal once when the section itself enters viewport (inside iframe doc).
+    if ('IntersectionObserver' in window){
+      const io = new IntersectionObserver((entries)=>{
+        entries.forEach(e=>{ if(e.isIntersecting){ if (runOnce(revealSequence)) io.disconnect(); }});
+      }, { threshold: 0.15, rootMargin: "0px 0px -20% 0px" });
+      io.observe(section);
     }
   })();
   </script>
