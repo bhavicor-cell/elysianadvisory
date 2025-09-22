@@ -1,7 +1,5 @@
 <section id="clarity-in-action" class="ci" data-stage="0" aria-labelledby="cia-title">
-  
   <style>
-    
     /* --------------------------- Fonts (kept local) ----------------------------*/
     @font-face { font-family:'Coterie';        src:url('./Fonts/coterie-regular.woff2')     format('woff2');    font-weight:400; font-style:normal; font-display:swap; }
     @font-face { font-family:'EyesomeI';       src:url('./Fonts/Eyesome-Italic.otf')        format('opentype'); font-weight:400; font-style:italic; font-display:swap; }
@@ -18,7 +16,7 @@
       --shadow-l:0 18px 48px rgba(0,0,0,.06), 0 2px 8px rgba(0,0,0,.04);
       --panel-fixed: 300px; /* panel height */
     }
-   
+
     /* Local fallback palette */
     #clarity-in-action{ --bg:transparent; --fg:#1A1A1A; --s1:#F4EFE7; --border:#E4DBCE; --paper:#F5F1E8; --muted:#4B4B4B; --shadow:0 18px 48px rgba(0,0,0,.06), 0 2px 8px rgba(0,0,0,.04); }
     #clarity-in-action, #clarity-in-action *{ box-sizing:border-box; }
@@ -36,7 +34,7 @@
       padding-top: var(--section-pt);
       padding-bottom: var(--section-pb);
       min-height: 100svh;
-      overflow:hidden; /* keeps internal bits tidy; video is fixed so not clipped */
+      overflow:hidden;
       display: grid;
       grid-template-rows: auto auto auto 1fr; /* Title | Tabs | Shelf | Panel */
       align-content: start; justify-items: start;
@@ -62,10 +60,8 @@
 
     .ci h2{ font-family:'EyesomeI', serif; font-weight:400; font-size: var(--title-size); margin: 0 0 var(--gap-after-title); letter-spacing:.2px; line-height:1.2; text-align:left; }
 
-    /* Staged reveal */
+    /* ---------------- Staged reveal animations (unchanged) ---------------- */
     .ci .tabs, .ci .ci-shelf, .ci .ci-detail{ will-change: opacity, transform; }
-    #clarity-in-action .tabs[hidden], #clarity-in-action .ci-shelf[hidden], #clarity-in-action .ci-detail[hidden]{ display:none !important; }
-    .ci[data-stage="0"] .tabs, .ci[data-stage="0"] .ci-shelf, .ci[data-stage="0"] .ci-detail{ opacity:0; transform: translateY(var(--reveal-offset)); pointer-events:none; }
     .ci[data-stage="1"] .tabs{ animation: fadeIn calc(var(--reveal-buttons) * 1ms) var(--reveal-ease) both; }
     .ci[data-stage="1"] .tabs .identity-btn{ opacity:0; transform: translateY(var(--reveal-offset)); animation: fadeInUp calc(var(--reveal-buttons) * 1ms) var(--reveal-ease) both; }
     .ci[data-stage="1"] .tabs .identity-btn:nth-child(1){ animation-delay: 80ms; }
@@ -78,7 +74,7 @@
     @keyframes fadeIn{ from{ opacity:0; } to{ opacity:1; } }
     @keyframes panelLift{ from{ opacity:0; transform: translateY(var(--panel-offset)) scale(var(--panel-scale)); filter: blur(var(--panel-blur)); box-shadow: var(--panel-shadow-start); } to{ opacity:1; transform:none; filter: blur(0); box-shadow: var(--panel-shadow); } }
 
-    /* Shelf/cards/panel */
+    /* ---------------- Shelf/cards/panel (UI) ---------------- */
     .ci .tabs{ display:flex; flex-wrap:wrap; justify-content:left; gap:10px 0; position:relative; z-index:1; margin-bottom: var(--gap-after-tabs); padding-bottom:2px; }
     .ci .identity-btn{ all:unset; display:inline-block; cursor:pointer; position:relative; padding:6px 10px; font-family:'Coterie', system-ui, -apple-system, 'Segoe UI', sans-serif; font-size:12px; letter-spacing:.12em; opacity:.6; color:#111; transition: opacity .24s ease, transform .3s var(--reveal-ease), color .24s ease; }
     .ci .identity-btn::after{ content:""; position:absolute; left:0; bottom:-4px; height:2px; width:100%; background:#111; opacity:0; transform:scaleX(.6); transform-origin:center; transition: opacity .24s var(--reveal-ease), transform .34s var(--reveal-ease); pointer-events:none; }
@@ -92,20 +88,18 @@
     .ci-shelf{ align-self: center; display:grid; grid-template-columns: var(--arrow-size) 1fr var(--arrow-size); column-gap: 12px; align-items: center; padding: var(--shelf-pad-y) 0; margin-top: var(--gap-after-shelf); }
     .ci-arrow{ width: var(--arrow-size); height: var(--arrow-size); border-radius:999px; border:1px solid var(--arrow-border); background:var(--arrow-bg); color: var(--arrow-color); display:grid; place-items:center; cursor:pointer; justify-self:center; align-self:center; }
     .ci-arrow[disabled]{ opacity:.35; cursor: default; }
-    .ci-shelf-viewport{ display: flex; justify-content: center; overflow-y: visible; overflow-x:visible; max-width: var(--shelf-maxw); margin: 0 auto; width: 100%; justify-content: center; }
-    .ci-shelf-track{ display:flex; flex:0 0 auto; width: max-content; margin: 0 auto; transform: none !important; gap: var(--track-gap); will-change: transform; transition: transform .50s var(--reveal-ease); width: max-content;}
+    .ci-shelf-viewport{ display: flex; justify-content: center; overflow-y: visible; overflow-x:visible; max-width: var(--shelf-maxw); margin: 0 auto; width: 100%; }
+    .ci-shelf-track{ display:flex; flex:0 0 auto; width: max-content; margin: 0 auto; transform: none !important; gap: var(--track-gap); will-change: transform; transition: transform .50s var(--reveal-ease); }
     .ci-card{ flex: 0 0 auto; width: var(--card-w); border:1px solid var(--card-border); border-radius: var(--card-radius); padding: var(--card-pad); background: var(--card-bg); cursor:pointer; transition: box-shadow .2s ease, background-color .2s ease, border-color .2s ease, transform .25s ease; font-family:'cotoris', ui-serif, serif; color: var(--fg); }
     .ci-card:hover{ transform: translateY(-2px); }
     .ci-card[aria-selected="true"]{ background: var(--card-sel-bg); box-shadow: var(--card-sel-shadow); border-color: var(--card-sel-border); }
     .ci-card .tag{ display:inline-block; font-size: var(--card-tag-size); color: var(--muted); margin-bottom:14px; font-family: 'Arsenica'; }
     .ci-card .headline{ font-family:'Canela', ui-serif, serif; font-weight:400; font-size: 18px; margin: 0 0 10px; color: var(--fg); }
-    .ci .ci-shelf{ justify-self: stretch; width: 100%;}
     .ci-card .subtext{ display: inline-flex; justify-content: center; width: 100%; align-items: baseline; column-gap: 40px; white-space: pre; overflow: hidden; text-overflow: ellipsis; margin-top: 6px; }
     .ci-card .subtext .sub{ white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: inline; }
     .ci-card .sub{ font-family: 'Arsenica'; font-size: 12px; line-height: 1.35; color: var(--muted); }
     .ci-card .chips{ display:flex; flex-wrap:wrap; row-gap: 0; column-gap: 8px; margin-top: 6px; }
     .ci-card .chip{ padding:0; border:0; background:none; color: var(--card-meta-color); font-size: var(--card-meta-size); line-height:1.2; font-family: 'Canela', system-ui, -apple-system, 'Segoe UI', sans-serif; }
-    /* FIXED escape here */
     .ci-card .chip + .chip::before{ content: "✧\2009"; margin: 0 6px; color: var(--card-meta-color); }
 
     .ci-detail{ margin-top: 10px; min-height: 0; display:grid; grid-template-columns: 1fr; width: 100%; align-items: start; }
@@ -117,19 +111,10 @@
       box-shadow: none !important; height: var(--panel-fixed);
       overflow: hidden; -webkit-overflow-scrolling: auto; align-self: start; padding-top: 15px;
     }
-
     #clarity-in-action .ci-detail, #clarity-in-action #ciDetail, #clarity-in-action .ea-surface-paper{ box-shadow:none !important; filter:none !important; }
     #clarity-in-action .ci-detail::before, #clarity-in-action .ci-detail::after, #clarity-in-action #ciDetail::before, #clarity-in-action #ciDetail::after{ content:none !important;}
-    /* In panel title, ignore manual <br> coming from card headlines */
     #ciDetail .casehead .title br { display: none; }
-
-    /* BULLET GAP CHANGE: em-space after glyph */
-    #ciDetail .block li::marker{
-      content: "✧\2005";
-      font-size: 0.9em;
-      color: var(--muted);
-      font-family: 'Arsenica', serif;
-    }
+    #ciDetail .block li::marker{ content: "✧\2005"; font-size: 0.9em; color: var(--muted); font-family: 'Arsenica', serif; }
 
     .ci-detail .ea-surface-paper .view-viewport{ height:100% !important; overflow:hidden !important; }
     .ci-detail .ea-surface-paper, .ci-detail .ea-surface-paper .view-viewport{ overflow-x:hidden !important; }
@@ -184,11 +169,10 @@
     /* ----------- Anti-jump guards for first paint ----------- */
     #clarity-in-action.pre-reveal .ci-shelf-track{ transition: none !important; }
     #clarity-in-action.pre-reveal .view-viewport{ transition: none !important; }
-  
+
     /* =================== CI: no-jump shelf + white-panel spacing =================== */
     #clarity-in-action{
       --card-h: 130px;              /* shelf card height (try 140–170) */
-      /* White panel height and spacing knobs */
       --panel-fixed: 320px;         /* panel box height */
       --gap-title-sub: 2px;         /* Title → subtext */
       --gap-sub-tabs: 16px;         /* Subtext → tabs */
@@ -198,20 +182,15 @@
       --ir-row-gap: 14px;           /* inner row gap */
     }
 
-    /* lock shelf row height; prevents any late growth */
-    #clarity-in-action .ci-shelf{
-      height: calc(var(--card-h) + var(--shelf-pad-y) * 2);
-      align-items: center;
-    }
+    #clarity-in-action .ci-shelf{ height: calc(var(--card-h) + var(--shelf-pad-y) * 2); align-items: center; }
     #clarity-in-action .ci-shelf-viewport{ min-height: var(--card-h); }
 
-    /* ---------- 3-zone card layout: TOP | MIDDLE | BOTTOM (fixed height) ---------- */
     #clarity-in-action .ci-card{
       height: var(--card-h);
       overflow: hidden;
       display: grid;
       grid-template-rows: min-content 1fr min-content min-content;
-      row-gap: 6px; /* tweak vertical spacing inside the card */
+      row-gap: 6px;
     }
     #clarity-in-action .ci-card .tag{ align-self: start; margin: 0; }
     #clarity-in-action .ci-card .headline{
@@ -226,13 +205,31 @@
       align-self: end; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 4px;
     }
 
-    /* White panel spacing */
-    #clarity-in-action #ciDetail .casehead .title{ margin-bottom: var(--gap-title-sub) !important; }
-    #clarity-in-action #ciDetail .kv.subtle{ margin-top: 2px; margin-bottom: var(--gap-sub-tabs); }
-    #clarity-in-action .panel-tabs{ margin: 0 0 var(--gap-tabs-content); }
-    #clarity-in-action .two-col{ gap: var(--gap-pane-blocks); }
-    #clarity-in-action .pane-ir .two-col{ column-gap: var(--ir-col-gap); row-gap: var(--ir-row-gap); }
-    #clarity-in-action .pane-eo .two-col{ column-gap: var(--ir-col-gap); row-gap: var(--ir-row-gap); }
+    /* ================= NO-FOUC + CUMULATIVE VISIBILITY ================= */
+    #clarity-in-action [hidden]{
+      display:block !important;          /* keep layout, avoid jump */
+      visibility:hidden !important;
+      opacity:0 !important;
+      transform: translateY(var(--reveal-offset)) !important;
+    }
+    #clarity-in-action .tabs,
+    #clarity-in-action .ci-shelf,
+    #clarity-in-action .ci-detail{
+      opacity:0;
+      visibility:hidden;
+      transform: translateY(var(--reveal-offset));
+      will-change: opacity, transform;
+    }
+    /* CUMULATIVE: once revealed, keep visible on later stages */
+    #clarity-in-action.ci:is([data-stage="1"],[data-stage="2"],[data-stage="3"]) .tabs{
+      visibility:visible; opacity:1; transform:none;
+    }
+    #clarity-in-action.ci:is([data-stage="2"],[data-stage="3"]) .ci-shelf{
+      visibility:visible; opacity:1; transform:none;
+    }
+    #clarity-in-action.ci[data-stage="3"] .ci-detail{
+      visibility:visible; opacity:1; transform:none;
+    }
 
     /* Optional: soften font swap for shelf type only */
     @font-face { font-family:'Canela';   src:url('./Fonts/Canela-Bold.otf') format('opentype'); font-weight:700; font-style:normal; font-display:optional; }
@@ -261,14 +258,13 @@
     <div id="ciDetail" class="ea-surface-paper"></div>
   </div>
 
-  <!-- SECTION-LOCAL video loader (single-shot, no flicker) -->
+  <!-- (Optional) SECTION-LOCAL video loader; safe if no .vid-layer present -->
   <script>
     (function(){
       const section = document.getElementById('clarity-in-action');
       const layer = section.querySelector('.vid-layer');
       const vid   = layer?.querySelector('video.vid');
       if(!layer || !vid) return;
-
       function applyControls(){
         const op    = parseFloat(layer.dataset.opacity ?? '0.28');
         const rate  = parseFloat(layer.dataset.speed   ?? '1.0');
@@ -277,7 +273,6 @@
         layer.style.setProperty('--vid-blend', blend || 'normal');
         try { vid.playbackRate = isFinite(rate) ? rate : 1.0; } catch(e){}
       }
-
       let armed = false;
       const io = new IntersectionObserver((entries)=>{
         entries.forEach(entry=>{
@@ -295,7 +290,6 @@
           }
         });
       }, { threshold: 0.25, rootMargin: "0px 0px -10% 0px" });
-
       io.observe(section);
     })();
   </script>
@@ -315,10 +309,8 @@
     const viewport  = section.querySelector('.ci-shelf-viewport');
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    // Freeze first-paint transitions to avoid late layout jump
     section.classList.add('pre-reveal');
 
-    // Single-shot guard
     let revealed = false;
     const runOnce = (fn) => { if (revealed) return false; revealed = true; fn?.(); return true; };
 
@@ -350,7 +342,7 @@
 
     /* ---------- STATE ---------- */
     let selectedIdentity = window.elysianSelectedIdentity || sessionStorage.getItem('elysianSelectedIdentity') || identities[0];
-    let selectedIndex = 0, shelfIndex = 0, visibleCount = 3; // preselect first card
+    let selectedIndex = 0, shelfIndex = 0, visibleCount = 3;
 
     /* ---------- HELPERS ---------- */
     function setButtonState(){
@@ -398,7 +390,6 @@
       nextBtn.setAttribute('aria-disabled', String(nextBtn.disabled));
     }
 
-    // only move shelf if clicked card is off the current page
     function ensureCardVisible(idx){
       const start = shelfIndex * visibleCount;
       const end   = start + visibleCount - 1;
@@ -417,7 +408,7 @@
 
     /* ---------- PANEL RENDER ---------- */
     function renderPanelFor(item){
-      const sub = Array.isArray(item.subtext) && item.subtext.length ? `<div class="kv subtle">${item.subtext.map(s=>`<span>${s}</span>`).join('<span class="dot">·</span>')}</div>` : '';
+      const sub = Array.isArray(item.subtext) && item.subtext.length ? `<div class="kv subtle">${item.subtext.map(s=>`<span>${s}</span>`).join('<span class="dot">•</span>')}</div>` : '';
       const issueBlock = item.problem ? `<div class="block"><h3>Problem</h3><p>${item.problem}</p></div>` : (item.mech ? `<div class="block"><h3>Mechanism</h3><p>${item.mech}</p></div>` : '');
       const revealBlock = Array.isArray(item.reveal)&&item.reveal.length ? `<div class="block"><h3>Reveal</h3><ul>${item.reveal.map(r=>`<li>${r}</li>`).join('')}</ul></div>` : '';
       const execBlock   = Array.isArray(item.execution)&&item.execution.length ? `<div class="block"><h3>Execution</h3><ul>${item.execution.map(e=>`<li>${e}</li>`).join('')}</ul></div>` : '';
@@ -432,7 +423,6 @@
           <button class="panel-tab tab-ir" role="tab" aria-selected="true">Problem & Reveal</button>
           <button class="panel-tab tab-eo" role="tab" aria-selected="false">Execution & Outcome</button>
         </div>
-        <div class="preview-overlay"><div class="half left"></div><div class="half right"></div></div>
         <div class="view-viewport" data-dir="right">
           <div class="view-pane pane-ir active">
             <div class="two-col">
@@ -457,7 +447,7 @@
       const divider = panel.querySelector('.card-divider');
       function activate(target){
         const entering = (target==='eo') ? eoPane : irPane;
-        const leaving  = (target==='eo') ? irPane : eoPane;  /* fixed */
+        const leaving  = (target==='eo') ? irPane : eoPane;
         const dir = (target==='eo') ? 'right' : 'left';
         viewWrap.setAttribute('data-dir', dir);
         entering.classList.add('will-enter');
@@ -471,10 +461,6 @@
           requestAnimationFrame(()=>{ setTimeout(()=> divider.classList.add('loaded'), 120); });
         }
       }
-      irBtn.addEventListener('mouseenter', ()=> panel.classList.add('preview-ir'));
-      irBtn.addEventListener('mouseleave', ()=> panel.classList.remove('preview-ir'));
-      eoBtn.addEventListener('mouseenter', ()=> panel.classList.add('preview-eo'));
-      eoBtn.addEventListener('mouseleave', ()=> panel.classList.remove('preview-eo'));
       irBtn.addEventListener('click', ()=> activate('ir'));
       eoBtn.addEventListener('click', ()=> activate('eo'));
     }
@@ -484,7 +470,6 @@
       const item = stories[selectedIdentity][idx];
       renderPanelFor(item);
       [...track.children].forEach((c,i)=> c.setAttribute('aria-selected', i===selectedIndex));
-      // IMPORTANT: no updateShelfLayout() here (prevents jump on selection)
     }
 
     function selectIdentity(id){
@@ -506,18 +491,31 @@
     const PANEL_DELAY = parseInt(css.getPropertyValue('--reveal-panel-delay')) || 0;
 
     function setStage(n){
-      if(n>=1 && tabsEl.hidden)   tabsEl.hidden   = false;
-      if(n>=2 && shelf.hidden)    shelf.hidden    = false;
-      if(n>=3 && panelWrap.hidden)panelWrap.hidden= false;
+      /* cumulative: once a stage is passed, keep prior groups visible */
+      if(n>=1){
+        tabsEl.hidden = false;
+        tabsEl.style.visibility = 'visible';
+        tabsEl.style.opacity = '1';
+        tabsEl.style.transform = 'none';
+      }
+      if(n>=2){
+        shelf.hidden = false;
+        shelf.style.visibility = 'visible';
+        shelf.style.opacity = '1';
+        shelf.style.transform = 'none';
+      }
+      if(n>=3){
+        panelWrap.hidden = false;
+        panelWrap.style.visibility = 'visible';
+        panelWrap.style.opacity = '1';
+        panelWrap.style.transform = 'none';
+      }
       section.setAttribute('data-stage', String(n));
     }
 
     async function waitFontsOnce(){
-      try {
-        if (document.fonts && 'ready' in document.fonts) {
-          await document.fonts.ready;
-        }
-      } catch(_){}
+      try { if (document.fonts && 'ready' in document.fonts) { await document.fonts.ready; } }
+      catch(_){}
     }
 
     async function revealSequence(){
@@ -527,22 +525,23 @@
         setButtonState();
         await waitFontsOnce();
         renderShelf(); 
-        selectStory(selectedIndex); // preselect before show
+        selectStory(0);
         setStage(3);
         unfreeze();
         return;
       }
 
       setButtonState();
-      await waitFontsOnce();     // prevents card width jump
+      await waitFontsOnce();
       renderShelf();
-      selectStory(selectedIndex); // preselect BEFORE showing shelf
+      selectStory(0);
+
       requestAnimationFrame(() => {
         setStage(1);
         unfreeze();
 
         setTimeout(()=> setStage(2), DUR.buttons);
-        setTimeout(()=>{ setStage(3); }, DUR.buttons + DUR.shelf + PANEL_DELAY);
+        setTimeout(()=> setStage(3), DUR.buttons + DUR.shelf + PANEL_DELAY);
       });
     }
 
@@ -563,27 +562,21 @@
     window.addEventListener('resize', ()=>{ updateShelfLayout(); updateArrows(); }, { passive:true });
     section.addEventListener('keydown', (e)=>{ if(e.key==='ArrowRight'){ nextBtn.click(); } if(e.key==='ArrowLeft'){ prevBtn.click(); }});
 
-    // IO triggers slightly earlier and only once. No fallback block.
     const io = new IntersectionObserver((entries)=>{
-      entries.forEach(e=>{
-        if(e.isIntersecting){
-          if (runOnce(revealSequence)) io.disconnect();
-        }
-      });
+      entries.forEach(e=>{ if(e.isIntersecting){ if (runOnce(revealSequence)) io.disconnect(); }});
     }, { threshold: 0.15, rootMargin: "0px 0px -20% 0px" });
 
-    // Fallback: ensure the staged reveal runs even if IO doesn't fire
-    if (document.readyState !== 'loading') {
-      revealSequence();
-    } else {
-      window.addEventListener('DOMContentLoaded', revealSequence, { once: true });
-    }
+    if (document.readyState !== 'loading') { revealSequence(); }
+    else { window.addEventListener('DOMContentLoaded', revealSequence, { once: true }); }
 
     io.observe(section);
 
     if(!identities.includes(selectedIdentity)) selectedIdentity = identities[0];
+
+    // Legacy fallback (no IO)
+    if (!('IntersectionObserver' in window)) {
+      setStage(1); setTimeout(()=>setStage(2), 10); setTimeout(()=>setStage(3), 250);
+    }
   })();
   </script>
 </section>
-
-
