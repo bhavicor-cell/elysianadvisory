@@ -100,7 +100,7 @@
     .ci-card .sub{ font-family: 'Arsenica'; font-size: 12px; line-height: 1.35; color: var(--muted); }
     .ci-card .chips{ display:flex; flex-wrap:wrap; row-gap: 0; column-gap: 8px; margin-top: 6px; }
     .ci-card .chip{ padding:0; border:0; background:none; color: var(--card-meta-color); font-size: 12px; line-height:1.2; font-family: 'Canela', system-ui, -apple-system, 'Segoe UI', sans-serif; }
-    .ci-card .chip + .chip::before{ content: "✧\2009"; margin: 0 6px; color: var(--card-meta-color); }
+    .ci-card .chip + .chip::before{ content: "✧\u2009"; margin: 0 6px; color: var(--card-meta-color); }
 
     .ci-detail{ margin-top: 10px; min-height: 0; display:grid; grid-template-columns: 1fr; width: 100%; align-items: start; }
     .ci-detail .ea-surface-paper{
@@ -112,7 +112,7 @@
     }
     #clarity-in-action .ci-detail, #clarity-in-action #ciDetail, #clarity-in-action .ea-surface-paper{ box-shadow:none !important; filter:none !important; }
     #ciDetail .casehead .title br { display: none; }
-    #ciDetail .block li::marker{ content: "✧\2005"; font-size: 0.9em; color: var(--muted); font-family: 'Arsenica', serif; }
+    #ciDetail .block li::marker{ content: "✧\u2005"; font-size: 0.9em; color: var(--muted); font-family: 'Arsenica', serif; }
     #ciDetail .casehead{ margin-bottom: 0px; }
     #ciDetail .casehead .tagline{ display:none; font-family: 'Arsenica', serif; font-size: 12px; letter-spacing: .08em; color: var(--muted); margin-bottom: 10px; }
     #ciDetail .casehead .title{ font-family: 'Canela', ui-serif, serif; font-weight: 700; font-size: clamp(20px, 1.4vw, 26px); line-height: 1.25; margin-bottom: 0px !important; }
@@ -179,35 +179,23 @@
     }
 
     /* ================= NO-FOUC + CUMULATIVE VISIBILITY ================= */
-    /* Keep layout for [hidden], but don’t show until staged */
     #clarity-in-action [hidden]{
       display:block !important;
       visibility:hidden !important;
       opacity:0 !important;
       transform: translateY(var(--reveal-offset)) !important;
     }
-    /* Default: all concealed */
     #clarity-in-action .tabs,
     #clarity-in-action .ci-shelf,
     #clarity-in-action .ci-detail{
-      opacity:0;
-      visibility:hidden;
-      transform: translateY(var(--reveal-offset));
-      will-change: opacity, transform;
+      opacity:0; visibility:hidden; transform: translateY(var(--reveal-offset)); will-change:opacity, transform;
     }
-    /* CUMULATIVE reveal — once visible, stays visible on later stages */
     [data-stage="1"] .tabs,
     [data-stage="2"] .tabs,
-    [data-stage="3"] .tabs{
-      visibility:visible !important; opacity:1 !important; transform:none !important;
-    }
+    [data-stage="3"] .tabs{ visibility:visible !important; opacity:1 !important; transform:none !important; }
     [data-stage="2"] .ci-shelf,
-    [data-stage="3"] .ci-shelf{
-      visibility:visible !important; opacity:1 !important; transform:none !important;
-    }
-    [data-stage="3"] .ci-detail{
-      visibility:visible !important; opacity:1 !important; transform:none !important;
-    }
+    [data-stage="3"] .ci-shelf{ visibility:visible !important; opacity:1 !important; transform:none !important; }
+    [data-stage="3"] .ci-detail{ visibility:visible !important; opacity:1 !important; transform:none !important; }
   </style>
 
   <h2 id="cia-title">Clarity in Action</h2>
@@ -247,15 +235,10 @@
     const viewport  = section.querySelector('.ci-shelf-viewport');
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    /* Freeze transitions until first reveal */
     section.classList.add('pre-reveal');
-
-    let revealed = false;
-    const runOnce = (fn) => { if (revealed) return false; revealed = true; fn?.(); return true; };
 
     const identities = ['Vision Builders','System Shapers','Solo Strategists','Beyond These'];
 
-    /* ================== STORIES ================== */
     const stories = {
       'Vision Builders': [
         { tag:'Clarity for Entrepreneurs', headline:'Scaling, but Sinking', subtext:['Big team.','Big burn.','No cashflow.'], problem:'A tech entrepreneur approached us for help with expansion — which quickly revealed deeper issues beneath the surface.', reveal:['Growth was based on assumptions, not actual demand.','Team was sized for optics, not function.','Heavy burn on “presence” — branding, social, PR.','No tested model for reliable revenue.'], execution:['Paused non-performing lines.','Rebuilt operating model from cost-centre out.','Repositioned product for clear cashflow path.'], outcome:['Burn dropped by 60%.','Revenue-positive within 2 months.'] },
@@ -279,14 +262,13 @@
       ]
     };
 
-    /* ---------- STATE ---------- */
     let selectedIdentity = window.elysianSelectedIdentity || sessionStorage.getItem('elysianSelectedIdentity') || identities[0];
     let selectedIndex = 0, shelfIndex = 0, visibleCount = 3;
 
-    /* ---------- HELPERS ---------- */
     function setButtonState(){
       let any = false;
       filters.forEach(btn=>{ const on = btn.dataset.identity === selectedIdentity; btn.setAttribute('aria-selected', on ? 'true' : 'false'); if(on) any = true; });
+      const tabsEl = section.querySelector('.tabs');
       tabsEl.classList.toggle('has-active', any);
     }
 
@@ -345,7 +327,6 @@
       updateArrows();
     }
 
-    /* ---------- PANEL RENDER ---------- */
     function renderPanelFor(item){
       const sub = Array.isArray(item.subtext) && item.subtext.length ? `<div class="kv subtle">${item.subtext.map(s=>`<span>${s}</span>`).join('<span class="dot">•</span>')}</div>` : '';
       const issueBlock = item.problem ? `<div class="block"><h3>Problem</h3><p>${item.problem}</p></div>` : (item.mech ? `<div class="block"><h3>Mechanism</h3><p>${item.mech}</p></div>` : '');
@@ -421,7 +402,6 @@
       if (stories[selectedIdentity]?.length) { selectStory(0); }
     }
 
-    /* ---------- STAGED REVEAL ---------- */
     const css = getComputedStyle(section);
     const DUR = { 
       buttons: parseInt(css.getPropertyValue('--reveal-buttons')) || 700, 
@@ -429,7 +409,6 @@
     };
     const PANEL_DELAY = parseInt(css.getPropertyValue('--reveal-panel-delay')) || 0;
 
-    /* Strong, cumulative visibility from JS too (prevents any CSS race) */
     function forceVisible(el){
       el.hidden = false;
       el.style.visibility = 'visible';
@@ -491,18 +470,22 @@
     window.addEventListener('resize', ()=>{ updateShelfLayout(); updateArrows(); }, { passive:true });
     section.addEventListener('keydown', (e)=>{ if(e.key==='ArrowRight'){ nextBtn.click(); } if(e.key==='ArrowLeft'){ prevBtn.click(); }});
 
-    /* Start reveal immediately inside iframe */
-    if (document.readyState !== 'loading') { revealSequence(); }
-    else { window.addEventListener('DOMContentLoaded', revealSequence, { once: true }); }
+    /* ===== Start reveal ONLY when parent marks this section visible ===== */
+    let started = false;
+    function startOnce(){ if (started) return; started = true; revealSequence(); }
 
-    // In case this iframe is created offscreen then becomes visible later,
-    // re-run reveal once when the section itself enters viewport (inside iframe doc).
-    if ('IntersectionObserver' in window){
-      const io = new IntersectionObserver((entries)=>{
-        entries.forEach(e=>{ if(e.isIntersecting){ if (runOnce(revealSequence)) io.disconnect(); }});
-      }, { threshold: 0.15, rootMargin: "0px 0px -20% 0px" });
-      io.observe(section);
-    }
+    window.addEventListener('message', (e)=>{
+      const data = e.data || {};
+      if (data && data.type === 'elysian:section-visible' && data.id === 'action'){ startOnce(); }
+    });
+
+    /* Fallbacks for standalone preview (no parent) */
+    ['pointerdown','keydown','visibilitychange'].forEach(evt=>{
+      window.addEventListener(evt, ()=>{
+        if (document.visibilityState === 'visible') startOnce();
+      }, { once:true, passive:true });
+    });
+    setTimeout(()=>{ if (window.top === window) startOnce(); }, 1200);
   })();
   </script>
 </section>
