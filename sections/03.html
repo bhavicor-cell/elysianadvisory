@@ -1,7 +1,6 @@
 <section id="clarity-in-action" class="ci" data-stage="0" aria-labelledby="cia-title">
   
   <style>
-    
     /* --------------------------- Fonts (kept local) ----------------------------*/
     @font-face { font-family:'Coterie';        src:url('./Fonts/coterie-regular.woff2')     format('woff2');    font-weight:400; font-style:normal; font-display:swap; }
     @font-face { font-family:'EyesomeI';       src:url('./Fonts/Eyesome-Italic.otf')        format('opentype'); font-weight:400; font-style:italic; font-display:swap; }
@@ -105,7 +104,6 @@
     .ci-card .sub{ font-family: 'Arsenica'; font-size: 12px; line-height: 1.35; color: var(--muted); }
     .ci-card .chips{ display:flex; flex-wrap:wrap; row-gap: 0; column-gap: 8px; margin-top: 6px; }
     .ci-card .chip{ padding:0; border:0; background:none; color: var(--card-meta-color); font-size: var(--card-meta-size); line-height:1.2; font-family: 'Canela', system-ui, -apple-system, 'Segoe UI', sans-serif; }
-    /* FIXED escape here */
     .ci-card .chip + .chip::before{ content: "✧\2009"; margin: 0 6px; color: var(--card-meta-color); }
 
     .ci-detail{ margin-top: 10px; min-height: 0; display:grid; grid-template-columns: 1fr; width: 100%; align-items: start; }
@@ -120,10 +118,8 @@
 
     #clarity-in-action .ci-detail, #clarity-in-action #ciDetail, #clarity-in-action .ea-surface-paper{ box-shadow:none !important; filter:none !important; }
     #clarity-in-action .ci-detail::before, #clarity-in-action .ci-detail::after, #clarity-in-action #ciDetail::before, #clarity-in-action #ciDetail::after{ content:none !important;}
-    /* In panel title, ignore manual <br> coming from card headlines */
     #ciDetail .casehead .title br { display: none; }
 
-    /* BULLET GAP CHANGE: em-space after glyph */
     #ciDetail .block li::marker{
       content: "✧\2005";
       font-size: 0.9em;
@@ -211,7 +207,7 @@
       overflow: hidden;
       display: grid;
       grid-template-rows: min-content 1fr min-content min-content;
-      row-gap: 6px; /* tweak vertical spacing inside the card */
+      row-gap: 6px;
     }
     #clarity-in-action .ci-card .tag{ align-self: start; margin: 0; }
     #clarity-in-action .ci-card .headline{
@@ -233,7 +229,6 @@
     #clarity-in-action .two-col{ gap: var(--gap-pane-blocks); }
     #clarity-in-action .pane-ir .two-col{ column-gap: var(--ir-col-gap); row-gap: var(--ir-row-gap); }
     #clarity-in-action .pane-eo .two-col{ column-gap: var(--ir-col-gap); row-gap: var(--ir-row-gap); }
-
   </style>
 
   <h2 id="cia-title">Clarity in Action</h2>
@@ -281,7 +276,7 @@
 
   const identities = ['Vision Builders','System Shapers','Solo Strategists','Beyond These'];
 
-  // === YOUR STORIES (unchanged) ===
+  // === STORIES (unchanged content) ===
   const stories = {
     'Vision Builders': [
       { tag:'Clarity for Entrepreneurs', headline:'Scaling, but Sinking', subtext:['Big team.','Big burn.','No cashflow.'], problem:'A tech entrepreneur approached us for help with expansion — which quickly revealed deeper issues beneath the surface.', reveal:['Growth was based on assumptions, not actual demand.','Team was sized for optics, not function.','Heavy burn on “presence” — branding, social, PR.','No tested model for reliable revenue.'], execution:['Paused non-performing lines.','Rebuilt operating model from cost-centre out.','Repositioned product for clear cashflow path.'], outcome:['Burn dropped by 60%.','Revenue-positive within 2 months.'] },
@@ -309,7 +304,7 @@
   let selectedIdentity = window.elysianSelectedIdentity || sessionStorage.getItem('elysianSelectedIdentity') || identities[0];
   let selectedIndex = 0, shelfIndex = 0, visibleCount = 3;
 
-  // ---- HELPERS (unchanged logic) ----
+  // ---- HELPERS ----
   function setButtonState(){
     let any = false;
     filters.forEach(btn=>{ const on = btn.dataset.identity === selectedIdentity; btn.setAttribute('aria-selected', on ? 'true' : 'false'); if(on) any = true; });
@@ -463,7 +458,8 @@
     selectStory(selectedIndex);
 
     if (prefersReduced){
-      setStage(3); unfreeze(); return;
+      // Respect reduced motion: no animations, but still only after trigger
+      setStage(1); setStage(2); setStage(3); unfreeze(); return;
     }
     requestAnimationFrame(() => {
       setStage(1); unfreeze();
@@ -489,16 +485,29 @@
   window.addEventListener('resize', ()=>{ updateShelfLayout(); updateArrows(); }, { passive:true });
   section.addEventListener('keydown', (e)=>{ if(e.key==='ArrowRight'){ nextBtn.click(); } if(e.key==='ArrowLeft'){ prevBtn.click(); }});
 
-  // ---- START: prefer IO, then hard fallback after 200ms ----
+  // ---- START: prefer IO, then conditional fallback only if near viewport ----
   const io = new IntersectionObserver((entries)=>{
-    entries.forEach(e=>{ if(e.isIntersecting){ startOnce(); io.disconnect(); }});
+    entries.forEach(e=>{
+      if (e.isIntersecting) {
+        startOnce();
+        io.disconnect();
+      }
+    });
   }, { threshold: 0.15, rootMargin: "0px 0px -20% 0px" });
   io.observe(section);
 
+  function maybeStartFallback(){
+    const r = section.getBoundingClientRect();
+    const near = r.top < window.innerHeight * 0.8 && r.bottom > 0;
+    if (!started && near) startOnce();
+  }
+  const IO_GRACE_MS = 800;
   if (document.readyState !== 'loading') {
-    setTimeout(startOnce, 200);
+    setTimeout(maybeStartFallback, IO_GRACE_MS);
   } else {
-    window.addEventListener('DOMContentLoaded', () => setTimeout(startOnce, 200), { once:true });
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(maybeStartFallback, IO_GRACE_MS);
+    }, { once:true });
   }
 
   if(!identities.includes(selectedIdentity)) selectedIdentity = identities[0];
