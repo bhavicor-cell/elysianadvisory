@@ -1,38 +1,13 @@
 <section id="hero" class="hero hero-wrap" data-pane="">
-  <!-- === VIDEO OVERLAY (behind all hero content) — added only === -->
-  <div class="vid-layer"
-       data-src="video.webm"
-       data-src="3.mp4"
-       data-opacity="0.03"
-       data-blend="soft-light"
-       data-speed="0.015">
-    <video class="vid" muted playsinline autoplay loop preload="metadata"></video>
-      <source src="3.mp4"  type="video/mp4">
-      <source src="video.webm" type="video/webm">
-  </div>
-  <style>
-    /* Minimal, section-scoped video styles — added only */
-    #hero .vid-layer{
-      position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:0;
-      /* uses data-* via JS to set CSS vars below if you want later */
-    }
-    #hero .vid-layer .vid{
-      position:absolute; inset:0; width:100%; height:100%;
-      object-fit:cover;
-      opacity:var(--vid-opacity, .28);
-      mix-blend-mode:var(--vid-blend, soft-light);
-      transform:translateZ(0);
-    }
-  </style>
-
+  
   <style>
     /* =========================
        Scoped base + variables
        ========================= */
     /* Vars on both :root (for color flip that touches body) and #hero (local fallback) */
     :root{
-      --bg-dark:#121212; --fg-dark:#EDE8DF;
-      --bg-light:#faf7f2; --fg-light:#1a1a1a;
+      --bg-dark:#121212; --fg-dark:#fffcf8;
+      --bg-light:transparent; --fg-light:#121212;
 
       --caret-thickness:0.01em; --caret-blink:1.2s;
       --logo-pop-duration:1050ms;
@@ -378,4 +353,5 @@
     })();
   </script>
 </section>
+
 
