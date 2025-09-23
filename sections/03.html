@@ -1,4 +1,4 @@
-<section id="clarity-in-action" class="ci" data-stage="0" aria-labelledby="cia-title">
+<section id="clarity-in-action" class="ci" data-stage="0" aria-labelledby="cia-title" tabindex="0">
   <style>
     /* --------------------------- Fonts (kept local) ----------------------------*/
     @font-face { font-family:'Coterie';        src:url('./Fonts/coterie-regular.woff2')     format('woff2');    font-weight:400; font-style:normal; font-display:swap; }
@@ -91,7 +91,7 @@
     .ci-arrow{ width: var(--arrow-size); height: var(--arrow-size); border-radius:999px; border:1px solid var(--arrow-border); background:var(--arrow-bg); color: var(--arrow-color); display:grid; place-items:center; cursor:pointer; justify-self:center; align-self:center; }
     .ci-arrow[disabled]{ opacity:.35; cursor: default; }
     .ci-shelf-viewport{ display: flex; justify-content: center; overflow-y: visible; overflow-x:visible; max-width: var(--shelf-maxw); margin: 0 auto; width: 100%; justify-content: center; }
-    .ci-shelf-track{ display:flex; flex:0 0 auto; width: max-content; margin: 0 auto; transform: none !important; gap: var(--track-gap); will-change: transform; transition: transform .50s var(--reveal-ease); width: max-content;}
+    .ci-shelf-track{ display:flex; flex:0 0 auto; width: max-content; margin: 0 auto; transform: none; gap: var(--track-gap); will-change: transform; transition: transform .50s var(--reveal-ease); width: max-content;}
     .ci-card{ flex: 0 0 auto; width: var(--card-w); border:1px solid var(--card-border); border-radius: var(--card-radius); padding: var(--card-pad); background: var(--card-bg); cursor:pointer; transition: box-shadow .2s ease, background-color .2s ease, border-color .2s ease, transform .25s ease; font-family:'cotoris', ui-serif, serif; color: var(--fg); }
     .ci-card:hover{ transform: translateY(-2px); }
     .ci-card[aria-selected="true"]{ background: var(--card-sel-bg); box-shadow: var(--card-sel-shadow); border-color: var(--card-sel-border); }
@@ -561,4 +561,5 @@ window.addEventListener('message', (e) => {
 
   </script>
 </section>
+
 
