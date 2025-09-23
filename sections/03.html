@@ -180,12 +180,13 @@
     #clarity-in-action.pre-reveal .ci-shelf-track{ transition: none !important; }
     #clarity-in-action.pre-reveal .view-viewport{ transition: none !important; }
 
-    /* ----------- HARD CLOAK to prevent first-paint flash ----------- */
-    #clarity-in-action.pre-reveal .tabs,
-    #clarity-in-action.pre-reveal .ci-shelf,
-    #clarity-in-action.pre-reveal .ci-detail{
-      visibility: hidden !important; /* prevents FOUC even if [hidden] toggles early */
-    }
+    /* ----------- HARD CLOAK (only while still [hidden]) ----------- */
+#clarity-in-action.pre-reveal .tabs[hidden],
+#clarity-in-action.pre-reveal .ci-shelf[hidden],
+#clarity-in-action.pre-reveal .ci-detail[hidden]{
+  visibility: hidden !important;
+}
+
 
     /* Keep non-interactive while at stage 0 */
     .ci[data-stage="0"] .tabs,
@@ -473,23 +474,28 @@
       selectStory(selectedIndex);
 
       if (prefersReduced){
-        setStage(1); setStage(2); setStage(3);
-        requestAnimationFrame(()=> section.classList.remove('pre-reveal'));
-        return;
-      }
+  setStage(1);
+  requestAnimationFrame(()=> section.classList.remove('pre-reveal'));
+  setStage(2); setStage(3);
+  return;
+}
+
 
       // Double-RAF: ensure one full painted frame while cloaked, then reveal.
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-          setStage(1);
-          setTimeout(() => {
-            setStage(2);
-            setTimeout(() => {
-              setStage(3);
-              // Uncloak after the panel is revealed (prevents mid-frame flash)
-              requestAnimationFrame(()=> section.classList.remove('pre-reveal'));
-            }, DUR.shelf + PANEL_DELAY);
-          }, DUR.buttons);
+        setStage(1);
+
+// Uncloak as soon as Stage 1 is live, so you can SEE the sequence
+requestAnimationFrame(()=> section.classList.remove('pre-reveal'));
+
+setTimeout(() => {
+  setStage(2);
+  setTimeout(() => {
+    setStage(3);
+  }, DUR.shelf + PANEL_DELAY);
+}, DUR.buttons);
+  
         });
       });
     }
