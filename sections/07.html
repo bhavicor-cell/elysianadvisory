@@ -1,24 +1,42 @@
 <section id="cta" class="s68" aria-label="Get Clarity CTA" tabindex="0">
-  
-  <style>
-    /* Local fonts (paths unchanged) */
-    @font-face { font-family:'Eyesome';        src:url('./Fonts/Eyesome-Regular.otf')       format('opentype'); font-display:swap; }
-    @font-face { font-family:'EyesomeI';       src:url('./Fonts/Eyesome-Italic.otf')        format('opentype'); font-display:swap; }
-    @font-face { font-family:'cotorisi';       src:url('./Fonts/cotorisita.otf')            format('opentype'); font-weight:400; font-style:normal; font-display:swap; }
 
-    /* =========================================================
-       ULTRA-LUXE CTA — ONE SCREEN (w/ Fancy Selects)
-       ========================================================= */
+  <style>
+    /* ------------------------------ Local fonts ------------------------------ */
+    @font-face { font-family:'Eyesome';  src:url('./Fonts/Eyesome-Regular.otf') format('opentype'); font-display:swap; }
+    @font-face { font-family:'EyesomeI'; src:url('./Fonts/Eyesome-Italic.otf')  format('opentype'); font-display:swap; }
+    @font-face { font-family:'cotorisi'; src:url('./Fonts/cotorisita.otf')      format('opentype'); font-weight:400; font-style:normal; font-display:swap; }
+
+    /* ============================== CTA Root Vars ============================ */
     #cta{
       /* Palette */
-      --bg:transparent; --ink:#13294b; --muted:#767676; --panel:#fffcf8; --hair:#e6e1d8;
+      --bg:transparent;
+      --ink:#13294b;
+      --panel:#fffcf8;
+      --hair:#fffcf8;        /* hairlines / borders */
+      --muted:#6b655c;       /* labels / subtle text */
+      --focus:#b4ab9d;       /* focus & hover border */
+      --chrome:#3b3731;      /* small icons / chevrons */
       --danger:#b3261e;
 
-      /* Typography families */
+      /* Field palette */
+      --label:#5b554d;       /* “Your name”, “Email”, etc. */
+      --field-bg:#ffffff;    /* input / textarea / select bg */
+      --field-ink:#13294b;   /* input / textarea / select text */
+      --field-border:#c9c2b6;
+      --field-focus:#b4ab9d;
+      --placeholder:#9a938a;
+
+      /* Chip (choice buttons) */
+      --chip-bg:          color-mix(in oklab, #fff 95%, #000 5%);
+      --chip-bg-hover:    color-mix(in oklab, #fff 95%, #faf7f2 5%);
+      --chip-ink:         #1a1a1a;
+      --chip-border:      var(--hair);
+      --chip-checked-bg:  var(--ink);
+      --chip-checked-ink: #fff;
+
+      /* Typography families & sizes */
       --ff-display:'Eyesome', serif;
       --ff-ui: cotorisi, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-
-      /* Typography sizes */
       --fs-title: clamp(20px, 2.5vw, 32px);
       --fs-label: 12.5px;
       --fs-input: 15px;
@@ -51,16 +69,25 @@
       --form-clear: clamp(12px, 1.6vh, 18px);
 
       /* Grid columns */
-      --left-col: 0fr;
-      --left-col-open: 1.55fr;
+      --left-col: 0fr;            /* hidden until form opens */
+      --left-col-open: 1.55fr;    /* visible width when open */
       --right-col: 1fr;
 
       /* POP LAYOUT (top squeeze) */
       --pop-space: clamp(160px, 26vh, 300px);
       --dim-amt: .38;
 
-      /* Behavior */
-      --auto-open-delay: 900;
+      /* Entrance timing */
+      --enter-t: 520ms;
+      --enter-ease: cubic-bezier(.22,.61,.36,1);
+      --stagger: 38ms;
+
+      /* Quote animation controls */
+      --quote-delay: 3000;         /* ms before quote starts shrinking */
+      --quote-dur: 900;           /* ms shrink duration */
+      --quote-ease: cubic-bezier(.22,.61,.36,1);
+      --q-start: 2;             /* initial scale */
+      --q-end:   1.1;             /* final scale */
 
       position:relative; display:block;
       height:100svh; min-height:100svh; max-height:100svh;
@@ -70,37 +97,6 @@
     #cta.show-form{ --dock-gap: var(--dock-gap-open); }
     #cta *{ box-sizing:border-box; }
 
-#cta{
-  --auto-open-delay: 3200;           /* quote hold time in ms (make this higher to linger longer) */
-  --fs-quote: clamp(32px, 7.5vw, 72px); /* MUCH larger base text size */
-  --q-start-scale: 1.8;              /* starts bigger */
-  --q-end-scale: .92;                /* ends slightly smaller */
-}
-/* start: big + centered */
-#cta .quote{
-  grid-column: 2;                    /* keep it in the right grid column */
-  justify-self: center;              /* center in that column */
-  transform: scale(var(--q-start-scale));
-  transform-origin: center;
-  transition:
-    opacity var(--t-fast) var(--curve),
-    filter var(--t-fast) var(--curve),
-    transform 720ms var(--curve);
-}
-
-/* when form opens: shrink + dock to the right, but never push outside */
-#cta.show-form .quote{
-  justify-self: end;                 /* align to right _inside_ the column */
-  transform: scale(var(--q-end-scale));  /* no translateX — avoids overflow */
-  max-width: min(48ch, 46vw);        /* hard cap so it can’t overflow */
-  margin-right: clamp(12px, 3vw, 36px);
-}
-
-/* motion accessibility */
-@media (prefers-reduced-motion: reduce){
-  #cta .quote{ transition:none; transform:none !important; }
-}
-
     /* Soft vignette */
     #cta::before{
       content:""; position:absolute; inset:-20%;
@@ -109,22 +105,10 @@
         linear-gradient(to top, rgba(255,255,255,.18), transparent 30%);
       pointer-events:none; mix-blend-mode:multiply; opacity:.22;
     }
+   
+    #cta { --q-nudge: 38px; }
 
-    /* === Video behind everything in CTA (consistent with #ways-we-work) === */
-    #cta { position: relative; }
-    #cta .vid-layer{
-      --vid-opacity: .03;
-      --vid-blend: soft-light;
-      position:absolute; inset:0; z-index:0; pointer-events:none; overflow:hidden;
-    }
-    #cta .vid-layer .vid{
-      position:absolute; inset:0; width:100%; height:100%;
-      object-fit:cover; opacity:var(--vid-opacity); mix-blend-mode:var(--vid-blend);
-      transform:translateZ(0);
-    }
-    #cta > *:not(.vid-layer){ position:relative; z-index:1; }
-
-    /* Stage */
+    /* ============================== Stage / Grid ============================= */
     #cta .panel{
       position:relative; height:100%; max-height:100%;
       padding: var(--pad);
@@ -147,7 +131,7 @@
       transform: translateY(calc(var(--pop-space) * -0.10));
     }
 
-    /* Form card — soft, elegant shadow */
+    /* =============================== Form Card ============================== */
     #cta .form-card{
       background: var(--panel);
       border:1px solid color-mix(in oklab, var(--hair) 85%, #000 15%);
@@ -157,33 +141,44 @@
         0 10px 22px rgba(0,0,0,.08),
         0 2px 6px rgba(0,0,0,.04);
       padding: clamp(14px, 2.2vw, 24px) clamp(14px, 2.2vw, 24px) clamp(10px, 1.6vw, 14px);
-      opacity:0; transform: translateY(6px) scale(.992);
-      pointer-events:none;
+
+      /* buttery entrance */
+      clip-path: inset(6% 6% 10% 6% round 22px);
+      transform: translateY(8px) scale(.992);
+      opacity: 0;
+      pointer-events: none;
+
       transition:
-        opacity var(--t) var(--curve),
-        transform var(--t) var(--curve),
+        clip-path var(--enter-t) var(--enter-ease),
+        transform var(--enter-t) var(--enter-ease),
+        opacity   var(--enter-t) var(--enter-ease),
         max-height var(--t) var(--curve);
+
       height: calc(100svh - var(--pad)*2 - calc(var(--dock-gap) + var(--form-clear)));
       max-height: calc(100svh - var(--pad)*2 - calc(var(--dock-gap) + var(--form-clear)));
       display:flex; flex-direction:column; justify-content:flex-start;
       overflow:hidden;
     }
-    #cta.show-form .form-card{ opacity:1; transform:none; pointer-events:auto; }
+    #cta.show-form .form-card{
+      clip-path: inset(0 0 0 0 round 22px);
+      transform: none;
+      opacity: 1;
+      pointer-events: auto;
+    }
     #cta.show-form.pop-open .form-card{
       max-height: calc(100svh - var(--pad)*2 - calc(var(--dock-gap) + var(--form-clear)) - var(--pop-space));
     }
 
     #cta .form-card h3{
       margin: 0 0 10px; padding: 0 0 10px; border-bottom: 1px solid var(--hair);
-      font-family: 'Eyesomei'; font-size: 25px; font-weight: 400; letter-spacing:-.01em; flex:0 0 auto;
+      font-family: 'EyesomeI'; font-size: 25px; font-weight: 400; letter-spacing:-.01em; flex:0 0 auto;
     }
 
-    /* Form */
+    /* =============================== Form Grid ============================== */
     #cta .form{ display:grid; gap:10px; flex:1 0 auto; }
     #cta .row{ display:grid; grid-template-columns: 0.7fr 1.2fr; gap:10px; }
-
-    /* 3-column row for channel + timeframe + country */
     #cta .row.row-3{ grid-template-columns: 1fr 1fr 1fr; }
+
     @media (max-width: 900px){
       #cta .row{ grid-template-columns:1fr; }
       #cta .row.row-3{ grid-template-columns:1fr; }
@@ -192,20 +187,40 @@
       #cta .quote{ order: 2; }
     }
 
-    #cta .form label{ display:block; margin-bottom:4px; color:var(--muted); font:600 var(--fs-label)/1.2 var(--ff-ui); letter-spacing:.02em; }
-    /* Red asterisk on required labels */
+    /* Labels */
+    #cta .form label{
+      display:block; margin-bottom:4px;
+      color: var(--label);
+      font:600 var(--fs-label)/1.2 var(--ff-ui);
+      letter-spacing:.02em;
+    }
     #cta label.req::after{ content:" *"; color:var(--danger); font-weight:700; }
 
+    /* Inputs & textarea */
     #cta .form input[type="text"],
     #cta .form input[type="email"],
     #cta .form textarea{
-      width:100%; border:1px solid var(--hair); border-radius:12px; background:#fff; color:#13294b;
-      padding:10px 12px; font:500 var(--fs-input)/1.45 var(--ff-ui); outline:none;
+      width:100%;
+      border:1px solid var(--field-border);
+      border-radius:12px;
+      background: var(--field-bg);
+      color: var(--field-ink);
+      padding:10px 12px;
+      font:500 var(--fs-input)/1.45 var(--ff-ui);
+      outline:none;
       transition: border-color var(--t-fast) var(--curve), box-shadow var(--t-fast) var(--curve), transform var(--t-fast) var(--curve);
     }
     #cta .form textarea{ min-height:92px; max-height:22vh; resize:vertical; font-size: var(--fs-textarea); }
-    #cta .form input:focus, #cta .form textarea:focus{
-      border-color:#b4ab9d; box-shadow: 0 12px 30px rgba(0,0,0,.10); transform: translateY(-1px);
+    #cta .form input:focus,
+    #cta .form textarea:focus{
+      border-color: var(--field-focus);
+      box-shadow: 0 12px 30px rgba(0,0,0,.10);
+      transform: translateY(-1px);
+    }
+    #cta .form input::placeholder,
+    #cta .form textarea::placeholder{
+      color: var(--placeholder);
+      opacity: 1;
     }
 
     /* Invalid highlight */
@@ -214,16 +229,22 @@
       box-shadow: 0 10px 24px rgba(179,38,30,.10) !important;
     }
 
-    /* Chips */
+    /* Chips (multi/radio) */
     #cta .choices{ display:flex; flex-wrap:wrap; gap:10px; }
     #cta .chip{
-      display:inline-flex; align-items:center; gap:8px; padding:10px 14px; border:1px solid var(--hair);
-      border-radius:999px; background: color-mix(in oklab, #fff 92%, #000 1%);
-      font:600 var(--fs-chip)/1 var(--ff-ui); cursor:pointer; user-select:none;
-      transition: all var(--t-fast) var(--curve); min-height: 38px;
+      display:inline-flex; align-items:center; gap:8px;
+      padding:10px 14px; min-height:38px;
+      border:1px solid var(--chip-border);
+      border-radius:999px;
+      background: var(--chip-bg);
+      color: var(--chip-ink);
+      font:600 var(--fs-chip)/1 var(--ff-ui);
+      cursor:pointer; user-select:none;
+      transition: transform var(--t-fast) var(--curve), box-shadow var(--t-fast) var(--curve), background var(--t-fast) var(--curve);
     }
-    #cta .chip:hover{ transform: translateY(-1px); box-shadow: 0 10px 28px rgba(0,0,0,.08); }
-    #cta .chip[data-checked="true"]{ background:#13294b; color:#fff; border-color:#13294; }
+    #cta .chip:hover{ transform: translateY(-1px); box-shadow: 0 10px 28px rgba(0,0,0,.08); background: var(--chip-bg-hover); }
+    #cta .chip[data-checked="true"]{ background: var(--chip-checked-bg); color: var(--chip-checked-ink); border-color: var(--chip-checked-bg); }
+    #cta .chip:focus-visible{ outline: 2px solid color-mix(in oklab, var(--focus) 80%, #000 20%); outline-offset: 2px; }
 
     /* Submit area */
     #cta .submit{ display:flex; align-items:flex-start; gap:10px; }
@@ -247,7 +268,7 @@
       max-width: 56ch; text-align:right; margin-top: 4px;
     }
 
-    /* Quote */
+    /* ============================ Quote: big→small ============================ */
     #cta .quote{
       position:relative; display:flex; align-items:center; justify-content:center;
       padding: clamp(6px, 1.6vw, 14px);
@@ -255,7 +276,13 @@
       max-width: 48ch; margin-inline:auto;
       font-family: 'cotorisi';
       overflow:hidden;
-      transition: opacity var(--t-fast) var(--curve), filter var(--t-fast) var(--curve);
+
+      transform: translateX(0) scale(var(--q-start));
+  transform-origin: center;
+  will-change: transform;
+  transition:
+    transform calc(var(--quote-dur)*1ms) var(--quote-ease),
+    opacity var(--t-fast) var(--curve);
     }
     #cta .quote::before{
       content:"“"; position:absolute; inset:auto auto 100% 50%; transform: translate(-50%, 18%);
@@ -265,43 +292,83 @@
       content:""; position:absolute; left:50%; bottom:-8px; width:120px; height:1px; transform: translateX(-50%);
       background: linear-gradient(90deg, transparent, rgba(0,0,0,.55), transparent); opacity:.65;
     }
+    /* JS adds this to trigger the shrink */
+    #cta .quote.is-shrinking{ transform: translateX(var(--q-nudge)) scale(var(--q-end)); }
 
-    /* Selective dim */
+    /* Selective dim when popover shown */
     #cta.pop-open .panel > :not(.quote){
       opacity: var(--dim-amt);
       filter: saturate(.9) blur(.1px);
       transition: opacity var(--t-fast) var(--curve), filter var(--t-fast) var(--curve);
     }
-    #cta.pop-open .dock .cta-btn{ opacity: var(--dim-amt); filter: saturate(.9) blur(.1px); }
-    #cta.pop-open .dock .cta-btn.is-active,
-    #cta.pop-open .dock .cta-btn:hover,
-    #cta.pop-open .dock .cta-btn:focus-visible{ opacity:1 !important; filter:none !important; }
 
-    /* Dock */
+    /* ================================ Dock ================================== */
     #cta .dock{
       position:absolute; left: var(--dock-left); bottom: var(--dock-bottom);
-      transform: translateX(var(--dock-translate));
+      transform: translateX(var(--dock-translate)) translateY(8px);
+      opacity: 0; pointer-events: none;
+
       display:flex; justify-content: var(--dock-justify); gap: var(--btn-gap);
       padding:0; background:none; border:0; z-index:300;
       flex-wrap: nowrap; white-space: nowrap;
       overflow-x: auto; overflow-y: visible;
       -webkit-overflow-scrolling: touch; scrollbar-width: none;
+
+      transition: opacity 380ms var(--enter-ease), transform 380ms var(--enter-ease);
     }
     #cta .dock::-webkit-scrollbar{ display:none; }
     #cta .cta-btn{
       position:relative; display:inline-flex; align-items:center; justify-content:center;
       background:transparent; border:none; padding:6px 2px;
       color:#14110e; cursor:pointer; letter-spacing:.20em; text-transform:uppercase;
-      font-family: 'EyesomeI';
-      font-weight: 600;
+      font-family: 'EyesomeI'; font-weight: 600;
       transition: transform var(--t-fast) var(--curve), opacity var(--t-fast) var(--curve);
       will-change: transform; z-index: 310; outline: none;
     }
     #cta .cta-btn:hover, #cta .cta-btn:focus-visible{ transform: translateY(-0.5px); }
     #cta .cta-btn.is-active{ opacity:.98; }
 
+    /* Dock shown with form */
+    #cta.show-form .dock{
+      transform: translateX(var(--dock-translate)) translateY(0);
+      opacity: 1; pointer-events: auto;
+    }
+
     /* Floating Popover */
     #cta .pop-layer{ position:absolute; inset:0; pointer-events:none; z-index:1100; }
+    /* --- Restore popover actions styling --- */
+#cta .pop .actions{
+  display:flex; gap:14px; justify-content:center; margin-top:8px;
+}
+#cta .pop .act-link{
+  display:inline-flex; align-items:center; justify-content:center;
+  min-width:132px; height:36px; padding:0 18px; border-radius:999px;
+  border:1px solid color-mix(in oklab, var(--hair) 80%, #000 20%);
+  background:#fff; color:#13294b; cursor:pointer; user-select:none;
+  font:700 12px/1 var(--ff-ui); letter-spacing:.12em; text-transform:uppercase;
+  font-style: italic; text-decoration: none; text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  text-decoration-color: color-mix(in oklab, currentColor 60%, transparent);
+  transition: transform var(--t-fast) var(--curve), box-shadow var(--t-fast) var(--curve), text-decoration-color var(--t-fast) var(--curve);
+}
+#cta .pop .act-link:hover,
+#cta .pop .act-link:focus-visible{
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px rgba(0,0,0,.12);
+  text-decoration-color: currentColor;
+}
+
+/* --- Restore the little arrow tip --- */
+#cta .pop::after{
+  content:""; position:absolute; width:12px; height:12px; background:#fff;
+  border-left:1px solid color-mix(in oklab, var(--hair) 85%, #000 15%);
+  border-top:1px solid color-mix(in oklab, var(--hair) 85%, #000 15%);
+  transform: rotate(45deg); left: calc(50% - 6px);
+}
+#cta .pop[data-pos="above"]::after{ bottom:-7px; box-shadow: 2px 2px 8px rgba(0,0,0,.08); }
+#cta .pop[data-pos="below"]::after{ top:-7px; transform: rotate(225deg); box-shadow: -2px -2px 8px rgba(0,0,0,.08); }
+
+        
     #cta .pop{
       position:absolute; display:none; pointer-events:auto;
       max-width:min(78vw, 650px);
@@ -320,26 +387,6 @@
     #cta .pop ul{ list-style:none; margin:0 0 10px 0; padding:0; }
     #cta .pop li{ margin:.36rem 0; }
     #cta .pop li::before{ content:'✧'; opacity:.65; margin-right:.25em; }
-    #cta .pop .actions{ display:flex; gap:14px; justify-content:center; margin-top:8px; }
-    #cta .pop .act-link{
-      display:inline-flex; align-items:center; justify-content:center;
-      min-width:132px; height:36px; padding:0 18px; border-radius:999px;
-      border:1px solid color-mix(in oklab, var(--hair) 80%, #000 20%);
-      background:#fff; color:#13294b; cursor:pointer; user-select:none;
-      font:700 12px/1 var(--ff-ui); letter-spacing:.12em; text-transform:uppercase;
-      font-style: italic; text-decoration: none; text-underline-offset: 3px;
-      text-decoration-thickness: 1px; text-decoration-color: color-mix(in oklab, currentColor 60%, transparent);
-      transition: transform var(--t-fast) var(--curve), box-shadow var(--t-fast) var(--curve), text-decoration-color var(--t-fast) var(--curve);
-    }
-    #cta .pop .act-link:hover, #cta .pop .act-link:focus-visible{ transform: translateY(-1px); box-shadow: 0 12px 28px rgba(0,0,0,.12); text-decoration-color: currentColor; }
-    #cta .pop::after{
-      content:""; position:absolute; width:12px; height:12px; background:#fff;
-      border-left:1px solid color-mix(in oklab, var(--hair) 85%, #000 15%);
-      border-top:1px solid color-mix(in oklab, var(--hair) 85%, #000 15%);
-      transform: rotate(45deg); left: calc(50% - 6px);
-    }
-    #cta .pop[data-pos="above"]::after{ bottom:-7px; box-shadow: 2px 2px 8px rgba(0,0,0,.08); }
-    #cta .pop[data-pos="below"]::after{ top:-7px; transform: rotate(225deg); box-shadow: -2px -2px 8px rgba(0,0,0,.08); }
 
     /* Modal */
     #cta .modal{ position:fixed; inset:0; display:grid; place-items:center; background: rgba(10,10,10,.46);
@@ -358,29 +405,33 @@
     }
     @media (prefers-reduced-motion: reduce){
       #cta *{ transition:none !important; }
+      #cta .form-card{ clip-path:none !important; transform:none !important; opacity:1 !important; }
+      #cta .quote{ transform:none !important; }
+      #cta .dock{ transform: translateX(var(--dock-translate)) !important; opacity:1 !important; }
     }
 
-    /* =============== FANCY SELECTS (ultra high-end) =============== */
+    /* ========================= Fancy Selects (Role/When/Country) ========================= */
     .fselect{ position:relative; }
     .fselect .fs-button{
       width:100%; display:flex; align-items:center; justify-content:space-between; gap:12px;
-      background: linear-gradient(180deg, #fff, #fff);
-      border:1px solid var(--hair); border-radius:12px; padding:10px 12px;
-      font:500 var(--fs-input)/1.45 var(--ff-ui); color:#111;
+      background: var(--field-bg);
+      border:1px solid var(--field-border);
+      border-radius:12px; padding:10px 12px;
+      font:500 var(--fs-input)/1.45 var(--ff-ui);
+      color: var(--field-ink);
       cursor:pointer; user-select:none;
       box-shadow: 0 1px 0 rgba(255,255,255,.4) inset, 0 6px 16px rgba(0,0,0,.06);
       transition: border-color var(--t-fast) var(--curve), box-shadow var(--t-fast) var(--curve), transform var(--t-fast) var(--curve), background var(--t-fast) var(--curve);
     }
     .fselect .fs-button:hover{ transform: translateY(-1px); box-shadow: 0 12px 28px rgba(0,0,0,.08); }
-    .fselect[aria-expanded="true"] .fs-button{ border-color:#b4ab9d; }
-    .fselect .fs-placeholder{ color: #8d887f; }
+    .fselect[aria-expanded="true"] .fs-button{ border-color: var(--field-focus); }
+    .fselect .fs-placeholder{ color: var(--placeholder); }
     .fselect .fs-value{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .fselect .fs-chevron{
-      flex:0 0 auto; width:18px; height:18px; position:relative;
-    }
+    .fselect .fs-chevron{ flex:0 0 auto; width:18px; height:18px; position:relative; }
     .fselect .fs-chevron::before, .fselect .fs-chevron::after{
       content:""; position:absolute; inset:0; margin:auto; width:10px; height:10px;
-      border-right:2px solid #3a3733; border-bottom:2px solid #3a3733; transform: rotate(45deg) translateY(-1px); opacity:.66;
+      border-right:2px solid var(--chrome); border-bottom:2px solid var(--chrome);
+      transform: rotate(45deg) translateY(-1px); opacity:.66;
       transition: transform var(--t-fast) var(--curve), opacity var(--t-fast) var(--curve);
     }
     .fselect[aria-expanded="true"] .fs-chevron::before{ transform: rotate(-135deg) translateY(1px); opacity:.9; }
@@ -404,51 +455,29 @@
       font:500 var(--fs-input)/1.35 var(--ff-ui); color:#23201a; letter-spacing:.01em;
       transition: background var(--t-fast) var(--curve), transform var(--t-fast) var(--curve);
     }
-    .fselect .fs-option[aria-selected="true"]{ background: color-mix(in oklab, #13294b 8%, #fffcf8 92%); }
-    .fselect .fs-option:hover{ background: color-mix(in oklab, #13294b 6%, #fffcf8 94%); transform: translateY(-0.5px); }
+    .fselect .fs-option[aria-selected="true"]{ background: color-mix(in oklab, var(--ink) 8%, var(--panel) 92%); }
+    .fselect .fs-option:hover{ background: color-mix(in oklab, var(--ink) 6%, var(--panel) 94%); transform: translateY(-0.5px); }
     .fselect .fs-check{
       width:14px; height:14px; border-radius:3px; border:1px solid color-mix(in oklab, var(--hair) 80%, #000 20%);
-      display:inline-block; position:relative; flex:0 0 auto;
-      background: #fffcf8;
+      display:inline-block; position:relative; flex:0 0 auto; background: var(--panel);
     }
-    .fselect .fs-option[aria-selected="true"] .fs-check{
-      background:#13294; border-color:#111;
-    }
+    .fselect .fs-option[aria-selected="true"] .fs-check{ background: var(--ink); border-color: var(--ink); }
     .fselect .fs-option[aria-selected="true"] .fs-check::after{
       content:""; position:absolute; left:3px; top:0px; width:6px; height:10px; border-right:2px solid #fff; border-bottom:2px solid #fff; transform: rotate(45deg);
     }
 
-    /* native selects hidden (progressive enhancement) */
     .native-hidden{ display:none !important; }
-
-    /* allow popup to escape card while open (modern browsers) */
     #cta .form-card:has(.fselect[aria-expanded="true"]){ overflow: visible; }
-
-    /* Small spacing on choices block */
     #cta .form label + .choices{ margin-top: 8px; }
-
-    /* --- original "flip above" support (kept) --- */
     .fselect[data-pos="above"] .fs-pop{ top:auto; bottom: calc(100% + 8px); }
-
-    /* ================= Extra for searchable country ================= */
     .fselect .fs-search{
-      width: calc(100% - 12px);
-      margin: 8px 6px 4px;
-      padding: 8px 10px;
-      border:1px solid var(--hair);
-      border-radius:10px;
-      font:500 var(--fs-input)/1.35 var(--ff-ui);
-      outline:none;
-      transition: border-color var(--t-fast) var(--curve), box-shadow var(--t-fast) var(--curve);
+      width: calc(100% - 12px); margin: 8px 6px 4px; padding: 8px 10px;
+      border:1px solid var(--hair); border-radius:10px; font:500 var(--fs-input)/1.35 var(--ff-ui);
+      outline:none; transition: border-color var(--t-fast) var(--curve), box-shadow var(--t-fast) var(--curve);
       background:#fffcf8;
     }
-    .fselect .fs-search:focus{
-      border-color:#b4ab9d; box-shadow:0 10px 24px rgba(0,0,0,.08);
-    }
-    /* a touch more room for long country lists */
+    .fselect .fs-search:focus{ border-color: var(--focus); box-shadow:0 10px 24px rgba(0,0,0,.08); }
     .fselect .fs-pop .fs-list{ max-height: 280px; }
-
-    /* ========= Force all Fancy Select popups to open BELOW ========= */
     .fselect .fs-pop{ top: calc(100% + 8px) !important; bottom: auto !important; }
     .fselect[data-pos="above"] .fs-pop{ top: calc(100% + 8px) !important; bottom: auto !important; }
   </style>
@@ -457,10 +486,11 @@
     <div class="form-card">
       <h3>Get Clarity</h3>
       <form class="form" id="cta-form" novalidate
-      action="https://formspree.io/f/xwpnddnl"
-      method="POST">
+            action="https://formspree.io/f/xwpnddnl"
+            method="POST">
         <input type="hidden" name="_subject" value="New inquiry — Elysian Advisory">
         <input type="hidden" name="_origin"  value="CTA form on elysianclarity.com">
+
         <div class="row">
           <div>
             <label for="name" class="req">Your name</label>
@@ -471,12 +501,12 @@
             <input id="email" name="email" type="email" autocomplete="email" required />
           </div>
         </div>
-<input type="hidden" name="g-recaptcha-response" id="g-recaptcha-response">
+
+        <input type="hidden" name="g-recaptcha-response" id="g-recaptcha-response">
 
         <div class="row">
           <div>
             <label for="role">Role</label>
-            <!-- native for fallback (hidden/enhanced) -->
             <select id="role" class="native-hidden" disabled>
               <option value="" disabled selected>Select one</option>
               <option>Founder</option>
@@ -485,9 +515,7 @@
               <option>Solo Strategist</option>
               <option>Other</option>
             </select>
-            <!-- hidden field that actually submits -->
             <input type="hidden" name="role" id="role_value" />
-            <!-- Fancy Select mount -->
             <div class="fselect" data-for="role_value" aria-haspopup="listbox" aria-expanded="false">
               <button type="button" class="fs-button" aria-label="Choose role" aria-controls="fs-role-list" aria-expanded="false">
                 <span class="fs-value fs-placeholder">Select one</span>
@@ -495,11 +523,11 @@
               </button>
               <div class="fs-pop" id="fs-role-pop">
                 <ul class="fs-list" id="fs-role-list" role="listbox" aria-label="Role options">
-                  <li class="fs-option" role="option" data-value="Founder"         tabindex="0"><span class="fs-check"></span>Founder</li>
-                  <li class="fs-option" role="option" data-value="CEO"              tabindex="0"><span class="fs-check"></span>CEO</li>
-                  <li class="fs-option" role="option" data-value="Operator"         tabindex="0"><span class="fs-check"></span>Operator</li>
-                  <li class="fs-option" role="option" data-value="Solo Strategist"  tabindex="0"><span class="fs-check"></span>Solo Strategist</li>
-                  <li class="fs-option" role="option" data-value="Other"            tabindex="0"><span class="fs-check"></span>Other</li>
+                  <li class="fs-option" role="option" data-value="Founder"         tabindex="-1"><span class="fs-check"></span>Founder</li>
+                  <li class="fs-option" role="option" data-value="CEO"              tabindex="-1"><span class="fs-check"></span>CEO</li>
+                  <li class="fs-option" role="option" data-value="Operator"         tabindex="-1"><span class="fs-check"></span>Operator</li>
+                  <li class="fs-option" role="option" data-value="Solo Strategist"  tabindex="-1"><span class="fs-check"></span>Solo Strategist</li>
+                  <li class="fs-option" role="option" data-value="Other"            tabindex="-1"><span class="fs-check"></span>Other</li>
                 </ul>
               </div>
             </div>
@@ -516,7 +544,6 @@
           </div>
         </div>
 
-        <!-- THREE-COLUMN ROW: channel, timeframe, country -->
         <div class="row row-3">
           <div>
             <label>Preferred channel</label>
@@ -527,13 +554,15 @@
             </div>
             <input type="hidden" name="channel" id="channel" />
           </div>
+
           <p style="position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden;">
-  <label>Leave this field empty
-    <input type="text" name="_gotcha" tabindex="-1" autocomplete="off">
-  </label>
-</p>          <div>
+            <label>Leave this field empty
+              <input type="text" name="_gotcha" tabindex="-1" autocomplete="off">
+            </label>
+          </p>
+
+          <div>
             <label for="when">Ideal timeframe</label>
-            <!-- native (hidden/enhanced) -->
             <select id="when" class="native-hidden" disabled>
               <option>ASAP</option>
               <option>This week</option>
@@ -541,7 +570,6 @@
               <option>This month</option>
             </select>
             <input type="hidden" name="when" id="when_value" />
-            <!-- Fancy Select mount -->
             <div class="fselect" data-for="when_value" aria-haspopup="listbox" aria-expanded="false">
               <button type="button" class="fs-button" aria-label="Choose timeframe" aria-controls="fs-when-list" aria-expanded="false">
                 <span class="fs-value fs-placeholder">Choose timeframe</span>
@@ -549,16 +577,15 @@
               </button>
               <div class="fs-pop" id="fs-when-pop">
                 <ul class="fs-list" id="fs-when-list" role="listbox" aria-label="Ideal timeframe">
-                  <li class="fs-option" role="option" data-value="ASAP"             tabindex="0"><span class="fs-check"></span>ASAP</li>
-                  <li class="fs-option" role="option" data-value="This week"        tabindex="0"><span class="fs-check"></span>This week</li>
-                  <li class="fs-option" role="option" data-value="Within 2 weeks"   tabindex="0"><span class="fs-check"></span>Within 2 weeks</li>
-                  <li class="fs-option" role="option" data-value="This month"       tabindex="0"><span class="fs-check"></span>This month</li>
+                  <li class="fs-option" role="option" data-value="ASAP"           tabindex="-1"><span class="fs-check"></span>ASAP</li>
+                  <li class="fs-option" role="option" data-value="This week"      tabindex="-1"><span class="fs-check"></span>This week</li>
+                  <li class="fs-option" role="option" data-value="Within 2 weeks" tabindex="-1"><span class="fs-check"></span>Within 2 weeks</li>
+                  <li class="fs-option" role="option" data-value="This month"     tabindex="-1"><span class="fs-check"></span>This month</li>
                 </ul>
               </div>
             </div>
           </div>
 
-          <!-- Reaching from (country) -->
           <div>
             <label for="country_value">Reaching from</label>
             <input type="hidden" name="country" id="country_value" />
@@ -568,7 +595,6 @@
                 <span class="fs-chevron" aria-hidden="true"></span>
               </button>
               <div class="fs-pop" id="fs-country-pop">
-                <!-- inline search field (only for data-search="true") -->
                 <input type="text" class="fs-search" placeholder="Type to filter…" aria-label="Search countries" />
                 <ul class="fs-list" id="fs-country-list" role="listbox" aria-label="Country options"></ul>
               </div>
@@ -599,11 +625,12 @@
   <!-- Bottom dock -->
   <div class="dock" role="tablist" aria-label="Call to action options"></div>
 
-  <!-- Floating popover layer (outside the dock for no clipping) -->
+  <!-- Floating popover layer -->
   <div class="pop-layer" aria-hidden="true">
     <div class="pop" id="cta-pop" role="dialog" aria-modal="false" aria-live="polite"></div>
   </div>
 
+  <!-- Modal -->
   <div class="modal" id="cta-modal" aria-hidden="true" aria-labelledby="cta-modal-title" aria-modal="true" role="dialog">
     <div class="modal__card" role="document">
       <h4 id="cta-modal-title">Thank you</h4>
@@ -626,7 +653,6 @@
       const pop   = sec.querySelector('#cta-pop');
 
       const LINKS = { writings: '/writings', instruments: '/instruments' };
-
       const OPTIONS = [
         { key:'clarity', label:'Get Clarity', mode:'form' },
         { key:'explore', label:'Explore Further', mode:'popover',
@@ -637,7 +663,7 @@
       ];
 
       const buttons = [];
-      let pinnedKey = null;  // which key is currently pinned (if any)
+      let pinnedKey = null;
       let hoverHideTimer = null;
 
       function cssVar(name, fallback){ const v = getComputedStyle(sec).getPropertyValue(name).trim(); return v || fallback; }
@@ -674,8 +700,7 @@
         const sr = sec.getBoundingClientRect(); const br = btn.getBoundingClientRect();
         const popW = pop.offsetWidth; const popH = pop.offsetHeight;
         const btnCenterX = br.left - sr.left + br.width/2;
-        const spaceAbove = (br.top - sr.top); const spaceBelow = (sr.bottom - br.bottom);
-        const margin = 12;
+        const spaceAbove = (br.top - sr.top); const margin = 12;
         let top, posAttr;
         if (spaceAbove >= popH + margin){ top = br.top - sr.top - popH - margin; posAttr='above'; }
         else { top = br.bottom - sr.top + margin; posAttr='below'; }
@@ -723,6 +748,12 @@
         btn.addEventListener('keydown', (e)=>{ if (e.key==='Enter' || e.key===' '){ e.preventDefault(); btn.click(); } if (e.key==='Escape'){ pinnedKey=null; hidePop(true);} });
       });
 
+      // after OPTIONS.forEach(...) finishes:
+dock.style.opacity = '1';
+dock.style.pointerEvents = 'auto';
+dock.style.transform = `translateX(${getComputedStyle(sec).getPropertyValue('--dock-translate')}) translateY(0)`;
+
+
       document.addEventListener('click', (e)=>{
         const inDock  = e.target.closest('.dock');
         const inPop   = e.target.closest('#cta-pop');
@@ -743,23 +774,43 @@
         if (e.key==='Enter' || e.key===' '){ e.preventDefault(); act.click(); }
       });
 
-      // Auto-open Get Clarity once
-      const delay = parseInt(getComputedStyle(sec).getPropertyValue('--auto-open-delay')) || 900;
+      /* -------------------- Auto sequence: quote → form (once) -------------------- */
       let openedOnce = false;
       const io = new IntersectionObserver(entries=>{
         entries.forEach(entry=>{
-          if (entry.isIntersecting && !openedOnce){
-            setTimeout(()=>{ if (openedOnce) return;
+          if (!entry.isIntersecting || openedOnce) return;
+
+          const quote = sec.querySelector('.quote');
+          const qDelay = parseInt(getComputedStyle(sec).getPropertyValue('--quote-delay')) || 300;
+          const qDur   = parseInt(getComputedStyle(sec).getPropertyValue('--quote-dur'))   || 720;
+
+          // 1) Start quote shrink
+          setTimeout(()=>{
+            if (quote) quote.classList.add('is-shrinking');
+
+            // 2) After shrink settles, open the form + set active
+            setTimeout(()=>{
               const clarity = [...dock.children].find(b=>b.dataset.key==='clarity');
-              if (clarity){ clarity.classList.add('is-pinned','is-open'); setActive('clarity'); setFormVisible(true); openedOnce = true; }
-            }, delay);
-            io.disconnect();
-          }
+              if (clarity){
+                clarity.classList.add('is-pinned','is-open');
+                setActive('clarity');
+              }
+              setFormVisible(true);
+              openedOnce = true;
+
+              // optional: focus first field
+              const first = form.querySelector('#name');
+              if (first) first.focus({preventScroll:true});
+            }, qDur + 120); // small settle buffer
+
+          }, qDelay);
+
+          io.disconnect();
         });
       }, { threshold: 0.3 });
       io.observe(sec);
 
-      // Chips wiring
+      /* ------------------------------- Chips wiring ------------------------------ */
       (function(){
         const engagementHidden = form.querySelector('#engagement');
         form.querySelectorAll('.chip:not([data-radio])').forEach(ch=>{
@@ -779,7 +830,7 @@
         });
       })();
 
-      // =============== Fancy Select wiring (enhanced with search + viewport fit) ===============
+      /* -------------------------- Fancy Selects (init) --------------------------- */
       function initFancySelect(root){
         const hiddenId   = root.dataset.for;
         const target     = document.getElementById(hiddenId);
@@ -804,31 +855,24 @@
             activeIndex = [...list.children].indexOf(visible[0]);
           }
         }
-
-        // Fit popup to available viewport space below the control
         function fitToViewport(){
           const margin = 8;
           const b = btn.getBoundingClientRect();
           const available = Math.max(160, window.innerHeight - b.bottom - margin);
           pop.style.maxHeight = available + 'px';
           const searchH = searchEl ? (searchEl.offsetHeight + 12) : 0;
-          const chrome = 16; // padding/borders
+          const chrome = 16;
           list.style.maxHeight = Math.max(120, available - searchH - chrome) + 'px';
         }
-
         function setOpen(on){
           open = !!on;
           root.setAttribute('aria-expanded', open ? 'true' : 'false');
           btn.setAttribute('aria-expanded', open ? 'true' : 'false');
           pop.dataset.show = open ? 'true' : 'false';
-
           if(open){
-            // compute & size, then animate in
-            const prev = pop.style.display;
             pop.style.display = 'block';
-            root.setAttribute('data-pos','below'); // explicit (CSS forces below anyway)
+            root.setAttribute('data-pos','below');
             fitToViewport();
-
             requestAnimationFrame(()=>{
               pop.setAttribute('data-animate','in');
               if (searchEl){ searchEl.value=''; filterItems(''); searchEl.focus(); }
@@ -838,8 +882,6 @@
             pop.removeAttribute('data-animate');
           }
         }
-
-        // keep sizing correct while open
         window.addEventListener('resize', ()=>{ if(open) fitToViewport(); });
         window.addEventListener('scroll', ()=>{ if(open) fitToViewport(); }, { passive: true });
 
@@ -859,46 +901,34 @@
             if (on) activeIndex = i;
           });
         }
-
         function selectByIndex(i){
           const li = list.children[i];
           if (!li || li.style.display==='none') return;
           setValue(li.dataset.value, li.textContent.trim());
           setOpen(false); btn.focus();
         }
-
-        // click to open/close
         btn.addEventListener('click', (e)=>{ e.stopPropagation(); setOpen(!open); });
-
-        // option click
         list.addEventListener('click', (e)=>{
           const li = e.target.closest('.fs-option'); if (!li) return;
           if (li.style.display==='none') return;
           setValue(li.dataset.value, li.textContent.trim()); setOpen(false); btn.focus();
         });
-
-        // keyboard on button
         btn.addEventListener('keydown', (e)=>{
           if (e.key==='ArrowDown' || e.key==='ArrowUp'){
-            e.preventDefault();
-            setOpen(true);
+            e.preventDefault(); setOpen(true);
             if (searchEl) searchEl.focus();
             else (activeIndex>=0? list.children[activeIndex] : list.children[0]).focus();
           }
           if (e.key==='Enter' || e.key===' '){
-            e.preventDefault();
-            setOpen(!open);
+            e.preventDefault(); setOpen(!open);
             if (open){ if (searchEl) searchEl.focus(); else (activeIndex>=0? list.children[activeIndex] : list.children[0]).focus(); }
           }
           if (e.key==='Escape'){ setOpen(false); }
         });
-
-        // keyboard on list
         list.addEventListener('keydown', (e)=>{
           const all = [...list.children].filter(li => li.style.display !== 'none');
           const max = all.length - 1;
           const idxInAll = (el)=> all.indexOf(el);
-
           if (e.key==='ArrowDown'){ e.preventDefault(); activeIndex = Math.min(max, (idxInAll(list.children[activeIndex]) + 1) || 0); (all[activeIndex]||all[0]).focus(); }
           if (e.key==='ArrowUp'){   e.preventDefault(); activeIndex = Math.max(0,   (idxInAll(list.children[activeIndex]) - 1) || 0); (all[activeIndex]||all[0]).focus(); }
           if (e.key==='Home'){ e.preventDefault(); activeIndex = 0; (all[0]||list.children[0]).focus(); }
@@ -906,8 +936,6 @@
           if (e.key==='Enter' || e.key===' '){ e.preventDefault(); if(all[activeIndex]) setValue(all[activeIndex].dataset.value, all[activeIndex].textContent.trim()), setOpen(false), btn.focus(); }
           if (e.key==='Escape'){ e.preventDefault(); setOpen(false); btn.focus(); }
         });
-
-        // live filter
         if (searchEl){
           searchEl.addEventListener('input', (e)=> filterItems(e.target.value));
           searchEl.addEventListener('click', (e)=> e.stopPropagation());
@@ -919,138 +947,122 @@
             if (e.key==='Escape'){ e.preventDefault(); setOpen(false); btn.focus(); }
           });
         }
-
-        // set tabindex and initial aria state
         [...list.children].forEach((li)=> li.setAttribute('tabindex','-1'));
-        // close on outside click
         document.addEventListener('click', (e)=>{ if (!root.contains(e.target)) setOpen(false); });
-
-        // initial
         setValue(target.value || '');
       }
 
-      // --- Countries (UN list + common territories) ---
+      /* ----------------------------- Countries data ---------------------------- */
       const COUNTRIES = `Afghanistan|Albania|Algeria|Andorra|Angola|Antigua and Barbuda|Argentina|Armenia|Australia|Austria|Azerbaijan|Bahamas|Bahrain|Bangladesh|Barbados|Belarus|Belgium|Belize|Benin|Bhutan|Bolivia|Bosnia and Herzegovina|Botswana|Brazil|Brunei|Bulgaria|Burkina Faso|Burundi|Cabo Verde|Cambodia|Cameroon|Canada|Central African Republic|Chad|Chile|China|Colombia|Comoros|Congo (Congo-Brazzaville)|Costa Rica|Côte d’Ivoire|Croatia|Cuba|Cyprus|Czechia|Democratic Republic of the Congo|Denmark|Djibouti|Dominica|Dominican Republic|Ecuador|Egypt|El Salvador|Equatorial Guinea|Eritrea|Estonia|Eswatini|Ethiopia|Fiji|Finland|France|Gabon|Gambia|Georgia|Germany|Ghana|Greece|Grenada|Guatemala|Guinea|Guinea-Bissau|Guyana|Haiti|Honduras|Hungary|Iceland|India|Indonesia|Iran|Iraq|Ireland|Israel|Italy|Jamaica|Japan|Jordan|Kazakhstan|Kenya|Kiribati|Kuwait|Kyrgyzstan|Laos|Latvia|Lebanon|Lesotho|Liberia|Libya|Liechtenstein|Lithuania|Luxembourg|Madagascar|Malawi|Malaysia|Maldives|Mali|Malta|Marshall Islands|Mauritania|Mauritius|Mexico|Micronesia|Moldova|Monaco|Mongolia|Montenegro|Morocco|Mozambique|Myanmar|Namibia|Nauru|Nepal|Netherlands|New Zealand|Nicaragua|Niger|Nigeria|North Korea|North Macedonia|Norway|Oman|Pakistan|Palau|Panama|Papua New Guinea|Paraguay|Peru|Philippines|Poland|Portugal|Qatar|Romania|Russia|Rwanda|Saint Kitts and Nevis|Saint Lucia|Saint Vincent and the Grenadines|Samoa|San Marino|Sao Tome and Principe|Saudi Arabia|Senegal|Serbia|Seychelles|Sierra Leone|Singapore|Slovakia|Slovenia|Solomon Islands|Somalia|South Africa|South Korea|South Sudan|Spain|Sri Lanka|Sudan|Suriname|Sweden|Switzerland|Syria|Taiwan|Tajikistan|Tanzania|Thailand|Timor-Leste|Togo|Tonga|Trinidad and Tobago|Tunisia|Turkey|Turkmenistan|Tuvalu|Uganda|Ukraine|United Arab Emirates|United Kingdom|United States|Uruguay|Uzbekistan|Vanuatu|Vatican City|Venezuela|Vietnam|Yemen|Zambia|Zimbabwe`.split('|');
 
-      // Populate the country list if that Fancy-Select exists
       (function mountCountryList(){
         const root = sec.querySelector('.fselect[data-for="country_value"]');
         if(!root) return;
         const list = root.querySelector('.fs-list');
         if(!list) return;
         list.innerHTML = COUNTRIES.map(n =>
-          `<li class="fs-option" role="option" data-value="${n}" tabindex="0"><span class="fs-check"></span>${n}</li>`
+          `<li class="fs-option" role="option" data-value="${n}" tabindex="-1"><span class="fs-check"></span>${n}</li>`
         ).join('');
       })();
 
       // Mount all Fancy Selects
       sec.querySelectorAll('.fselect').forEach(initFancySelect);
 
-      // ====== Form submit -> validate only name, email, message ======
+      /* --------------------------- Form submit + UX --------------------------- */
       function showError(msg){
         hint.textContent = msg || '';
-        hint.setAttribute('aria-hidden','false');   // show error
-        note.hidden = true;                         // hide the constant note while error shows
+        hint.setAttribute('aria-hidden','false');
+        note.hidden = true;
       }
       function clearError(){
         hint.textContent = '';
-        hint.setAttribute('aria-hidden','true');    // hide error
-        note.hidden = false;                        // show the constant note
+        hint.setAttribute('aria-hidden','true');
+        note.hidden = false;
       }
 
-  form.addEventListener('submit', async (e)=>{
-    e.preventDefault();
-    clearError();
-
-    const REQUIRED = ['name','email','message'];
-    const data = Object.fromEntries(new FormData(form).entries());
-
-    // clear previous invalid states
-    REQUIRED.forEach(id=>{
-      const el = form.querySelector('#'+id);
-      if (el) el.classList.remove('is-invalid');
-    });
-
-    // check required fields
-    const missing = REQUIRED.filter(k => !data[k] || (''+data[k]).trim()==='');
-    if (missing.length){
-      missing.forEach(k=>{
-        const el = form.querySelector('#'+k);
-        if (el) el.classList.add('is-invalid');
-      });
-      const first = form.querySelector('#'+missing[0]);
-      if (first){
-        first.focus({preventScroll:false});
-        first.scrollIntoView({behavior:'smooth', block:'center'});
-      }
-      showError('Please complete all required fields.');
-      return;
-    }
-
-// build payload (includes your hidden fields like role/channel/etc.)
-const fd = new FormData(form);
-
-// reCAPTCHA v3 token (silent)
-try {
-  if (window.grecaptcha) {
-    // ensure the API is ready, then get a token for "submit" action
-    await grecaptcha.ready(async () => {
-      const token = await grecaptcha.execute('6Lc4gs0rAAAAAI0aXXts_OCCquoEdduHM5l98EcH', { action: 'submit' });
-      // set hidden input (for completeness) and include in FormData
-      const hidden = document.getElementById('g-recaptcha-response');
-      if (hidden) hidden.value = token;
-      fd.set('g-recaptcha-response', token);
-    });
-  }
-} catch (_) {
-  // If token fails for any reason, we still proceed (honeypot + Formspree filtering still help)
-}
-
-
-    // disable button during submit
-    const btn = form.querySelector('.btn-primary');
-    const btnLabel = btn ? btn.textContent : '';
-    if (btn){ btn.disabled = true; btn.textContent = 'Sending…'; }
-
-    try{
-      const res = await fetch(form.getAttribute('action'), {
-        method: 'POST',
-        headers: { 'Accept': 'application/json' },
-        body: fd
-      });
-
-      if (res.ok){
-        // success: reset UI, show modal
-        form.reset();
-        form.querySelectorAll('.chip').forEach(x=>x.dataset.checked='false');
-        ['engagement','channel','role_value','when_value','country_value'].forEach(id=>{
-          const el = form.querySelector('#'+id); if (el) el.value = '';
-        });
-        // reset fancy-select labels
-        document.querySelectorAll('#cta .fselect .fs-value').forEach(v=>{
-          v.textContent = 'Select one';
-          v.classList.add('fs-placeholder');
-        });
+      form.addEventListener('submit', async (e)=>{
+        e.preventDefault();
         clearError();
-        openModal();
-      } else {
-        let msg = 'Something went wrong. Please try again or email us.';
-        try {
-          const j = await res.json();
-          if (j && j.errors && j.errors.length){
-            msg = j.errors.map(e => e.message).join(' ');
-          }
-        } catch(_){}
-        showError(msg);
-      }
-    } catch(err){
-      showError('Network error. Please try again or reach us via email.');
-    } finally {
-      if (btn){ btn.disabled = false; btn.textContent = btnLabel; }
-    }
-  });
 
-     // Live: remove red outline as user types
+        const REQUIRED = ['name','email','message'];
+        const data = Object.fromEntries(new FormData(form).entries());
+
+        REQUIRED.forEach(id=>{
+          const el = form.querySelector('#'+id);
+          if (el) el.classList.remove('is-invalid');
+        });
+
+        const missing = REQUIRED.filter(k => !data[k] || (''+data[k]).trim()==='');
+        if (missing.length){
+          missing.forEach(k=>{
+            const el = form.querySelector('#'+k);
+            if (el) el.classList.add('is-invalid');
+          });
+          const first = form.querySelector('#'+missing[0]);
+          if (first){
+            first.focus({preventScroll:false});
+            first.scrollIntoView({behavior:'smooth', block:'center'});
+          }
+          showError('Please complete all required fields.');
+          return;
+        }
+
+        // build payload (includes hidden fields)
+        const fd = new FormData(form);
+
+        // reCAPTCHA v3 token (silent)
+        try {
+          if (window.grecaptcha) {
+            await grecaptcha.ready(async () => {
+              const token = await grecaptcha.execute('6Lc4gs0rAAAAAI0aXXts_OCCquoEdduHM5l98EcH', { action: 'submit' });
+              const hidden = document.getElementById('g-recaptcha-response');
+              if (hidden) hidden.value = token;
+              fd.set('g-recaptcha-response', token);
+            });
+          }
+        } catch (_) {}
+
+        // disable button during submit
+        const btn = form.querySelector('.btn-primary');
+        const btnLabel = btn ? btn.textContent : '';
+        if (btn){ btn.disabled = true; btn.textContent = 'Sending…'; }
+
+        try{
+          const res = await fetch(form.getAttribute('action'), {
+            method: 'POST',
+            headers: { 'Accept': 'application/json' },
+            body: fd
+          });
+
+          if (res.ok){
+            form.reset();
+            form.querySelectorAll('.chip').forEach(x=>x.dataset.checked='false');
+            ['engagement','channel','role_value','when_value','country_value'].forEach(id=>{
+              const el = form.querySelector('#'+id); if (el) el.value = '';
+            });
+            document.querySelectorAll('#cta .fselect .fs-value').forEach(v=>{
+              v.textContent = 'Select one';
+              v.classList.add('fs-placeholder');
+            });
+            clearError();
+            openModal();
+          } else {
+            let msg = 'Something went wrong. Please try again or email us.';
+            try {
+              const j = await res.json();
+              if (j && j.errors && j.errors.length){
+                msg = j.errors.map(e => e.message).join(' ');
+              }
+            } catch(_){}
+            showError(msg);
+          }
+        } catch(err){
+          showError('Network error. Please try again or reach us via email.');
+        } finally {
+          if (btn){ btn.disabled = false; btn.textContent = btnLabel; }
+        }
+      });
+
       ['name','email','message'].forEach(id=>{
         const el = form.querySelector('#'+id);
         if (!el) return;
@@ -1069,14 +1081,4 @@ try {
   </script>
 
   <script src="https://www.google.com/recaptcha/api.js?render=6Lc4gs0rAAAAAI0aXXts_OCCquoEdduHM5l98EcH" async defer></script>
-
 </section>
-
-
-
-
-
-
-
-
-
