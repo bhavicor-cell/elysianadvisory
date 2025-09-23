@@ -188,6 +188,7 @@
 }
 
 
+
     /* Keep non-interactive while at stage 0 */
     .ci[data-stage="0"] .tabs,
     .ci[data-stage="0"] .ci-shelf,
@@ -287,6 +288,8 @@
     // ---- SINGLE-SHOT START (covers IO + fallback) ----
     let started = false;
     function startOnce(){ if(started) return; started = true; revealSequence(); }
+    window._ciStart = startOnce;
+
 
     const identities = ['Vision Builders','System Shapers','Solo Strategists','Beyond These'];
 
@@ -467,38 +470,40 @@
       try { if (document.fonts && 'ready' in document.fonts) { await document.fonts.ready; } } catch(_){}
     }
 
-    async function revealSequence(){
-      setButtonState();
-      await waitFontsOnce();
-      renderShelf();
-      selectStory(selectedIndex);
+  async function revealSequence(){
+  setButtonState();
+  await waitFontsOnce();
+  renderShelf();
+  selectStory(selectedIndex);
 
-      if (prefersReduced){
-  setStage(1);
-  requestAnimationFrame(()=> section.classList.remove('pre-reveal'));
-  setStage(2); setStage(3);
-  return;
+  if (prefersReduced){
+    setStage(1);
+    requestAnimationFrame(()=> section.classList.remove('pre-reveal'));
+    setStage(2); setStage(3);
+    return;
+  }
+
+  // Double-RAF to ensure one painted frame before animating
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      // Stage 1 (tabs) appears now
+      setStage(1);
+      requestAnimationFrame(()=> section.classList.remove('pre-reveal'));
+
+      // After buttons animation, show shelf
+      setTimeout(() => {
+        setStage(2);
+
+        // After shelf animation + panel delay, show panel
+        setTimeout(() => {
+          setStage(3);
+        }, DUR.shelf + PANEL_DELAY);
+
+      }, DUR.buttons);
+    });
+  });
 }
 
-
-      // Double-RAF: ensure one full painted frame while cloaked, then reveal.
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-        setStage(1);
-
-// Uncloak as soon as Stage 1 is live, so you can SEE the sequence
-requestAnimationFrame(()=> section.classList.remove('pre-reveal'));
-
-setTimeout(() => {
-  setStage(2);
-  setTimeout(() => {
-    setStage(3);
-  }, DUR.shelf + PANEL_DELAY);
-}, DUR.buttons);
-  
-        });
-      });
-    }
 
     function revealTo(n){ for(let i=1;i<=n;i++) setStage(i); }
 
@@ -544,5 +549,16 @@ setTimeout(() => {
 
     if(!identities.includes(selectedIdentity)) selectedIdentity = identities[0];
   })();
+
+    // Start when parent tells us we're actually visible
+window.addEventListener('message', (e) => {
+  // If you're testing from file://, e.origin can be "" or "null" — so only block when it exists AND mismatches
+  if (e.origin && e.origin !== window.location.origin) return;
+  if (e.data && e.data.type === 'elysian:section-visible' && e.data.id === 'action') {
+    if (window._ciStart) window._ciStart(); // call the exposed starter
+  }
+});
+
   </script>
 </section>
+
