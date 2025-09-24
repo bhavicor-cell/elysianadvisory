@@ -90,6 +90,17 @@ html { scrollbar-width: thin; scrollbar-color: rgba(17,17,17,.25) transparent; }
     display:block; border:0; background:transparent;
   }
 
+  /* Hide the only real scroller’s scrollbar (keep our letter rail only) */
+  #stackScroll{
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+  }
+  #stackScroll::-webkit-scrollbar{
+    width: 0 !important;
+    height: 0 !important;
+    display: none !important;
+  }
+
   /* Glass nav */
   .subtle-nav{
     position:fixed; top:20px; right:24px; display:flex; gap:6px; padding:8px 10px;
@@ -127,6 +138,101 @@ html { scrollbar-width: thin; scrollbar-color: rgba(17,17,17,.25) transparent; }
   #ElysianDockLogo>img,#ElysianDockLogo>svg{display:block;width:100%;height:auto}
   body.logo-visible #ElysianDockLogo{opacity:1}
   @media (prefers-reduced-motion:reduce){#ElysianDockLogo{transition:none}}
+
+  /* ===================== ELYSIAN RAIL ===================== */
+  #elysian-rail{
+    position: fixed;
+    right: calc(env(safe-area-inset-right, 0px) - 2px); /* hug the edge */
+    top: 50%;
+    /* tuck uses --x; 0 = visible, positive = pushed off the screen a bit */
+    --x: -8px;
+    transform: translate(var(--x), -50%);
+    display: grid;
+    gap: 6px;
+    z-index: 10020;
+    pointer-events: none;
+    opacity: 0;
+    transition:
+      opacity 180ms ease,
+      transform 240ms cubic-bezier(.22,.61,.36,1);
+  }
+  #elysian-rail.is-visible{
+    opacity: .35;               /* lighter at idle */
+    pointer-events: auto;
+  }
+  #elysian-rail.is-visible.is-tucked{ opacity: .40; }  /* extra subtle while tucked */
+  #elysian-rail:hover,
+  #elysian-rail:focus-within{ opacity: .98; }          /* full when interacted */
+
+  /* faint edge track */
+  #elysian-rail::before{
+    content:"";
+    position:absolute;
+    right: -6px;
+    top: -8px; bottom: -8px;
+    width: 2px;
+    background: linear-gradient(transparent, rgba(0,0,0,.22), transparent);
+    opacity:.35;
+    pointer-events:none;
+  }
+
+  /* sliding dot indicator */
+  #elysian-rail{ --indY: 0px; }
+  #elysian-rail::after{
+    content:none;
+    position:absolute;
+    right: -9px;
+    top: calc(var(--indY));
+    transform: translateY(-50%);
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #13294b;
+    box-shadow:
+      0 0 0 3px rgba(19,41,75,.18),
+      0 0 14px rgba(19,41,75,.45);
+    transition: top 220ms cubic-bezier(.22,.61,.36,1);
+    pointer-events:none;
+  }
+
+  #elysian-rail .letter{
+    all: unset;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    width: 26px; height: 26px;        /* compact */
+    border-radius: 999px;
+    font-family: 'Anecor', system-ui;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: .08em;
+    color: #1a1a1a;
+    background: rgba(255,255,255,.68);
+    border: 1px solid rgba(0,0,0,.10);
+    box-shadow: 0 8px 18px rgba(0,0,0,.08);
+    will-change: transform;
+    transition: transform 160ms ease, background .2s, color .2s, box-shadow .2s, border-color .2s;
+  }
+  #elysian-rail .letter:hover{ transform: translateY(-1px); }
+  #elysian-rail .letter[aria-selected="true"]{
+    background: #13294b;   /* BLUE when active */
+    color: #fff;
+    border-color: rgba(0,0,0,.18);
+    box-shadow: 0 12px 28px rgba(0,0,0,.18), 
+                0 0 0 2px rgba(19,41,75,.12) inset;
+    transform: translateY(-1px) scale(1.04);
+  }
+
+  @media (max-width: 820px){
+    #elysian-rail{
+      right: calc(env(safe-area-inset-right, 0px) - 1px);
+      gap: 4px;
+    }
+    #elysian-rail .letter{ width: 24px; height: 24px; font-size: 10px; }
+    #elysian-rail::after{ right: -8px; }
+    #elysian-rail::before{ right: -5px; }
+  }
+  /* Tuck pose = push slightly off the edge to the RIGHT (less distracting) */
+  #elysian-rail.is-tucked{ --x: 11px; }   /* adjust this number to tuck more/less */
+  /* =================== END ELYSIAN RAIL =================== */
 </style>
 </head>
 <body>
@@ -151,6 +257,18 @@ html { scrollbar-width: thin; scrollbar-color: rgba(17,17,17,.25) transparent; }
     <button class="nav-btn" type="button" data-target="connect">Connect</button>
   </nav>
 
+  <!-- ================= ELYSIAN RAIL ================= -->
+  <div id="elysian-rail" role="tablist" aria-label="Elysian section nav">
+    <button class="letter" data-target="hero"        aria-selected="false">E</button>
+    <button class="letter" data-target="for"         aria-selected="false">L</button>
+    <button class="letter" data-target="action"      aria-selected="false">Y</button>
+    <button class="letter" data-target="truth"       aria-selected="false">S</button>
+    <button class="letter" data-target="work"        aria-selected="false">I</button>
+    <button class="letter" data-target="trust"       aria-selected="false">A</button>
+    <button class="letter" data-target="@s7"         aria-selected="false">N</button>
+  </div>
+  <!-- =============== END ELYSIAN RAIL =============== -->
+
   <main id="stackScroll" aria-label="Stacked sections"></main>
 
   <script>
@@ -168,21 +286,15 @@ function __elysianHardBrake(ms = 1400){
     const trustFrame = document.getElementById('frame-trust');
     if (!root) return;
 
-    // remember current overflow setting so we can restore it
     const prevOverflow = root.style.overflowY;
 
-    // 1) fully stop parent scrolling
     root.style.overflowY = 'hidden';
-
-    // 2) make S6 iframe ignore pointers so momentum can’t chain into parent
     if (trustFrame) trustFrame.style.pointerEvents = 'none';
 
-    // 3) run the existing freeze + clear any queued wheel/settle
     __elysianFreezeInput(ms);
     window.__elysianAbortWheel?.();
     window.__elysianCancelSettle?.();
 
-    // 4) restore after a beat
     setTimeout(()=>{
       root.style.overflowY = prevOverflow || 'auto';
       if (trustFrame) trustFrame.style.pointerEvents = '';
@@ -342,20 +454,40 @@ function __elysianHardBrake(ms = 1400){
       document.querySelectorAll('.stack-frame').forEach(function(f){ framesObserver.observe(f); });
     })();
 
-    /* Nav + logo visibility */
+    /* Nav + logo + rail visibility + rail active letter */
     const globalNav = document.getElementById('globalHeroNav');
+    const railEl = document.getElementById('elysian-rail');
+
     function getVH(){ return Math.max(1, Math.round(window.innerHeight || document.documentElement.clientHeight || 0)); }
     function sectionCount(){ return document.querySelectorAll('.stack-section').length; }
     function currentIndex(){ return Math.round(stackEl.scrollTop / getVH()); }
+
     function updateChrome(){
       const idx = currentIndex();
+
+      // show/hide top nav + logo + rail (rail hidden on Hero)
       if (idx >= 1){
         globalNav.classList.add('is-visible');
         document.body.classList.add('logo-visible');
+        railEl.classList.add('is-visible');
+        railEl.classList.add('is-tucked');      // start tucked when visible
       } else {
         globalNav.classList.remove('is-visible');
         document.body.classList.remove('logo-visible');
+        railEl.classList.remove('is-visible');
+        railEl.classList.remove('is-tucked');   // reset when hidden
       }
+
+      // If we are NOT on section 6, force S7 off so 'N' won't stay blue
+      const TRUST_IDX = ID_TO_INDEX['trust'] ?? 5;
+      if (idx !== TRUST_IDX && window.__elysianRail?.isS7){
+        window.__elysianRail.isS7 = false;
+      }
+
+      // update active letter (respect S7 state)
+      const id = (window.__elysianRail?.isS7) ? '@s7' : (INDEX_TO_ID[idx] || 'hero');
+      window.__elysianRail?.setActiveByTarget(id);
+      window.__elysianRail?.setIndex(idx);
     }
     stackEl.addEventListener('scroll', () => { requestAnimationFrame(updateChrome); }, {passive:true});
     window.addEventListener('resize', updateChrome, {passive:true});
@@ -454,12 +586,10 @@ function __elysianHardBrake(ms = 1400){
           if (u < 1){
             requestAnimationFrame(step);
           } else {
-  isAnimating = false;
-  root.scrollTop = endTop; // exact land
-  if (typeof window.__elysianFreezeInput === 'function') window.__elysianFreezeInput(220);
-}
-
-
+            isAnimating = false;
+            root.scrollTop = endTop; // exact land
+            if (typeof window.__elysianFreezeInput === 'function') window.__elysianFreezeInput(220);
+          }
         }
         requestAnimationFrame(step);
       }
@@ -469,13 +599,12 @@ function __elysianHardBrake(ms = 1400){
       }
 
       function go(delta){
-  if (isAnimating) return;
-  const now = (performance && performance.now) ? performance.now() : Date.now();
-  if (now - lastMoveAt < MIN_GAP) return; // too soon after previous move
-  lastMoveAt = now;
-  animateToIndex(currentIndex() + delta);
-}
-
+        if (isAnimating) return;
+        const now = (performance && performance.now) ? performance.now() : Date.now();
+        if (now - lastMoveAt < MIN_GAP) return; // too soon after previous move
+        lastMoveAt = now;
+        animateToIndex(currentIndex() + delta);
+      }
 
       // Wheel / trackpad: coalesce to one move
       let wheelAccum = 0, wheelTimer = null, lastMoveAt = 0; const MIN_GAP = 420; // ms between section moves
@@ -484,25 +613,24 @@ function __elysianHardBrake(ms = 1400){
       window.__elysianCancelSettle = function(){ clearTimeout(settleTimer); };
 
       root.addEventListener('wheel', (e)=>{
-  e.preventDefault();
-  if (isAnimating) return;
-  if ((performance.now ? performance.now() : Date.now()) < (window.__elysianFreezeUntil || 0)){
-    // swallow leftover momentum
-    wheelAccum = 0; clearTimeout(wheelTimer);
-    return;
-  }
-  wheelAccum += e.deltaY;
+        e.preventDefault();
+        if (isAnimating) return;
+        if ((performance.now ? performance.now() : Date.now()) < (window.__elysianFreezeUntil || 0)){
+          // swallow leftover momentum
+          wheelAccum = 0; clearTimeout(wheelTimer);
+          return;
+        }
+        wheelAccum += e.deltaY;
         clearTimeout(wheelTimer);
         wheelTimer = setTimeout(()=>{
-  const THRESH = 160; // was 48
-  const now = (performance && performance.now) ? performance.now() : Date.now();
-  if (Math.abs(wheelAccum) > THRESH && (now - lastMoveAt) > MIN_GAP){
-    lastMoveAt = now;
-    go(wheelAccum > 0 ? +1 : -1);
-  }
-  wheelAccum = 0;
-}, 140); // was 80
-
+          const THRESH = 160;
+          const now = (performance && performance.now) ? performance.now() : Date.now();
+          if (Math.abs(wheelAccum) > THRESH && (now - lastMoveAt) > MIN_GAP){
+            lastMoveAt = now;
+            go(wheelAccum > 0 ? +1 : -1);
+          }
+          wheelAccum = 0;
+        }, 140);
       }, {passive:false});
 
       // Touch swipes
@@ -517,9 +645,9 @@ function __elysianHardBrake(ms = 1400){
       }, {passive:true});
 
       root.addEventListener('touchend', (e)=>{
-  if ((performance.now ? performance.now() : Date.now()) < (window.__elysianFreezeUntil || 0)) return;
-  if (touchStartY == null) return;
-  const t = performance.now() - touchStartT;
+        if ((performance.now ? performance.now() : Date.now()) < (window.__elysianFreezeUntil || 0)) return;
+        if (touchStartY == null) return;
+        const t = performance.now() - touchStartT;
 
         const endY = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0].clientY : touchStartY;
         const dy = endY - touchStartY; // + = swipe down
@@ -534,12 +662,12 @@ function __elysianHardBrake(ms = 1400){
       }, {passive:true});
 
       // Keyboard
-        window.addEventListener('keydown', (e)=>{
-  if (isAnimating) return;
-  if ((performance.now ? performance.now() : Date.now()) < (window.__elysianFreezeUntil || 0)){
-    e.preventDefault(); return;
-  }
-  const idx = currentIndex();
+      window.addEventListener('keydown', (e)=>{
+        if (isAnimating) return;
+        if ((performance.now ? performance.now() : Date.now()) < (window.__elysianFreezeUntil || 0)){
+          e.preventDefault(); return;
+        }
+        const idx = currentIndex();
 
         if (e.key === 'ArrowDown' || e.key === 'PageDown' || (e.key === ' ' && !e.shiftKey)){
           e.preventDefault(); animateToIndex(idx + 1);
@@ -554,14 +682,13 @@ function __elysianHardBrake(ms = 1400){
 
       // Settle to nearest after manual scroll inertia stops
       root.addEventListener('scroll', ()=>{
-  clearTimeout(settleTimer);
-  if (isAnimating) return;
-  settleTimer = setTimeout(()=>{
-    if ((performance.now ? performance.now() : Date.now()) < (window.__elysianFreezeUntil || 0)) return;
-    animateToIndex(nearestIndex(), 520);
-  }, 120);
-}, {passive:true});
-
+        clearTimeout(settleTimer);
+        if (isAnimating) return;
+        settleTimer = setTimeout(()=>{
+          if ((performance.now ? performance.now() : Date.now()) < (window.__elysianFreezeUntil || 0)) return;
+          animateToIndex(nearestIndex(), 520);
+        }, 120);
+      }, {passive:true});
 
       // On resize, re-align to the exact pixel for current section
       window.addEventListener('resize', ()=>{
@@ -570,8 +697,6 @@ function __elysianHardBrake(ms = 1400){
         root.scrollTop = indexToTop(idx);
       }, {passive:true});
 
-      
-
       /* === EXPOSE pager API to iframes === */
       window.ElysianPager = {
         goNext(){ animateToIndex(currentIndex()+1); },
@@ -579,33 +704,41 @@ function __elysianHardBrake(ms = 1400){
         goToId(id){ const i = ID_TO_INDEX[id] ?? 0; animateToIndex(i); },
         currentId(){ return INDEX_TO_ID[currentIndex()]; }
       };
-      
-      
     })();
     /* ======== END LUXE PAGER ======== */
 
     /* === Parent message bridge: iframes -> pager === */
     window.addEventListener('message', (evt)=>{
-  const okOrigin = (evt.origin === location.origin) || (evt.origin === 'null');
-  if (!okOrigin) return;
-  const { type, target } = evt.data || {};
+      const okOrigin = (evt.origin === location.origin) || (evt.origin === 'null');
+      if (!okOrigin) return;
+      const { type, target } = evt.data || {};
 
-  if (type === 'elysian:go-next'){
-    __elysianFreezeInput(700);
-    return window.ElysianPager?.goNext();
-  }
-  if (type === 'elysian:go-prev'){
-  // Coming back from S7 → S6: hard-stop momentum + chaining
-  __elysianHardBrake(1400);
-  return window.ElysianPager?.goPrev();
-}
+      if (type === 'elysian:go-next'){
+        __elysianFreezeInput(700);
+        return window.ElysianPager?.goNext();
+      }
 
-  if (type === 'elysian:sweep-to' && target){
-    __elysianFreezeInput(700);
-    return window.ElysianPager?.goToId(target);
-  }
-});
+      // Coming back from S7 → S6
+      if (type === 'elysian:go-prev'){
+        __elysianHardBrake(1400);
+        window.__elysianRail && (window.__elysianRail.isS7 = false);
+        window.__elysianRail?.setActiveByTarget('trust'); // A turns blue
+        return window.ElysianPager?.goPrev();
+      }
 
+      if (type === 'elysian:sweep-to' && target){
+        __elysianFreezeInput(700);
+        return window.ElysianPager?.goToId(target);
+      }
+
+      // S7 opened inside section 6 → make N blue
+      if (type === 'elysian:s7-opened'){
+        if (window.__elysianRail){
+          window.__elysianRail.isS7 = true;
+          window.__elysianRail.setActiveByTarget('@s7'); // light N
+        }
+      }
+    });
 
     /* Last-resort boot cover removal */
     setTimeout(function(){
@@ -615,84 +748,320 @@ function __elysianHardBrake(ms = 1400){
       }
     }, 1500);
 
+    /* === Clickable Logo -> jump to the first section (Hero) === */
+    (function(){
+      const logo = document.getElementById('ElysianDockLogo');
+      if (!logo) return;
 
-/* === Clickable Logo -> jump to the first section (Hero) === */
-(function(){
-  const logo = document.getElementById('ElysianDockLogo');
-  if (!logo) return;
+      function goHome(){
+        window.ElysianPager?.goToId('hero');
+      }
 
-  function goHome(){
-    // Uses your existing pager to go to the 'hero' section
-    window.ElysianPager?.goToId('hero');
-  }
+      logo.addEventListener('click', goHome);
+      logo.addEventListener('keydown', (e)=>{
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); goHome(); }
+      });
+    })();
 
-  logo.addEventListener('click', goHome);
-  logo.addEventListener('keydown', (e)=>{
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); goHome(); }
-  });
-})();
+    //* === Nav buttons (robust CONNECT) === */
+    (function(){
+      const nav = document.getElementById('globalHeroNav');
+      if (!nav) return;
 
-//* === Nav buttons (robust CONNECT) === */
-(function(){
-  const nav = document.getElementById('globalHeroNav');
-  if (!nav) return;
+      const WRITINGS_URL    = './writings.html';
+      const INSTRUMENTS_URL = './instruments.html';
 
-  const WRITINGS_URL    = './writings.html';
-  const INSTRUMENTS_URL = './instruments.html';
+      nav.addEventListener('click', (e)=>{
+        const btn = e.target.closest('.nav-btn');
+        if (!btn) return;
 
-  nav.addEventListener('click', (e)=>{
-    const btn = e.target.closest('.nav-btn');
-    if (!btn) return;
+        const target = btn.dataset.target;
 
-    const target = btn.dataset.target;
+        if (target === 'writings'){    window.location.href = WRITINGS_URL;    return; }
+        if (target === 'instruments'){ window.location.href = INSTRUMENTS_URL; return; }
 
-    if (target === 'writings'){    window.location.href = WRITINGS_URL;    return; }
-    if (target === 'instruments'){ window.location.href = INSTRUMENTS_URL; return; }
+        if (target === 'connect'){
+          // 1) Page to Section 6 (the TRUST iframe that holds S6+S7)
+          __elysianHardBrake(1400);
+          window.ElysianPager?.goToId('trust');
 
-    if (target === 'connect'){
-      // 1) Page to Section 6 (the TRUST iframe that holds S6+S7)
-      __elysianHardBrake(1400);
-window.ElysianPager?.goToId('trust');
+          // 2) Repeatedly nudge the iframe to open S7 until it ACKs
+          const frame = document.getElementById('frame-trust');
+          if (!frame) return;
 
+          const targetOrigin = (location.origin && location.origin !== 'null') ? location.origin : '*';
+          let tries = 0, timer = null, max = 25; // ~25*120ms ≈ 3 seconds
 
-      // 2) Repeatedly nudge the iframe to open S7 until it ACKs
+          function sendNudge(){
+            tries++;
+            try{
+              frame.contentWindow?.postMessage(
+                { type:'elysian:focus-anchor', target:'connect' },
+                targetOrigin
+              );
+            }catch(_){}
+            if (tries >= max){ clearInterval(timer); }
+          }
+
+          // Stop on ACK from the iframe
+          function onAck(evt){
+            const ok = (evt.origin === location.origin) || (evt.origin === 'null');
+            if (!ok) return;
+            if (evt.data && evt.data.type === 'elysian:s7-opened'){
+              clearInterval(timer);
+              window.removeEventListener('message', onAck);
+            }
+          }
+
+          window.addEventListener('message', onAck);
+          // Kick once immediately, then keep nudging until ACK
+          sendNudge();
+          timer = setInterval(sendNudge, 240);
+        }
+      });
+    })();
+
+    /* ===== INLINE-CTA WIRES from S6 (index-only) ===== */
+    (function(){
+      const WRITINGS_URL    = './writings.html';
+      const INSTRUMENTS_URL = './instruments.html';
+
       const frame = document.getElementById('frame-trust');
       if (!frame) return;
 
-      const targetOrigin = (location.origin && location.origin !== 'null') ? location.origin : '*';
-      let tries = 0, timer = null, max = 25; // ~25*120ms ≈ 3 seconds
-
-      function sendNudge(){
-        tries++;
+      function wireInlineCtas(){
         try{
-          frame.contentWindow?.postMessage(
-            { type:'elysian:focus-anchor', target:'connect' },
-            targetOrigin
-          );
+          const doc = frame.contentDocument;
+          if (!doc) return;
+          doc.addEventListener('click', function(e){
+            const a = e.target.closest('a.inline-cta[href]');
+            if (!a) return;
+            if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
+
+            const href = a.getAttribute('href') || '';
+            if (href.includes('writings')){
+              e.preventDefault(); window.location.href = WRITINGS_URL; return;
+            }
+            if (href.includes('instruments')){
+              e.preventDefault(); window.location.href = INSTRUMENTS_URL; return;
+            }
+          }, true);
         }catch(_){}
-        if (tries >= max){ clearInterval(timer); }
       }
 
-      // Stop on ACK from the iframe
-      function onAck(evt){
-        const ok = (evt.origin === location.origin) || (evt.origin === 'null');
-        if (!ok) return;
-        if (evt.data && evt.data.type === 'elysian:s7-opened'){
-          clearInterval(timer);
-          window.removeEventListener('message', onAck);
+      frame.addEventListener('load', wireInlineCtas);
+    })();
+
+    /* ===== WATCH S7 STATE INSIDE THE IFRAME (robust A/N highlight) ===== */
+    (function(){
+      const TRUST_ID = 'trust';
+      const TRUST_IDX = () => (ID_TO_INDEX[TRUST_ID] ?? 5);
+
+      function mountS7Watcher(){
+        const frame = document.getElementById('frame-trust');
+        if (!frame) return;
+        try{
+          const doc = frame.contentDocument;
+          if (!doc) return;
+          const html = doc.documentElement;
+
+          // Update rail whenever S7 mode toggles inside the iframe
+          const update = ()=>{
+            const on = html.classList.contains('phase-s7');
+            const idx = currentIndex();
+            if (idx === TRUST_IDX()){
+              window.__elysianRail.isS7 = !!on;
+              window.__elysianRail.setActiveByTarget(on ? '@s7' : 'trust');
+            } else {
+              // If we're not on section 6, don't keep 'N' blue
+              window.__elysianRail.isS7 = false;
+              window.__elysianRail.setActiveByTarget(INDEX_TO_ID[idx] || 'hero');
+            }
+          };
+
+          update();
+          // Observe class changes on <html> inside the iframe
+          const mo = new MutationObserver(update);
+          mo.observe(html, { attributes:true, attributeFilter:['class'] });
+
+          // Keep a reference to disconnect later if needed
+          frame._s7mo && frame._s7mo.disconnect();
+          frame._s7mo = mo;
+        }catch(_){}
+      }
+
+      // Install watcher after the trust frame loads (and also if already loaded)
+      const f = document.getElementById('frame-trust');
+      if (f){
+        if (f.contentDocument && f.contentDocument.readyState === 'complete'){
+          mountS7Watcher();
         }
+        f.addEventListener('load', mountS7Watcher);
+      }
+    })();
+
+    /* ===== ELYSIAN ⇄ CLARITY RAIL logic ===== */
+    (function(){
+      const rail  = document.getElementById('elysian-rail');
+      const btns  = Array.from(rail.querySelectorAll('.letter'));
+
+      const ORDER = ['hero','for','action','truth','work','trust','@s7'];
+      const WORDS = ['ELYSIAN','CLARITY'];
+      let wordIx = 0;
+      let lastIndex = 0;
+      let lastDir = null;
+
+      function setLetters(word){
+        btns.forEach((b,i)=>{
+          b.style.transform = 'scale(0.92)';
+          b.textContent = word[i];
+          requestAnimationFrame(()=> b.style.transform = 'scale(1)');
+        });
+      }
+      function toggleWord(){ wordIx = 1 - wordIx; setLetters(WORDS[wordIx]); }
+
+      function updateIndicatorByBtn(btn){
+        if (!btn) return;
+        const railRect = rail.getBoundingClientRect();
+        const r = btn.getBoundingClientRect();
+        const center = (r.top + r.height/2) - railRect.top;
+        rail.style.setProperty('--indY', center + 'px');
       }
 
-      window.addEventListener('message', onAck);
-      // Kick once immediately, then keep nudging until ACK
-      sendNudge();
-      timer = setInterval(sendNudge, 240);
-    }
-  });
-})();
+      function setActiveByTarget(t){
+        btns.forEach(b=> b.setAttribute('aria-selected', (b.dataset.target===t) ? 'true':'false'));
+        updateIndicatorByBtn(btns.find(b=> b.dataset.target===t));
+      }
 
+      function setIndex(newIdx){
+        const dir = newIdx > lastIndex ? 'down' : (newIdx < lastIndex ? 'up' : lastDir);
+        if (dir && lastDir && dir !== lastDir) toggleWord();
+        if (dir) lastDir = dir;
+        lastIndex = newIdx;
+      }
 
+      function goToTarget(target){
+        if (target === 'trust'){
+          // Explicitly leave S7 and show section 6 (A turns blue)
+          window.__elysianRail.isS7 = false;
+          setActiveByTarget('trust');
+          setIndex(ORDER.indexOf('trust'));
+          window.ElysianPager?.goToId('trust');
 
+          // Ask the iframe politely to close S7 if it was open (smooth return)
+          const frame = document.getElementById('frame-trust');
+          try{
+            const doc = frame?.contentDocument;
+            if (doc){
+              // 1) remove the global S7 class
+              doc.documentElement.classList.remove('phase-s7');
+              // 2) trigger its internal "return to S6" animation hook
+              const CE = doc.defaultView?.CustomEvent || CustomEvent;
+              doc.dispatchEvent(new CE('sectionchange', { detail: { id:'s6', from:'parent' } }));
+            }
+          }catch(_){}
+          return;
+        }
+
+        if (target === '@s7'){
+          // open S7 from the rail
+          __elysianHardBrake(1400);
+          window.ElysianPager?.goToId('trust');
+
+          const frame = document.getElementById('frame-trust');
+          if (frame){
+            const targetOrigin = (location.origin && location.origin !== 'null') ? location.origin : '*';
+            let tries = 0, timer = null, max = 25;
+            function sendNudge(){
+              tries++;
+              try{ frame.contentWindow?.postMessage({ type:'elysian:focus-anchor', target:'connect' }, targetOrigin); }catch(_){}
+              if (tries >= max) clearInterval(timer);
+            }
+            function onAck(evt){
+              const ok = (evt.origin === location.origin) || (evt.origin === 'null');
+              if (!ok) return;
+              if (evt.data && evt.data.type === 'elysian:s7-opened'){
+                clearInterval(timer);
+                window.removeEventListener('message', onAck);
+              }
+            }
+            window.addEventListener('message', onAck);
+            sendNudge();
+            timer = setInterval(sendNudge, 240);
+          }
+          window.__elysianRail.isS7 = true;
+          setActiveByTarget('@s7');
+          setIndex(6);
+          return;
+        }
+
+        const idx = ORDER.indexOf(target);
+        if (idx !== -1) setIndex(idx);
+        window.ElysianPager?.goToId(target);
+        setActiveByTarget(target);
+      }
+
+      btns.forEach(btn=> btn.addEventListener('click', ()=> goToTarget(btn.dataset.target)));
+
+      // expose a tiny API so index.js can coordinate easily
+      window.__elysianRail = {
+        isS7: false,
+        setActiveByTarget,
+        setIndex
+      };
+
+      // init letters (ELYSIAN), no active by default (Hero hides the rail)
+      setLetters(WORDS[0]);
+
+      // keep dot centered after resize (when visible)
+      window.addEventListener('resize', ()=>{
+        const sel = btns.find(b => b.getAttribute('aria-selected') === 'true');
+        if (sel) updateIndicatorByBtn(sel);
+      }, {passive:true});
+
+      /* --- Proximity reveal & re-tuck --- */
+      (function(){
+        if (!rail) return;
+
+        const EDGE_ZONE_MOUSE = 120; // px from right edge to start revealing
+        const EDGE_ZONE_TOUCH = 84;  // smaller zone for touch
+        let retuckTO = null;
+
+        const tuck = (on) => rail.classList.toggle('is-tucked', !!on);
+        const nearEdge = (x, zone) => (window.innerWidth - x) <= zone;
+
+        // Reveal when mouse moves near the right edge; tuck when away (unless hovering/focused)
+        window.addEventListener('mousemove', (e)=>{
+          if (!rail.classList.contains('is-visible')) return;
+          const near = nearEdge(e.clientX, EDGE_ZONE_MOUSE);
+          if (near) {
+            tuck(false);
+          } else if (!rail.matches(':hover, :focus-within')) {
+            tuck(true);
+          }
+        }, {passive:true});
+
+        // Classic hover/focus behavior
+        rail.addEventListener('mouseenter', ()=> tuck(false));
+        rail.addEventListener('mouseleave', ()=> tuck(true));
+        rail.addEventListener('focusin',   ()=> tuck(false));
+        rail.addEventListener('focusout',  ()=>{
+          clearTimeout(retuckTO);
+          retuckTO = setTimeout(()=> tuck(true), 700);
+        });
+
+        // Touch: tap near the edge to reveal briefly
+        window.addEventListener('touchstart', (e)=>{
+          const t = e.changedTouches && e.changedTouches[0];
+          if (!t || !rail.classList.contains('is-visible')) return;
+          if (nearEdge(t.clientX, EDGE_ZONE_TOUCH)){
+            tuck(false);
+            clearTimeout(retuckTO);
+            retuckTO = setTimeout(()=> tuck(true), 2500); // auto re-tuck after a short while
+          }
+        }, {passive:true});
+      })();
+    })();
   </script>
 
   <noscript>
