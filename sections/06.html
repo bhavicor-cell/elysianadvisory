@@ -697,7 +697,7 @@
   handedOff = false;
 
   // Make it slower so you can *see* the return
-  sec.style.setProperty('--ret-dur', '1400ms');
+  sec.style.setProperty('--ret-dur', '2400ms');
 
   // 1) apply the off-screen pose
   sec.classList.add('is-exiting');
@@ -716,6 +716,46 @@
 
    
   </script>
+  <script>
+/* Make the "WRITINGS" and "INSTRUMENTS" links in S6
+   behave like the top nav (client-side route, no reload). */
+(function () {
+  const sec = document.getElementById('ways-we-work');
+
+  // Safety: if S6 isn't on the page, stop.
+  if (!sec) return;
+
+  sec.addEventListener('click', function (e) {
+    const a = e.target.closest('a.inline-cta[href]');
+    if (!a) return;
+
+    // Let normal “open in new tab” work
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
+
+    const href = a.getAttribute('href') || '';
+    const isInternal = href.startsWith('/');
+
+    if (!isInternal) return; // external links = let browser handle
+
+    // Stop the browser doing a full reload:
+    e.preventDefault();
+
+    // 1) If you have a nav/router function, call it here (optional):
+    // if (window.appNavigate) { window.appNavigate(href); return; }
+
+    // 2) Otherwise mimic your CTA code: pushState + fire popstate
+    try {
+      history.pushState({}, '', href);
+      // Tell your SPA “route changed” (same pattern you already use in S7 code)
+      window.dispatchEvent(new Event('popstate'));
+    } catch (_) {
+      // Worst case, just go there normally
+      location.assign(href);
+    }
+  });
+})();
+</script>
+
 </section>
 
 
@@ -1627,9 +1667,6 @@ function startReturn(){
   
   document.body.style.overflow = '';
 
-  // Try parent first
-  try { parent.postMessage({ type:'elysian:go-prev', from:'s7' }, location.origin); } catch(_) {}
-
   // Local fallback: switch back to S6 yourself
   document.documentElement.classList.remove('phase-s7');
   sec.classList.remove('is-active','show-form','pop-open');
@@ -1637,7 +1674,6 @@ function startReturn(){
   document.dispatchEvent(new CustomEvent('sectionchange', { detail: { id:'s6', from:'s7' }}));
 }
 
-  
 
   function onWheelUp(e){
     if (!isActive() || !reverseArmed) return;
@@ -1979,6 +2015,23 @@ document.addEventListener('sectionchange', (e)=>{
       void sec.offsetWidth;
       sec.classList.remove('instant');
 
+        // 2) FORCE the browser to commit that pose (layout flush)
+  void sec.offsetWidth; // or: sec.getBoundingClientRect();
+
+  // 3) then animate back in
+  requestAnimationFrame(()=>{
+    // ADD THIS: stagger the return (70ms per box)
+    const boxes = sec.querySelectorAll('.hbox');
+    boxes.forEach((b,i)=> { b.style.transitionDelay = (i * 70) + 'ms'; });
+
+    sec.classList.remove('is-exiting');
+
+    // cleanup the ad-hoc delays after the animation finishes
+    const retMs = parseInt(getComputedStyle(sec).getPropertyValue('--ret-dur')) || 2000;
+    setTimeout(()=> boxes.forEach(b=> b.style.transitionDelay = ''), retMs + (boxes.length * 70) + 80);
+  });
+
+
     } else {
       // FIRST TIME: let the quote shrink, then open the form
       setFormVisible(false);
@@ -2045,5 +2098,13 @@ document.addEventListener('sectionSweepComplete', (e)=>{
   });
 })();
 </script>
+<style>
+  /* Tie the hero fade-back to the same --ret-dur you set in JS */
+  #ways-we-work .hero__inner [data-exit="fade"]{
+    transition: opacity var(--ret-dur, 600ms) var(--lux),
+                filter  var(--ret-dur, 600ms) var(--lux) !important;
+  }
+</style>
+
 
 </section>
