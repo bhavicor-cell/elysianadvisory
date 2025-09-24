@@ -8,6 +8,17 @@
 <link rel="preload" as="video" href="video.webm" type="video/webm">
 
 <style>
+  /* Firefox */
+html { scrollbar-width: thin; scrollbar-color: rgba(17,17,17,.25) transparent; }
+/* WebKit */
+::-webkit-scrollbar{ width:10px; }
+::-webkit-scrollbar-track{ background:transparent; }
+::-webkit-scrollbar-thumb{
+  background: rgba(17,17,17,.22);
+  border:2px solid transparent; border-radius:8px; background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover{ background: rgba(17,17,17,.35); }
+
   :root{
     --vh:100svh;
     --page-bg:#fffcf8;
@@ -143,6 +154,42 @@
   <main id="stackScroll" aria-label="Stacked sections"></main>
 
   <script>
+    /* === Input Freeze Guard (prevents overscrolling past S6) === */
+window.__elysianFreezeUntil = 0;
+function __elysianFreezeInput(ms = 1000){
+  const now = (performance && performance.now) ? performance.now() : Date.now();
+  window.__elysianFreezeUntil = now + ms;
+}
+
+/* === Hard Brake: block parent scroll + iframe pointers briefly === */
+function __elysianHardBrake(ms = 1400){
+  try{
+    const root = document.getElementById('stackScroll');
+    const trustFrame = document.getElementById('frame-trust');
+    if (!root) return;
+
+    // remember current overflow setting so we can restore it
+    const prevOverflow = root.style.overflowY;
+
+    // 1) fully stop parent scrolling
+    root.style.overflowY = 'hidden';
+
+    // 2) make S6 iframe ignore pointers so momentum can’t chain into parent
+    if (trustFrame) trustFrame.style.pointerEvents = 'none';
+
+    // 3) run the existing freeze + clear any queued wheel/settle
+    __elysianFreezeInput(ms);
+    window.__elysianAbortWheel?.();
+    window.__elysianCancelSettle?.();
+
+    // 4) restore after a beat
+    setTimeout(()=>{
+      root.style.overflowY = prevOverflow || 'auto';
+      if (trustFrame) trustFrame.style.pointerEvents = '';
+    }, ms);
+  }catch(_){}
+}
+
     /* Per-section bg controls */
     const BG_CONFIG = {
       hero:{opacity:0.047,speed:0.3},
@@ -407,9 +454,12 @@
           if (u < 1){
             requestAnimationFrame(step);
           } else {
-            isAnimating = false;
-            root.scrollTop = endTop; // exact land
-          }
+  isAnimating = false;
+  root.scrollTop = endTop; // exact land
+  if (typeof window.__elysianFreezeInput === 'function') window.__elysianFreezeInput(220);
+}
+
+
         }
         requestAnimationFrame(step);
       }
@@ -419,24 +469,40 @@
       }
 
       function go(delta){
-        if (isAnimating) return;
-        animateToIndex(currentIndex() + delta);
-      }
+  if (isAnimating) return;
+  const now = (performance && performance.now) ? performance.now() : Date.now();
+  if (now - lastMoveAt < MIN_GAP) return; // too soon after previous move
+  lastMoveAt = now;
+  animateToIndex(currentIndex() + delta);
+}
+
 
       // Wheel / trackpad: coalesce to one move
-      let wheelAccum = 0, wheelTimer = null;
+      let wheelAccum = 0, wheelTimer = null, lastMoveAt = 0; const MIN_GAP = 420; // ms between section moves
+      // expose tiny helpers so parent can cancel any pending moves
+      window.__elysianAbortWheel = function(){ wheelAccum = 0; clearTimeout(wheelTimer); };
+      window.__elysianCancelSettle = function(){ clearTimeout(settleTimer); };
+
       root.addEventListener('wheel', (e)=>{
-        e.preventDefault();
-        if (isAnimating) return;
-        wheelAccum += e.deltaY;
+  e.preventDefault();
+  if (isAnimating) return;
+  if ((performance.now ? performance.now() : Date.now()) < (window.__elysianFreezeUntil || 0)){
+    // swallow leftover momentum
+    wheelAccum = 0; clearTimeout(wheelTimer);
+    return;
+  }
+  wheelAccum += e.deltaY;
         clearTimeout(wheelTimer);
         wheelTimer = setTimeout(()=>{
-          const THRESH = 48;
-          if (Math.abs(wheelAccum) > THRESH){
-            go(wheelAccum > 0 ? +1 : -1);
-          }
-          wheelAccum = 0;
-        }, 80);
+  const THRESH = 160; // was 48
+  const now = (performance && performance.now) ? performance.now() : Date.now();
+  if (Math.abs(wheelAccum) > THRESH && (now - lastMoveAt) > MIN_GAP){
+    lastMoveAt = now;
+    go(wheelAccum > 0 ? +1 : -1);
+  }
+  wheelAccum = 0;
+}, 140); // was 80
+
       }, {passive:false});
 
       // Touch swipes
@@ -451,8 +517,10 @@
       }, {passive:true});
 
       root.addEventListener('touchend', (e)=>{
-        if (touchStartY == null) return;
-        const t = performance.now() - touchStartT;
+  if ((performance.now ? performance.now() : Date.now()) < (window.__elysianFreezeUntil || 0)) return;
+  if (touchStartY == null) return;
+  const t = performance.now() - touchStartT;
+
         const endY = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0].clientY : touchStartY;
         const dy = endY - touchStartY; // + = swipe down
         touchStartY = null;
@@ -466,9 +534,13 @@
       }, {passive:true});
 
       // Keyboard
-      window.addEventListener('keydown', (e)=>{
-        if (isAnimating) return;
-        const idx = currentIndex();
+        window.addEventListener('keydown', (e)=>{
+  if (isAnimating) return;
+  if ((performance.now ? performance.now() : Date.now()) < (window.__elysianFreezeUntil || 0)){
+    e.preventDefault(); return;
+  }
+  const idx = currentIndex();
+
         if (e.key === 'ArrowDown' || e.key === 'PageDown' || (e.key === ' ' && !e.shiftKey)){
           e.preventDefault(); animateToIndex(idx + 1);
         } else if (e.key === 'ArrowUp' || e.key === 'PageUp' || (e.key === ' ' && e.shiftKey)){
@@ -482,10 +554,14 @@
 
       // Settle to nearest after manual scroll inertia stops
       root.addEventListener('scroll', ()=>{
-        clearTimeout(settleTimer);
-        if (isAnimating) return;
-        settleTimer = setTimeout(()=>{ animateToIndex(nearestIndex(), 520); }, 120);
-      }, {passive:true});
+  clearTimeout(settleTimer);
+  if (isAnimating) return;
+  settleTimer = setTimeout(()=>{
+    if ((performance.now ? performance.now() : Date.now()) < (window.__elysianFreezeUntil || 0)) return;
+    animateToIndex(nearestIndex(), 520);
+  }, 120);
+}, {passive:true});
+
 
       // On resize, re-align to the exact pixel for current section
       window.addEventListener('resize', ()=>{
@@ -494,6 +570,8 @@
         root.scrollTop = indexToTop(idx);
       }, {passive:true});
 
+      
+
       /* === EXPOSE pager API to iframes === */
       window.ElysianPager = {
         goNext(){ animateToIndex(currentIndex()+1); },
@@ -501,19 +579,33 @@
         goToId(id){ const i = ID_TO_INDEX[id] ?? 0; animateToIndex(i); },
         currentId(){ return INDEX_TO_ID[currentIndex()]; }
       };
+      
+      
     })();
     /* ======== END LUXE PAGER ======== */
 
     /* === Parent message bridge: iframes -> pager === */
     window.addEventListener('message', (evt)=>{
-      // Allow same-origin; also allow 'null' for file:// dev runs
-      const okOrigin = (evt.origin === location.origin) || (evt.origin === 'null');
-      if (!okOrigin) return;
-      const { type, target } = evt.data || {};
-      if (type === 'elysian:go-next')  return window.ElysianPager?.goNext();
-      if (type === 'elysian:go-prev')  return window.ElysianPager?.goPrev();
-      if (type === 'elysian:sweep-to' && target) return window.ElysianPager?.goToId(target);
-    });
+  const okOrigin = (evt.origin === location.origin) || (evt.origin === 'null');
+  if (!okOrigin) return;
+  const { type, target } = evt.data || {};
+
+  if (type === 'elysian:go-next'){
+    __elysianFreezeInput(700);
+    return window.ElysianPager?.goNext();
+  }
+  if (type === 'elysian:go-prev'){
+  // Coming back from S7 → S6: hard-stop momentum + chaining
+  __elysianHardBrake(1400);
+  return window.ElysianPager?.goPrev();
+}
+
+  if (type === 'elysian:sweep-to' && target){
+    __elysianFreezeInput(700);
+    return window.ElysianPager?.goToId(target);
+  }
+});
+
 
     /* Last-resort boot cover removal */
     setTimeout(function(){
@@ -559,7 +651,9 @@
 
     if (target === 'connect'){
       // 1) Page to Section 6 (the TRUST iframe that holds S6+S7)
-      window.ElysianPager?.goToId('trust');
+      __elysianHardBrake(1400);
+window.ElysianPager?.goToId('trust');
+
 
       // 2) Repeatedly nudge the iframe to open S7 until it ACKs
       const frame = document.getElementById('frame-trust');
@@ -592,7 +686,7 @@
       window.addEventListener('message', onAck);
       // Kick once immediately, then keep nudging until ACK
       sendNudge();
-      timer = setInterval(sendNudge, 120);
+      timer = setInterval(sendNudge, 240);
     }
   });
 })();
