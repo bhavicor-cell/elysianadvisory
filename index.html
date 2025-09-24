@@ -106,9 +106,9 @@
     --dock-shadow-soft:0 10px 18px rgba(0,0,0,.06);
   }
   #ElysianDockLogo{
-    position:fixed; z-index:10000; pointer-events:none;
+    position:fixed; z-index:10000; pointer-events:auto;
     top:var(--dock-logo-top); left:var(--dock-logo-left);
-    width:var(--dock-logo-w); height:auto;
+    width:var(--dock-logo-w); height:auto; cursor: pointer;
     opacity:0; transform:none; filter:drop-shadow(var(--dock-shadow-soft));
     transition:opacity .5s cubic-bezier(.25,1,.5,1);
     will-change:opacity; contain:layout paint;
@@ -130,7 +130,7 @@
     <div id="bg-tint"></div>
   </div>
 
-  <div id="ElysianDockLogo" aria-hidden="true">
+  <div id="ElysianDockLogo" aria-hidden="true" role="button" tabindex="0" aria-label="Go to top">
     <img src="./assets/LF.svg" alt="Elysian Advisory" decoding="async" fetchpriority="low" width="200" height="60" />
   </div>
 
@@ -160,9 +160,12 @@
       {id:'action',title:'Clarity In Action',src:'./sections/03.html'},
       {id:'truth',title:'Truth',src:'./sections/04.html'},
       {id:'work',title:'Work With Us',src:'./sections/05.html'},
-      {id:'trust',title:'Trust Us',src:'./sections/06.html'},
-      {id:'trust-2',title:'Trust Us',src:'./sections/07.html'}
+      {id:'trust',title:'Trust Us',src:'./sections/06.html'}
     ];
+
+    /* === map ids <-> indexes (used by message bridge) === */
+    const ID_TO_INDEX = Object.fromEntries(SECTION_MANIFEST.map((it,i)=>[it.id,i]));
+    const INDEX_TO_ID = SECTION_MANIFEST.map(it=>it.id);
 
     /* Viewport height prop */
     function setVH(){
@@ -336,27 +339,25 @@
       document.querySelectorAll('.stack-section').forEach(function(s){ bgObserver.observe(s); });
     })();
 
-  // === Notify Section 3 ("action") when it is actually visible in the scroll viewport ===
-  (function(){
-    const root = document.getElementById('stackScroll');
-    if (!root) return;
+    /* === Tell each iframe when its section is visibly on screen === */
+    (function(){
+      const root = document.getElementById('stackScroll');
+      if (!root) return;
 
-    const revealObserver = new IntersectionObserver((entries)=>{
-      entries.forEach((entry)=>{
-        const sec = entry.target;                             // e.g., <section id="sec-action">
-        const id = (sec.id || '').replace('sec-','');
-        if (id !== 'action') return;                          // only Section 3
-        const frame = document.getElementById('frame-' + id);
-        if (entry.isIntersecting && frame?.contentWindow){
-          // Tell the iframe: you are visibly on-screen now
-          frame.contentWindow.postMessage({ type:'elysian:section-visible', id }, location.origin);
-        }
-      });
-    }, { root, threshold: 0.6 });
+      const io = new IntersectionObserver((entries)=>{
+        entries.forEach((entry)=>{
+          const sec = entry.target;                // e.g., <section id="sec-trust-2">
+          const id  = (sec.id || '').replace('sec-','');
+          const frame = document.getElementById('frame-' + id);
+          if (entry.isIntersecting && frame?.contentWindow){
+            frame.contentWindow.postMessage({ type:'elysian:section-visible', id }, location.origin);
+          }
+        });
+      }, { root, threshold: 0.6 });
 
-    document.querySelectorAll('.stack-section').forEach(sec => revealObserver.observe(sec));
-  })();
- 
+      document.querySelectorAll('.stack-section').forEach(sec => io.observe(sec));
+    })();
+
     /* Ensure autoplay */
     (function(){
       const v = document.getElementById('bg-video');
@@ -492,8 +493,27 @@
         animId++; isAnimating = false;
         root.scrollTop = indexToTop(idx);
       }, {passive:true});
+
+      /* === EXPOSE pager API to iframes === */
+      window.ElysianPager = {
+        goNext(){ animateToIndex(currentIndex()+1); },
+        goPrev(){ animateToIndex(currentIndex()-1); },
+        goToId(id){ const i = ID_TO_INDEX[id] ?? 0; animateToIndex(i); },
+        currentId(){ return INDEX_TO_ID[currentIndex()]; }
+      };
     })();
     /* ======== END LUXE PAGER ======== */
+
+    /* === Parent message bridge: iframes -> pager === */
+    window.addEventListener('message', (evt)=>{
+      // Allow same-origin; also allow 'null' for file:// dev runs
+      const okOrigin = (evt.origin === location.origin) || (evt.origin === 'null');
+      if (!okOrigin) return;
+      const { type, target } = evt.data || {};
+      if (type === 'elysian:go-next')  return window.ElysianPager?.goNext();
+      if (type === 'elysian:go-prev')  return window.ElysianPager?.goPrev();
+      if (type === 'elysian:sweep-to' && target) return window.ElysianPager?.goToId(target);
+    });
 
     /* Last-resort boot cover removal */
     setTimeout(function(){
@@ -502,6 +522,83 @@
         setTimeout(()=>bootCover.setAttribute('aria-hidden','true'), 500);
       }
     }, 1500);
+
+
+/* === Clickable Logo -> jump to the first section (Hero) === */
+(function(){
+  const logo = document.getElementById('ElysianDockLogo');
+  if (!logo) return;
+
+  function goHome(){
+    // Uses your existing pager to go to the 'hero' section
+    window.ElysianPager?.goToId('hero');
+  }
+
+  logo.addEventListener('click', goHome);
+  logo.addEventListener('keydown', (e)=>{
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); goHome(); }
+  });
+})();
+
+//* === Nav buttons (robust CONNECT) === */
+(function(){
+  const nav = document.getElementById('globalHeroNav');
+  if (!nav) return;
+
+  const WRITINGS_URL    = './writings.html';
+  const INSTRUMENTS_URL = './instruments.html';
+
+  nav.addEventListener('click', (e)=>{
+    const btn = e.target.closest('.nav-btn');
+    if (!btn) return;
+
+    const target = btn.dataset.target;
+
+    if (target === 'writings'){    window.location.href = WRITINGS_URL;    return; }
+    if (target === 'instruments'){ window.location.href = INSTRUMENTS_URL; return; }
+
+    if (target === 'connect'){
+      // 1) Page to Section 6 (the TRUST iframe that holds S6+S7)
+      window.ElysianPager?.goToId('trust');
+
+      // 2) Repeatedly nudge the iframe to open S7 until it ACKs
+      const frame = document.getElementById('frame-trust');
+      if (!frame) return;
+
+      const targetOrigin = (location.origin && location.origin !== 'null') ? location.origin : '*';
+      let tries = 0, timer = null, max = 25; // ~25*120ms ≈ 3 seconds
+
+      function sendNudge(){
+        tries++;
+        try{
+          frame.contentWindow?.postMessage(
+            { type:'elysian:focus-anchor', target:'connect' },
+            targetOrigin
+          );
+        }catch(_){}
+        if (tries >= max){ clearInterval(timer); }
+      }
+
+      // Stop on ACK from the iframe
+      function onAck(evt){
+        const ok = (evt.origin === location.origin) || (evt.origin === 'null');
+        if (!ok) return;
+        if (evt.data && evt.data.type === 'elysian:s7-opened'){
+          clearInterval(timer);
+          window.removeEventListener('message', onAck);
+        }
+      }
+
+      window.addEventListener('message', onAck);
+      // Kick once immediately, then keep nudging until ACK
+      sendNudge();
+      timer = setInterval(sendNudge, 120);
+    }
+  });
+})();
+
+
+
   </script>
 
   <noscript>
@@ -509,4 +606,3 @@
   </noscript>
 </body>
 </html>
-
