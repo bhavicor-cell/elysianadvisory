@@ -2,9 +2,6 @@
   
   <style>
     
-    /* stop the page from moving while S6 sweeps */
-    html.sweep-lock, body.sweep-lock { overflow: hidden !important; }
-
     /* Local fonts (paths unchanged) */
     @font-face { font-family:'Eyesome';        src:url('./Fonts/Eyesome-Regular.otf')       format('opentype'); font-display:swap; }
     @font-face { font-family:'Arsenica';       src:url('./Fonts/ArsenicaTrial-Regular.otf') format('opentype'); font-display:swap; }
@@ -21,6 +18,7 @@
       --lux:cubic-bezier(.22,.61,.36,1);
       --open-ease: cubic-bezier(.16,.84,.44,1);
       --t-fast:260ms; --t:520ms; --t-long:900ms;
+      --ret-dur: var(--t); /* default return = normal timing */
 
       --cw-min: 180px; --cw-max: 220px;
       --cw-exp-min: 260px; --cw-exp-max: 300px;
@@ -91,16 +89,17 @@
       cursor:pointer;
       transition:
         box-shadow var(--t) var(--open-ease),
-        transform var(--t) var(--open-ease),
+        transform  var(--ret-dur, var(--t)) var(--open-ease),
+        opacity    var(--ret-dur, var(--t)) var(--open-ease),
         background var(--t) var(--open-ease),
-        color var(--t) var(--open-ease),
+        color      var(--t) var(--open-ease),
         border-color var(--t) var(--open-ease),
-        filter var(--t) var(--open-ease),
-        padding var(--t) var(--open-ease),
-        min-width var(--t) var(--open-ease),
-        max-width var(--t) var(--open-ease),
+        filter     var(--t) var(--open-ease),
+        padding    var(--t) var(--open-ease),
+        min-width  var(--t) var(--open-ease),
+        max-width  var(--t) var(--open-ease),
         min-height var(--t) var(--open-ease),
-        z-index var(--t-fast) linear;
+        z-index    var(--t-fast) linear;
       box-shadow: 0 0 0 rgba(0,0,0,0);
       will-change: transform, box-shadow, filter, min-width, max-width, padding, min-height, background, color, border-color;
       animation: s67-drift calc(9s + var(--rand-dur, 0s)) ease-in-out infinite alternate;
@@ -226,12 +225,16 @@
 
     /* ============= TRANSITION TO SECTION 7 (added) ============= */
 
-    /* Fade hero parts when exiting */
-    #ways-we-work.is-exiting .hero__inner [data-exit="fade"]{
-      opacity:0;
-      filter: blur(2px);
-      transition: opacity 600ms var(--lux), filter 600ms var(--lux);
-    }
+    /* always have a transition so fade-in works too */
+#ways-we-work .hero__inner [data-exit="fade"]{
+  transition: opacity 600ms var(--lux), filter 600ms var(--lux);
+}
+
+/* only change the values when exiting */
+#ways-we-work.is-exiting .hero__inner [data-exit="fade"]{
+  opacity:0;
+  filter: blur(2px);
+}
 
     /* Sweep boxes left/right off-screen; pause their float; stop clicks */
     #ways-we-work.is-exiting .scatter{ pointer-events:none; }
@@ -563,38 +566,13 @@
   <script>
     (function(){
       const sec = document.getElementById('ways-we-work');
-      const getS7 = () => document.getElementById('cta');
-
+      
       let transitioning = false;
       let touchStartY = 0;
       let handedOff = false; // <-- NEW: run the sweep only once
 
 
-      /* ---- scroll lock helpers ---- */
-let _scrollY_before = 0;
-let _lockDepth = 0;
-function lockScroll(){
-  if (_lockDepth++) return;
-  _scrollY_before = window.scrollY || window.pageYOffset || 0;
-  document.documentElement.classList.add('sweep-lock');
-  document.body.classList.add('sweep-lock');
-  document.body.style.position = 'fixed';
-  document.body.style.top = `-${_scrollY_before}px`;
-  document.body.style.left = '0';
-  document.body.style.right = '0';
-  document.body.style.width = '100%';
-}
-function unlockScroll(){
-  if (--_lockDepth > 0) return;
-  document.documentElement.classList.remove('sweep-lock');
-  document.body.classList.remove('sweep-lock');
-  document.body.style.position = '';
-  document.body.style.top = '';
-  document.body.style.left = '';
-  document.body.style.right = '';
-  document.body.style.width = '';
-  window.scrollTo(0, _scrollY_before);
-}
+      
 
 
 
@@ -619,41 +597,36 @@ function unlockScroll(){
       function prevent(e){ e.preventDefault(); e.stopPropagation(); }
 
       function startExit(){
-      if (transitioning || handedOff) return;
-transitioning = true;
-handedOff = true;
+  if (transitioning || handedOff) return;
+  transitioning = true;
+  handedOff = true;
 
-
-  // freeze page position immediately
-  lockScroll();
-
-  // close any open boxes to avoid jank
-  sec.querySelectorAll('.hbox.is-open').forEach(b=> b.classList.remove('is-open'));
-
-  // Add exiting state: hero fades, boxes sweep, lock interactions
+  // ➊ trigger the CSS sweep (adds .is-exiting so boxes fly out)
   sec.classList.add('is-exiting');
 
+  function handoffToS7(){
+  // Try parent (if you have an outer controller)
+  try { parent.postMessage({ type:'elysian:go-next', from:'s6' }, location.origin); } catch(_) {}
 
-     window.setTimeout(()=>{
-  const ev = new CustomEvent('sectionchange', { detail: { id: 's7', from: 's6' }});
-  document.dispatchEvent(ev);
-  const s7 = getS7();                 // <—
-  if (s7) s7.classList.add('is-active');
+  // Local fallback: switch to S7 yourself
   document.documentElement.classList.add('phase-s7');
-}, MIDPOINT);
-
-  
-
- window.setTimeout(()=>{
-  transitioning = false;
-  sec.classList.remove('is-exiting');
-  const done = new CustomEvent('sectionSweepComplete', { detail: { id: 's7', from: 's6' }});
-  document.dispatchEvent(done);
-
-  unlockScroll();
-
-}, EXIT_DURATION);
+  const cta = document.getElementById('cta');
+  if (cta) cta.classList.add('is-active');
+  document.dispatchEvent(new CustomEvent('sectionchange', { detail: { id:'s7', from:'s6' }}));
+  document.body.style.overflow = 'hidden';
 }
+
+  window.setTimeout(handoffToS7, MIDPOINT);
+
+  // ➌ cleanup after the sweep finishes
+  window.setTimeout(()=>{
+    transitioning = false;
+    sec.classList.remove('is-exiting');
+    const done = new CustomEvent('sectionSweepComplete', { detail: { id: 's7', from: 's6' }});
+    document.dispatchEvent(done);
+  }, EXIT_DURATION);
+}
+
 
 
       /* ==== INPUT HOOKS (wheel/touchpad/touch/keyboard) ==== */
@@ -719,17 +692,26 @@ handedOff = true;
         window.removeEventListener('touchmove', onTouchMove, { capture:true });
       });
 
-      // Re-arm S6 when we switch back
-document.addEventListener('sectionchange', (e)=>{
+     document.addEventListener('sectionchange', (e)=>{
   if (e?.detail?.id !== 's6') return;
-  handedOff = false;                                // allow S6 to intercept again
+  handedOff = false;
 
-  // Nice re-entry: briefly force the "off-screen" pose, then animate back
-  sec.classList.add('is-exiting');                  // puts boxes at ±120vw (your CSS)
-  // force reflow so browser applies the off-screen state
-  void sec.offsetWidth;
-  sec.classList.remove('is-exiting');               // transitions them back in
+  // Make it slower so you can *see* the return
+  sec.style.setProperty('--ret-dur', '1400ms');
+
+  // 1) apply the off-screen pose
+  sec.classList.add('is-exiting');
+
+  // 2) FORCE the browser to commit that pose (layout flush)
+  void sec.offsetWidth; // or: sec.getBoundingClientRect();
+
+  // 3) then animate back in
+  requestAnimationFrame(()=>{
+    sec.classList.remove('is-exiting');
+  });
 });
+
+
     })();
 
    
@@ -740,7 +722,9 @@ document.addEventListener('sectionchange', (e)=>{
 <section id="cta" class="s68" aria-label="Get Clarity CTA" tabindex="0">
 
   <style>
-    /* ------------------------------ Local fonts ------------------------------ */
+html.phase-s7 #ways-we-work { visibility:hidden; pointer-events:none; }
+
+/* ------------------------------ Local fonts ------------------------------ */
     @font-face { font-family:'Eyesome';  src:url('./Fonts/Eyesome-Regular.otf') format('opentype'); font-display:swap; }
     @font-face { font-family:'EyesomeI'; src:url('./Fonts/Eyesome-Italic.otf')  format('opentype'); font-display:swap; }
     @font-face { font-family:'cotorisi'; src:url('./Fonts/cotorisita.otf')      format('opentype'); font-weight:400; font-style:normal; font-display:swap; }
@@ -751,8 +735,11 @@ document.addEventListener('sectionchange', (e)=>{
     #cta{
 
       /* PARK S7 INITIALLY (so it doesn't yank the viewport) */
-      position: relative;
-      z-index: 5;
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100svh;
+      z-index: 9999;
       opacity: 0;
       pointer-events: none;
       transform: translateY(6px);
@@ -838,7 +825,7 @@ document.addEventListener('sectionchange', (e)=>{
       --stagger: 38ms;
 
       /* Quote animation controls */
-      --quote-delay: 3000;         /* ms before quote starts shrinking */
+      --quote-delay: 2500;         /* ms before quote starts shrinking */
       --quote-dur: 900;           /* ms shrink duration */
       --quote-ease: cubic-bezier(.22,.61,.36,1);
       --q-start: 2;             /* initial scale */
@@ -861,6 +848,13 @@ document.addEventListener('sectionchange', (e)=>{
       transform: none;
       filter: none;
     }
+    /* --- Instant-open helper (no animations for this paint) --- */
+#cta.instant *{ transition: none !important; }
+#cta.instant .form-card{
+  clip-path: inset(0 0 0 0 round 22px);
+  transform: none;
+  opacity: 1;
+}
 
     
     #cta.show-form{ --dock-gap: var(--dock-gap-open); }
@@ -1097,11 +1091,13 @@ document.addEventListener('sectionchange', (e)=>{
     #cta .cta-btn:hover, #cta .cta-btn:focus-visible{ transform: translateY(-0.5px); }
     #cta .cta-btn.is-active{ opacity:.98; }
 
-    /* Dock shown with form */
-    #cta.show-form .dock{
-      transform: translateX(var(--dock-translate)) translateY(0);
-      opacity: 1; pointer-events: auto;
-    }
+    /* new: dock is visible whenever S7 is active */
+#cta.is-active .dock{
+  transform: translateX(var(--dock-translate)) translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
 
     /* Floating Popover */
     #cta .pop-layer{ position:absolute; inset:0; pointer-events:none; z-index:1100; }
@@ -1432,15 +1428,18 @@ document.addEventListener('sectionchange', (e)=>{
       ];
 
       const buttons = [];
+      let s7FormEverOpened = false; // remember if the form has ever been opened
       let pinnedKey = null;
       let hoverHideTimer = null;
 
       function cssVar(name, fallback){ const v = getComputedStyle(sec).getPropertyValue(name).trim(); return v || fallback; }
       function setFormVisible(on){
-        const openVal = cssVar('--left-col-open', '1.55fr');
-        sec.style.setProperty('--left-col', on ? openVal : '0fr');
-        sec.classList.toggle('show-form', on);
-      }
+  const openVal = cssVar('--left-col-open', '1.55fr');
+  sec.style.setProperty('--left-col', on ? openVal : '0fr');
+  sec.classList.toggle('show-form', on);
+  if (on) s7FormEverOpened = true; // <-- remember once opened
+}
+
       function setPopOpen(on){ sec.classList.toggle('pop-open', !!on); }
       function setActive(key){
         buttons.forEach(b=>{
@@ -1562,6 +1561,7 @@ document.addEventListener('sectionchange', (e)=>{
                 setActive('clarity');
               }
               setFormVisible(true);
+              s7FormEverOpened = true;
               openedOnce = true;
 
               // optional: focus first field
@@ -1591,15 +1591,21 @@ document.addEventListener('sectionchange', (e)=>{
   // Arm reverse only after S7 settles
   let reverseArmed = false;
   let armTO = null;
-  document.addEventListener('sectionchange', (e)=>{
-    const id = e?.detail?.id;
-    if (id === 's7'){
-      reverseArmed = false;
-      clearTimeout(armTO);
-      armTO = setTimeout(()=> reverseArmed = true, 650); // grace window
-    }
-    if (id === 's6'){ reverseArmed = false; }
-  });
+
+  // put this INSIDE the reverse IIFE, right after `let reverseArmed = false; let armTO = null;`
+document.addEventListener('sectionchange', (e) => {
+  const goingTo = e?.detail?.id;
+
+  // Disarm by default
+  reverseArmed = false;
+  if (armTO) clearTimeout(armTO);
+
+  if (goingTo === 's7') {
+    // Arm after a short beat so inertial/bounce scroll from the handoff doesn't immediately send us back
+    armTO = setTimeout(() => { reverseArmed = true; }, 300);
+  }
+  // if going back to s6, it stays false
+});
 
   function isUpIntent(evt){
     if ('deltaY' in evt) return evt.deltaY < -12; // ignore tiny bounce
@@ -1616,43 +1622,22 @@ document.addEventListener('sectionchange', (e)=>{
   function prevent(e){ e.preventDefault(); e.stopPropagation(); }
   function isActive(){ return document.getElementById('cta').classList.contains('is-active'); }
 
-  // Local scroll lock (mirrors your helpers)
-  let _y=0;
-  function lockScroll(){
-    _y = window.scrollY||0;
-    document.documentElement.classList.add('sweep-lock');
-    document.body.classList.add('sweep-lock');
-    document.body.style.position='fixed';
-    document.body.style.top=`-${_y}px`;
-    document.body.style.left='0'; document.body.style.right='0'; document.body.style.width='100%';
-  }
-  function unlockScroll(){
-    document.documentElement.classList.remove('sweep-lock');
-    document.body.classList.remove('sweep-lock');
-    document.body.style.position=''; document.body.style.top=''; document.body.style.left='';
-    document.body.style.right=''; document.body.style.width='';
-    window.scrollTo(0,_y);
-  }
+  
+function startReturn(){
+  
+  document.body.style.overflow = '';
 
-  function startReturn(){
-    const sec = document.getElementById('cta');
-    if (revTransitioning || !isActive()) return;
-    revTransitioning = true;
+  // Try parent first
+  try { parent.postMessage({ type:'elysian:go-prev', from:'s7' }, location.origin); } catch(_) {}
 
-    lockScroll();
+  // Local fallback: switch back to S6 yourself
+  document.documentElement.classList.remove('phase-s7');
+  sec.classList.remove('is-active','show-form','pop-open');
+  sec.style.setProperty('--left-col','0fr');
+  document.dispatchEvent(new CustomEvent('sectionchange', { detail: { id:'s6', from:'s7' }}));
+}
 
-    // close popovers/forms so they don't snag focus
-    sec.classList.remove('pop-open','show-form');
-
-    // fade S7 out, drop phase flag
-    sec.classList.remove('is-active');
-    document.documentElement.classList.remove('phase-s7');
-
-    // tell S6 to re-arm & animate back
-    document.dispatchEvent(new CustomEvent('sectionchange', { detail:{ id:'s6', from:'s7' }}));
-
-    setTimeout(()=>{ revTransitioning = false; unlockScroll(); }, EXIT_DURATION);
-  }
+  
 
   function onWheelUp(e){
     if (!isActive() || !reverseArmed) return;
@@ -1959,23 +1944,56 @@ try {
 
 
 /* ===== S6 → S7 HANDOFF WIRING (add this) ===== */
-const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-// When Section 6 announces the handoff, reveal S7
 document.addEventListener('sectionchange', (e)=>{
   const id = e?.detail?.id;
+
   if (id === 's7'){
-    // reveal S7 in place
+    // show S7 and (by CSS) reveal the dock
     sec.classList.add('is-active');
-    // start the quote→form sequence a beat later (so it doesn't fire early)
-    setTimeout(startObservingQuote, 120);
+
+    // reset transient UI
+    pinnedKey = null;
+    hidePop(true);
+    buttons.forEach(b => b.classList.remove('is-pinned','is-open','is-active'));
+
+    if (s7FormEverOpened){
+      // REVISIT: make quote already small + open the form immediately
+      const quote = sec.querySelector('.quote');
+
+      // kill any delay and start at the final scale
+      sec.style.setProperty('--quote-delay', '0');
+      sec.style.setProperty('--q-start',
+        getComputedStyle(sec).getPropertyValue('--q-end') || '1.1'
+      );
+
+      // snap to final pose for this paint
+      sec.classList.add('instant');
+      if (quote) quote.classList.add('is-shrinking');
+
+      // pin & activate the Clarity button + open the form
+      const clarity = [...dock.children].find(b => b.dataset.key === 'clarity');
+      if (clarity){ clarity.classList.add('is-pinned','is-open','is-active'); }
+      setFormVisible(true);
+
+      // force a paint, then restore transitions
+      void sec.offsetWidth;
+      sec.classList.remove('instant');
+
+    } else {
+      // FIRST TIME: let the quote shrink, then open the form
+      setFormVisible(false);
+      setTimeout(startObservingQuote, 120);
+    }
   }
+
   if (id === 's6'){
-    // optional reverse support (if you add “scroll up to go back” later)
+    // leaving S7: hide form and popover state
     sec.classList.remove('is-active','show-form','pop-open');
     sec.style.setProperty('--left-col','0fr');
   }
 });
+
+
 
 // After S6's sweep completes, politely focus the first field (no scroll jump)
 document.addEventListener('sectionSweepComplete', (e)=>{
@@ -1994,5 +2012,38 @@ document.addEventListener('sectionSweepComplete', (e)=>{
 
 
   <script src="https://www.google.com/recaptcha/api.js?render=6Lc4gs0rAAAAAI0aXXts_OCCquoEdduHM5l98EcH" async defer></script>
+
+
+  <script>
+/* === Parent → S6/S7 message bridge (open "Connect"/S7) + ACK === */
+(function(){
+  window.addEventListener('message', (evt)=>{
+    const ok = (evt.origin === location.origin) || (evt.origin === 'null'); // allow file:// dev
+    if (!ok) return;
+
+    const data = evt.data || {};
+    const wantsConnect = (data.type === 'elysian:focus-anchor' && data.target === 'connect')
+                      || (data.type === 'elysian:jump' && data.to === 's7');
+    if (!wantsConnect) return;
+
+    // Show S7 immediately (your CTA)
+    document.documentElement.classList.add('phase-s7');
+    const cta = document.getElementById('cta');
+    if (cta) cta.classList.add('is-active');
+
+    // Tell internal listeners we switched
+    document.dispatchEvent(new CustomEvent('sectionchange', { detail: { id:'s7', from:'s6' }}));
+
+    // Lock body scroll while CTA is active
+    document.body.style.overflow = 'hidden';
+
+    // ACK back to parent so it can stop retrying
+    try { parent.postMessage({ type:'elysian:s7-opened' }, (location.origin && location.origin !== 'null') ? location.origin : '*'); } catch(_) {}
+
+    // Focus first field gently
+    setTimeout(()=>{ try{ document.getElementById('name')?.focus({preventScroll:true}); }catch(_){ } }, 200);
+  });
+})();
+</script>
 
 </section>
