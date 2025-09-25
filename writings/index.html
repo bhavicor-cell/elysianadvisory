@@ -7,11 +7,11 @@
   <title>Elysian — Under Maintenance</title>
 
   <style>
-    /* ---------- Local fonts ---------- */
-    @font-face { font-family:'HelloParisLight'; src:url('./Fonts/helloparisserif-light.ttf') format('truetype'); font-weight:400; font-style:normal; font-display:swap; }
-    @font-face { font-family:'Arsenica';       src:url('./Fonts/ArsenicaTrial-Regular.ttf') format('truetype'); font-weight:400; font-style:normal; font-display:swap; }
-    @font-face { font-family:'cotoris';        src:url('./Fonts/cotoris.otf')               format('opentype'); font-weight:400; font-style:normal; font-display:swap; }
-    @font-face { font-family:'cotorisi';       src:url('./Fonts/cotorisita.otf')            format('opentype'); font-weight:400; font-style:normal; font-display:swap; }
+    /* ---------- Local fonts (root-relative so they work in /, /writings/, /instruments/) ---------- */
+    @font-face { font-family:'HelloParisLight'; src:url('/fonts/helloparisserif-light.ttf') format('truetype'); font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'Arsenica';       src:url('/fonts/ArsenicaTrial-Regular.otf') format('opentype'); font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'cotoris';        src:url('/fonts/cotoris.otf')               format('opentype'); font-weight:400; font-style:normal; font-display:swap; }
+    @font-face { font-family:'cotorisi';       src:url('/fonts/cotorisita.otf')            format('opentype'); font-weight:400; font-style:normal; font-display:swap; }
 
     :root{
       /* Palette */
@@ -19,31 +19,30 @@
       --accent:#e7d7b9; --accent-2:#a48b5e;
 
       /* Font control */
-      --font-body:   "Coterie","cotorisi","cotoris", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, sans-serif;
+      --font-body:   "cotorisi","cotoris", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, sans-serif;
       --font-heading:"HelloParisLight", ui-serif, Georgia, "Times New Roman", serif;
-      --font-lead:   "Arsenica","EyesomeR", var(--font-body);
+      --font-lead:   "Arsenica", var(--font-body);
       --font-tagline:"Arsenica", var(--font-body);
       --font-ui:     "cotorisi", var(--font-body);
       --font-button: "Arsenica", var(--font-ui);
       --font-legal:  "cotorisi", var(--font-body);
 
-      /* Layout */
-      --maxw: 1000px;
-      --radius: 24px;
+      /* Layout scale (smaller for luxe feel) */
+      --maxw: 740px;              /* card max width (was 1000px) */
+      --radius: 22px;
 
-      /* Type scale */
-      --fs-xxl: clamp(38px, 5.2vw, 84px);
-      --fs-xl: clamp(22px, 2.2vw, 32px);
-      --fs-lg: clamp(17px, 1.6vw, 20px);
+      /* Type scale (tightened) */
+      --fs-xxl: clamp(32px, 4.2vw, 60px);
+      --fs-lg:  clamp(16px, 1.4vw, 18px);
       --fs-md: 15px;
       --fs-sm: 13px;
 
       /* Motion */
       --t: 700ms; --e: cubic-bezier(.22,.61,.36,1);
 
-      /* Background video controls (easy to tweak) */
-      --video-opacity: 0.05;   /* 0.00 → 1.00 */
-      --video-speed:   0.4;   /* playbackRate */
+      /* Background video controls */
+      --video-opacity: 0.05;      /* 0.00 → 1.00 */
+      --video-speed:   0.40;      /* playbackRate */
     }
 
     @media (prefers-color-scheme: light){
@@ -60,6 +59,7 @@
       margin:0; color:var(--fg); background:var(--bg);
       font-family:var(--font-body); line-height:1.35; letter-spacing:.2px;
       text-rendering:optimizeLegibility; -webkit-font-smoothing:antialiased;
+      overflow:hidden;                 /* keep it to one viewport height on desktop */
     }
 
     /* ---------- Fixed background video ---------- */
@@ -82,26 +82,26 @@
       #bg-tint{ opacity:.06; mix-blend-mode:normal; }
     }
 
-    /* ---------- Canvas (foreground) ---------- */
+    /* ---------- Canvas (exactly one viewport tall) ---------- */
     .canvas{
-      min-height:100svh; display:grid; place-items:center; position:relative; overflow:hidden;
-      padding:28px; isolation:isolate;
+      height:100svh;               /* exact viewport height */
+      display:grid; place-items:center; position:relative; overflow:hidden;
+      padding:24px; isolation:isolate;
     }
 
-    /* Card: we removed the old full-screen frame.
-       If you want a subtle inner hairline, it's drawn as a pseudo-element here. */
+    /* Card (smaller, centered) */
     .card{
-      width:min(100%, var(--maxw));
+      width:min(92vw, var(--maxw));
       background: color-mix(in oklab, var(--bg) 94%, transparent);
       border:1px solid var(--line); border-radius:var(--radius);
-      padding: clamp(28px, 4.6vw, 48px);
+      padding: clamp(22px, 3.6vw, 36px);
       backdrop-filter: blur(6px) saturate(115%);
       box-shadow: 0 20px 60px rgba(0,0,0,.35), 0 1px 0 color-mix(in oklab, var(--fg) 10%, transparent);
       position:relative;
     }
     .card::before{
       content:""; position:absolute; inset:10px; border-radius:calc(var(--radius) - 8px);
-      border:1px solid color-mix(in oklab, var(--fg) 6%, transparent);
+      border:1px solid color-mix(in oklab, var(--fg) 6%, transparent); /* inner hairline; tweak here */
       pointer-events:none;
     }
 
@@ -114,41 +114,40 @@
     }
     @keyframes sweep { 0%{transform:translateX(-40%) rotate(8deg);} 55%{transform:translateX(40%) rotate(8deg);} 100%{transform:translateX(40%) rotate(8deg);} }
 
-    /* ---------- Brand block ---------- */
+    /* ---------- Brand ---------- */
     .brand{
       display:flex; flex-direction:column; align-items:flex-start;
-      gap:12px; margin-bottom:30px;
+      gap:10px; margin-bottom:22px;
     }
-    /* Bigger, elegant logo that scales with screen (and never shrinks too much) */
     .brand-logo{
-      height: clamp(72px, 12vw, 140px);
+      height: clamp(64px, 10vw, 120px);
       width:auto; display:block; flex:0 0 auto;
     }
     .brand-tagline{
       font-family: var(--font-tagline);
-      font-size: clamp(14px, 1.4vw, 17px);
+      font-size: clamp(14px, 1.2vw, 17px);
       color: var(--muted);
       letter-spacing: normal;
       text-transform: none;
       line-height: 1.35;
-      margin-top: 0;
+      margin: 0;
     }
 
     /* ---------- Typographic sections ---------- */
     .heading{
       font-family: var(--font-heading);
       font-size: var(--fs-xxl);
-      line-height:1.02; letter-spacing:-.02em;
-      margin: 8px 0 20px;
+      line-height:1.04; letter-spacing:-.02em;
+      margin: 6px 0 14px;
     }
     .lead{
       font-family: var(--font-lead);
       color:var(--muted); font-size:var(--fs-lg); max-width:62ch;
-      margin: 0 0 24px;
+      margin: 0 0 18px;
     }
 
     /* Status row */
-    .status{ display:flex; align-items:center; gap:12px; margin:28px 0 18px; }
+    .status{ display:flex; align-items:center; gap:10px; margin:22px 0 14px; }
     .dot{ width:10px; height:10px; border-radius:50%; background:radial-gradient(circle at 30% 30%, var(--accent), var(--accent-2)); box-shadow:0 0 12px color-mix(in oklab, var(--accent) 70%, transparent); animation:pulse 2.4s ease-in-out infinite; }
     @keyframes pulse{ 0%,100%{ transform:scale(1); filter:brightness(1);} 50%{ transform:scale(1.15); filter:brightness(1.15);} }
     .status-text{ font-family: var(--font-ui); font-size:var(--fs-md); color:var(--muted); }
@@ -159,7 +158,7 @@
     @keyframes load{ 0%{left:-40%;} 55%{left:60%;} 100%{left:60%;} }
 
     /* Actions */
-    .actions{ display:flex; flex-wrap:wrap; gap:12px; margin-top:24px; }
+    .actions{ display:flex; flex-wrap:wrap; gap:10px; margin-top:18px; }
     .btn{
       --btn-bg: color-mix(in oklab, var(--fg) 4%, transparent);
       --btn-bd: color-mix(in oklab, var(--fg) 12%, transparent);
@@ -174,27 +173,25 @@
     .btn:hover .spark{ opacity:.9; }
 
     /* Footer */
-    .foot{ display:flex; justify-content:space-between; align-items:center; gap:12px; margin-top:42px; color:var(--muted); font-size:var(--fs-sm); flex-wrap:wrap; }
+    .foot{ display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:28px; color:var(--muted); font-size:var(--fs-sm); flex-wrap:wrap; }
     .legal{ font-family: var(--font-legal); opacity:.85; }
 
-    /* Reduce motion */
-    @media (prefers-reduced-motion: reduce){
-      .sweep::before, .dot, .bar::before, .btn, .btn .spark{ animation:none !important; transition:none !important; }
-    }
-
-    /* Small screens */
+    /* Phone fallback: allow scroll if content would clip */
     @media (max-width:560px){
-      .card{ padding: clamp(20px, 5vw, 28px); }
-      .brand{ gap:10px; margin-bottom:26px; }
+      body{ overflow:auto; }
+      .canvas{ min-height:100svh; height:auto; padding:18px; }
+      .card{ padding: clamp(18px, 5vw, 24px); }
+      .brand{ margin-bottom:18px; }
+      .brand-logo{ height: clamp(56px, 16vw, 84px); }
     }
   </style>
 </head>
 <body>
   <!-- Fixed background video (behind everything) -->
   <div id="site-bg" aria-hidden="true">
-    <video id="bg-video" muted playsinline autoplay loop preload="metadata" poster="video-poster.jpg">
-      <source src="video.webm" type="video/webm">
-      <source src="3.mp4" type="video/mp4">
+    <video id="bg-video" muted playsinline autoplay loop preload="metadata" poster="/assets/video-poster.jpg">
+      <source src="/assets/video.webm" type="video/webm">
+      <source src="/assets/3.mp4" type="video/mp4">
     </video>
     <div id="bg-tint"></div>
   </div>
@@ -205,7 +202,7 @@
     <section class="card" role="status" aria-live="polite">
       <!-- Brand -->
       <div class="brand">
-        <img class="brand-logo" src="./assets/logo.svg" alt="Elysian Advisory logo">
+        <img class="brand-logo" src="/assets/logo.svg" alt="Elysian Advisory logo">
         <div class="brand-tagline">Ruthless With Truth, Serene With Strategy.</div>
       </div>
 
@@ -255,7 +252,7 @@
         bn.addEventListener('touchmove', (ev)=>{ if(ev.touches[0]){ const t=ev.touches[0]; const r=bn.getBoundingClientRect(); bn.style.setProperty('--mx', (t.clientX-r.left)+'px'); }} , {passive:true});
       });
 
-      // Background video: ensure autoplay, apply speed from CSS var
+      // Background video: ensure autoplay and apply speed from CSS var
       const v = document.getElementById('bg-video');
       if (v){
         v.muted = true; v.playsInline = true;
