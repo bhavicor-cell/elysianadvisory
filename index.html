@@ -115,8 +115,20 @@ html { scrollbar-width: thin; scrollbar-color: rgba(17,17,17,.25) transparent; }
     background:transparent; border:0; border-radius:999px; padding:6px 10px; cursor:pointer;
     font:600 12px/1.1 'Anecor',system-ui,-apple-system,Segoe UI,sans-serif;
     letter-spacing:.12em; text-transform:uppercase;
-    transition:opacity .2s ease, background-color .2s ease, transform .12s ease; color:var(--ink)
+    transition:opacity .2s ease, background-color .2s ease, transform .12s ease; color:var(--ink);
   }
+
+  /* put these OUTSIDE the block above */
+.subtle-nav a.nav-btn,
+.subtle-nav a.nav-btn:hover,
+.subtle-nav a.nav-btn:visited{
+  text-decoration: none;
+  color: var(--ink);
+}
+
+  /* optional: make <a> look/align like the button version */
+a.nav-btn{ display:inline-flex; align-items:center; }
+  
   .nav-btn:hover{background:rgba(0,0,0,.04)}
   .nav-btn:active{transform:translateY(1px)}
 
@@ -1069,6 +1081,7 @@ function __elysianHardBrake(ms = 1400){
   </noscript>
 </body>
 </html>
+
 
 
 
