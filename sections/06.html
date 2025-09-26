@@ -425,9 +425,9 @@
       <p class="sub" data-exit="fade">Trust is an assumption, & Assumptions ....! <br> Clarity Won't. Achieve yours by reading floating truths.</p>
       <p class="sub sub2" data-exit="fade">
         Wish to explore more – check out our
-        <a class="inline-cta" href="/writings" role="button" aria-label="Open Writings">WRITINGS</a>
+        <a class="inline-cta" href="/writings/" role="button" aria-label="Open Writings">WRITINGS</a>
         and
-        <a class="inline-cta" href="/instruments" role="button" aria-label="Open Instruments">INSTRUMENTS</a>.
+        <a class="inline-cta" href="/instruments/" role="button" aria-label="Open Instruments">INSTRUMENTS</a>.
       </p>
     </div>
 
@@ -716,46 +716,11 @@
 
    
   </script>
-  <script>
-/* Make the "WRITINGS" and "INSTRUMENTS" links in S6
-   behave like the top nav (client-side route, no reload). */
-(function () {
-  const sec = document.getElementById('ways-we-work');
 
-  // Safety: if S6 isn't on the page, stop.
-  if (!sec) return;
 
-  sec.addEventListener('click', function (e) {
-    const a = e.target.closest('a.inline-cta[href]');
-    if (!a) return;
 
-    // Let normal “open in new tab” work
-    if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
 
-    const href = a.getAttribute('href') || '';
-    const isInternal = href.startsWith('/');
-
-    if (!isInternal) return; // external links = let browser handle
-
-    // Stop the browser doing a full reload:
-    e.preventDefault();
-
-    // 1) If you have a nav/router function, call it here (optional):
-    // if (window.appNavigate) { window.appNavigate(href); return; }
-
-    // 2) Otherwise mimic your CTA code: pushState + fire popstate
-    try {
-      history.pushState({}, '', href);
-      // Tell your SPA “route changed” (same pattern you already use in S7 code)
-      window.dispatchEvent(new Event('popstate'));
-    } catch (_) {
-      // Worst case, just go there normally
-      location.assign(href);
-    }
-  });
-})();
-</script>
-
+  
 </section>
 
 
@@ -1457,7 +1422,7 @@ html.phase-s7 #ways-we-work { visibility:hidden; pointer-events:none; }
       const layer = sec.querySelector('.pop-layer');
       const pop   = sec.querySelector('#cta-pop');
 
-      const LINKS = { writings: '/writings', instruments: '/instruments' };
+      const LINKS = { writings: '/writings/', instruments: '/instruments/' };
       const OPTIONS = [
         { key:'clarity', label:'Get Clarity', mode:'form' },
         { key:'explore', label:'Explore Further', mode:'popover',
@@ -1569,15 +1534,11 @@ html.phase-s7 #ways-we-work { visibility:hidden; pointer-events:none; }
 
       // Navigate from action buttons
       sec.addEventListener('click', (e)=>{
-        const act = e.target.closest('.act-link'); if (!act) return; e.stopPropagation();
-        const href = act.getAttribute('data-href'); if (!href) return;
-        try { if (href[0] === '/' && window.history){ history.pushState({}, '', href); dispatchEvent(new Event('popstate')); } else { location.assign(href); } }
-        catch(_) { location.assign(href); }
-      });
-      sec.addEventListener('keydown', (e)=>{
-        const act = e.target.closest('.act-link'); if (!act) return;
-        if (e.key==='Enter' || e.key===' '){ e.preventDefault(); act.click(); }
-      });
+  const act = e.target.closest('.act-link'); if (!act) return;
+  const href = act.getAttribute('data-href'); if (!href) return;
+  window.location.href = href;   // go to the real page
+});
+
 
       /* -------------------- Auto sequence: quote → form (once) -------------------- */
       let openedOnce = false;
@@ -2108,3 +2069,4 @@ document.addEventListener('sectionSweepComplete', (e)=>{
 
 
 </section>
+
