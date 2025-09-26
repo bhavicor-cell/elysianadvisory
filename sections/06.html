@@ -68,13 +68,13 @@
     #ways-we-work .scatter{
       position:absolute; inset:0;
       z-index:40; /* ↑ ABOVE hero__inner (10) so boxes overlay */
-      pointer-events:auto;
+      pointer-events:none !important;
       filter: saturate(calc(1 - var(--scr) * .08));
       isolation:isolate;
     }
 
     #ways-we-work .hbox{
-      pointer-events:auto; position:absolute;
+      pointer-events:auto !important; position:absolute;
       transform:
         translate(-50%, -50%)
         translateX(calc(var(--dir, 1) * var(--scr) * 40vw))
@@ -2069,4 +2069,5 @@ document.addEventListener('sectionSweepComplete', (e)=>{
 
 
 </section>
+
 
